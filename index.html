@@ -122,7 +122,8 @@ width: 10px;
         <label for="outdoors-v11">outdoors</label><br>
         <input id="terrain" type="radio" name="rtoggle" value="outdoors">
         <label for="terrain">terrain</label><br>
-        <button id="test">test</label><br>
+        <button id="test">rb</label><br>
+        <button id="test1">rg</label><br>
     </div>
     <!-- <fieldset class="conic-param-input">
     <label>Center Longitude: <span id="lng-value">0</span></label>
@@ -362,22 +363,22 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
     }
     });
 
-    map.addSource('polygon1', {
-    type: 'geojson',
-    // Use a URL for the value for the `data` property.
-    data: rawdata,//'polygon.geojson',
-    });
-    // Add a new layer to visualize the polygon.
-    map.addLayer({
-    'id': 'poly1',
-    'type': 'fill',
-    'source': 'polygon1', // reference the data source
-    'layout': {},
-    'paint': {
-    'fill-color': '#00ff00', // blue color fill
-    'fill-opacity': 1.0
-    }
-    });
+    // map.addSource('polygon1', {
+    // type: 'geojson',
+    // // Use a URL for the value for the `data` property.
+    // data: rawdata,//'polygon.geojson',
+    // });
+    // // Add a new layer to visualize the polygon.
+    // map.addLayer({
+    // 'id': 'poly1',
+    // 'type': 'fill',
+    // 'source': 'polygon1', // reference the data source
+    // 'layout': {},
+    // 'paint': {
+    // 'fill-color': '#00ff00', // blue color fill
+    // 'fill-opacity': 1.0
+    // }
+    // });
 
     // Add a data source containing GeoJSON data.
     map.addSource('maine', {
@@ -509,6 +510,13 @@ const geojson = {
             console.log(pointlist)
             map.getSource('points').setData(pointlist);
             // Add a symbol layer
+            map.addSource('polygon1', {
+            type: 'geojson',
+            // Use a URL for the value for the `data` property.
+            data: rawdata,//'polygon.geojson',
+            });
+            
+            // Add a symbol layer
             map.addLayer({
             'id': 'points',
             'type': 'symbol',
@@ -529,6 +537,43 @@ const geojson = {
             },
             });
             a = true;
+        }
+    })
+
+    map.on('sourcedata', (e) => {
+        //console.log(e)
+        if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
+            //console.log("abc")
+            console.log(rawdata.features.length)
+            //console.log(rawdata.features[0].properties.name)
+            for(i=0; i<rawdata.features.length-1;i++)
+            {
+                rd = rawdata.features[i];
+                console.log(rawdata.features[i].properties.name)
+                rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
+                // if(rawdata.features[i].properties.name == "i3j3")
+                //     rawdata.features[i].properties.color = "red";
+                // else
+                //     rawdata.features[i].properties.color = "blue";
+            }
+            
+
+
+            map.getSource('polygon1').setData(rawdata);
+            console.log(rawdata)
+
+            // Add a new layer to visualize the polygon.
+            map.addLayer({
+            'id': 'poly1',
+            'type': 'fill',
+            'source': 'polygon1', // reference the data source
+            'layout': {},
+            'paint': {
+            'fill-color': ['get', 'color'],//'#00ff00', // blue color fill
+            'fill-opacity': 1.0
+            }
+            });
+            b = true;
         }
     })
 
@@ -557,6 +602,16 @@ const geojson = {
 }
 
 a = false;
+b = false;
+
+function componentToHex(c) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
 
 //const map;
 function loadMap()
@@ -570,6 +625,7 @@ const layerList = document.getElementById('menu');
 const inputs = layerList.getElementsByTagName('input');
 
 const testbutton = document.getElementById('test');
+const testbutton1 = document.getElementById('test1');
 
 for (const input of inputs) {
     input.onclick = (layer) => {
@@ -583,6 +639,7 @@ for (const input of inputs) {
         else
             map.setStyle('mapbox://styles/mapbox/' + layerId); 
         a = false;
+        b = false;
     };
 }
 
@@ -599,6 +656,38 @@ testbutton.onclick = () => {
         }
         //console.log(radarData);
         map.getSource('radar').updateImage(radarData);
+
+        for(i=0; i<rawdata.features.length-1;i++)
+            {
+                rd = rawdata.features[i];
+                console.log(rawdata.features[i].properties.name)
+                rawdata.features[i].properties.color = rgbToHex(i*10,0,255-i*10)
+                // if(rawdata.features[i].properties.name == "i3j3")
+                //     rawdata.features[i].properties.color = "red";
+                // else
+                //     rawdata.features[i].properties.color = "blue";
+            }
+            
+
+
+            map.getSource('polygon1').setData(rawdata);
+    };
+
+    testbutton1.onclick = () => {
+        for(i=0; i<rawdata.features.length-1;i++)
+            {
+                rd = rawdata.features[i];
+                console.log(rawdata.features[i].properties.name)
+                rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
+                // if(rawdata.features[i].properties.name == "i3j3")
+                //     rawdata.features[i].properties.color = "red";
+                // else
+                //     rawdata.features[i].properties.color = "blue";
+            }
+            
+
+
+            map.getSource('polygon1').setData(rawdata);
     };
 
 </script>
