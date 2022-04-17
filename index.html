@@ -198,7 +198,7 @@ pointlist = {
     },
     'properties': {
     'title': 'H1',
-    'color': "red"
+    'color': "blue"
     }
     },
     {
@@ -212,7 +212,7 @@ pointlist = {
     },
     'properties': {
     'title': 'H2',
-    'color': "blue"
+    'color': "red"
     }
     },
     {
@@ -251,85 +251,85 @@ function loadBasicLayger()
 {
     map.on('style.load', (e) => {
 // Insert the layer beneath any symbol layer.
-if(layerId != "satellite-v9")
-{
-    const layers = map.getStyle().layers;
-    labelLayerId = layers.find(
-    (layer) => layer.type === 'symbol' && layer.layout['text-field']
-    ).id;
-    //console.log(layers)
-    //console.log(labelLayerId)
-}
+// if(layerId != "satellite-v9")
+// {
+//     const layers = map.getStyle().layers;
+//     labelLayerId = layers.find(
+//     (layer) => layer.type === 'symbol' && layer.layout['text-field']
+//     ).id;
+//     //console.log(layers)
+//     //console.log(labelLayerId)
+// }
 
-map.addSource('mapbox-dem', {
-'type': 'raster-dem',
-'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-'tileSize': 512,
-'maxzoom': 14
-});
-// add the DEM source as a terrain layer with exaggerated height
-map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+// map.addSource('mapbox-dem', {
+// 'type': 'raster-dem',
+// 'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+// 'tileSize': 512,
+// 'maxzoom': 14
+// });
+// // add the DEM source as a terrain layer with exaggerated height
+// map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
  
-// add a sky layer that will show when the map is highly pitched
-map.addLayer({
-'id': 'sky',
-'type': 'sky',
-'paint': {
-'sky-type': 'atmosphere',
-'sky-atmosphere-sun': [0.0, 0.0],
-'sky-atmosphere-sun-intensity': 15
-}
-});
+// // add a sky layer that will show when the map is highly pitched
+// map.addLayer({
+// 'id': 'sky',
+// 'type': 'sky',
+// 'paint': {
+// 'sky-type': 'atmosphere',
+// 'sky-atmosphere-sun': [0.0, 0.0],
+// 'sky-atmosphere-sun-intensity': 15
+// }
+// });
 
-if(layerId != "satellite-v9")
-{
-// The 'building' layer in the Mapbox Streets
-// vector tileset contains building height data
-// from OpenStreetMap.
-map.addLayer(
-{
-'id': 'add-3d-buildings',
-'source': 'composite',
-'source-layer': 'building',
-'filter': ['==', 'extrude', 'true'],
-'type': 'fill-extrusion',
-'minzoom': 15,
-'paint': {
-'fill-extrusion-color': '#aaa',
+// if(layerId != "satellite-v9")
+// {
+// // The 'building' layer in the Mapbox Streets
+// // vector tileset contains building height data
+// // from OpenStreetMap.
+// map.addLayer(
+// {
+// 'id': 'add-3d-buildings',
+// 'source': 'composite',
+// 'source-layer': 'building',
+// 'filter': ['==', 'extrude', 'true'],
+// 'type': 'fill-extrusion',
+// 'minzoom': 15,
+// 'paint': {
+// 'fill-extrusion-color': '#aaa',
  
-// Use an 'interpolate' expression to
-// add a smooth transition effect to
-// the buildings as the user zooms in.
-'fill-extrusion-height': [
-'interpolate',
-['linear'],
-['zoom'],
-15,
-0,
-15.05,
-['get', 'height']
-],
-'fill-extrusion-base': [
-'interpolate',
-['linear'],
-['zoom'],
-15,
-0,
-15.05,
-['get', 'min_height']
-],
-'fill-extrusion-opacity': 0.6
-}
-},
-labelLayerId
-);
-}
+// // Use an 'interpolate' expression to
+// // add a smooth transition effect to
+// // the buildings as the user zooms in.
+// 'fill-extrusion-height': [
+// 'interpolate',
+// ['linear'],
+// ['zoom'],
+// 15,
+// 0,
+// 15.05,
+// ['get', 'height']
+// ],
+// 'fill-extrusion-base': [
+// 'interpolate',
+// ['linear'],
+// ['zoom'],
+// 15,
+// 0,
+// 15.05,
+// ['get', 'min_height']
+// ],
+// 'fill-extrusion-opacity': 0.6
+// }
+// },
+// labelLayerId
+// );
+// }
 // Create a default Marker and add it to the map.
-const marker1 = new mapboxgl.Marker({color:"red"})
+const marker1 = new mapboxgl.Marker({color:"blue"})
 .setLngLat([6.1589338, 62.4723013])
 .addTo(map);
 
-const marker2 = new mapboxgl.Marker({color:"blue"})
+const marker2 = new mapboxgl.Marker({color:"red"})
 .setLngLat([6.1644474, 62.4726449])
 .addTo(map);
 
@@ -353,15 +353,15 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
     'data': pointlist});
 
 
-    map.addSource('radar', radarData);
-    map.addLayer({
-    id: 'radar-layer',
-    'type': 'raster',
-    'source': 'radar',
-    'paint': {
-    'raster-fade-duration': 0
-    }
-    });
+    // map.addSource('radar', radarData);
+    // map.addLayer({
+    // id: 'radar-layer',
+    // 'type': 'raster',
+    // 'source': 'radar',
+    // 'paint': {
+    // 'raster-fade-duration': 0
+    // }
+    // });
 
     // map.addSource('polygon1', {
     // type: 'geojson',
@@ -440,41 +440,18 @@ lineMetrics: true,
 data: geojson
 });
  
-// the layer must be of type 'line'
-map.addLayer({
-type: 'line',
-source: 'line',
-id: 'line',
-paint: {
-'line-color': 'red',
-'line-width': 10,
-'line-width': 20,
-"line-dasharray": [2, 4]
-// 'line-gradient' must be specified using an expression
-// with the special 'line-progress' property
-// 'line-gradient': [
-// 'interpolate',
-// ['linear'],
-// ['line-progress'],
-// 0,
-// 'blue',
-// 0.1,
-// 'royalblue',
-// 0.3,
-// 'cyan',
-// 0.5,
-// 'lime',
-// 0.7,
-// 'yellow',
-// 1,
-// 'red'
-// ]
-},
-// layout: {
-// 'line-cap': 'round',
-// 'line-join': 'round'
+// // the layer must be of type 'line'
+// map.addLayer({
+// type: 'line',
+// source: 'line',
+// id: 'line',
+// paint: {
+// 'line-color': 'red',
+// 'line-width': 10,
+// 'line-width': 20,
+// "line-dasharray": [2, 4]
 // }
-});
+// });
     }
 );
 const geojson = {
@@ -544,17 +521,25 @@ const geojson = {
         //console.log(e)
         if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
             //console.log("abc")
-            console.log(rawdata.features.length)
+            //console.log(rawdata.features.length)
             //console.log(rawdata.features[0].properties.name)
+
+            i = rawdata.features.length - 1;
+            lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+            lambda_max = rawdata.features[i].properties.tdm_lambda_max;
+
             for(i=0; i<rawdata.features.length-1;i++)
             {
-                rd = rawdata.features[i];
-                console.log(rawdata.features[i].properties.name)
-                rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
+                //rd = rawdata.features[i];
+                //console.log(rawdata.features[i].properties.name)
+                //rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
                 // if(rawdata.features[i].properties.name == "i3j3")
                 //     rawdata.features[i].properties.color = "red";
                 // else
                 //     rawdata.features[i].properties.color = "blue";
+
+                rawdata.features[i].properties.color = rawdata.features[i].properties.tdm_color;
+                rawdata.features[i].properties.alpha = 1 - (rawdata.features[i].properties.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
             }
             
 
@@ -570,9 +555,21 @@ const geojson = {
             'layout': {},
             'paint': {
             'fill-color': ['get', 'color'],//'#00ff00', // blue color fill
-            'fill-opacity': 1.0
+            'fill-opacity': ['get', 'alpha']
             }
             });
+
+            // Add a black outline around the polygon.
+            // map.addLayer({
+            // 'id': 'outline',
+            // 'type': 'line',
+            // 'source': 'polygon1',
+            // 'layout': {},
+            // 'paint': {
+            // 'line-color': 'white',//'#010101',
+            // 'line-width': 0.3
+            // }
+            // });
             b = true;
         }
     })
