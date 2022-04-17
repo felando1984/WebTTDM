@@ -142,6 +142,17 @@ width: 10px;
     </fieldset> -->
 </div>
 <script>
+    async function abc()
+    {
+        const response = await fetch(
+            'polygon.geojson'
+            );
+        rawdata = await response.json();
+        console.log(rawdata)
+    }
+    
+    abc()
+
 	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJja25nYzMyNzAwNW92MnZvYnB5aTN4ajJlIn0.Jb4DZXmWDaDOSq6bBKM_Zw';
     styleStr = 'mapbox://styles/mapbox/light-v10';
     map = new mapboxgl.Map({
@@ -340,26 +351,6 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
     'type': 'geojson',
     'data': pointlist});
 
-    // Add a symbol layer
-    map.addLayer({
-    'id': 'points',
-    'type': 'symbol',
-    'source': 'points',
-    'layout': {
-    //'icon-image': 'custom-marker',
-    // get the title name from the source's "title" property
-    'text-field': ['get', 'title'],
-    'text-font': [
-    'Open Sans Semibold',
-    'Arial Unicode MS Bold'
-    ],
-    'text-offset': [0, -3.5],
-    'text-anchor': 'top',
-    },
-    'paint': {
-        'text-color': ['get', 'color'],
-    },
-    });
 
     map.addSource('radar', radarData);
     map.addLayer({
@@ -374,7 +365,7 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
     map.addSource('polygon1', {
     type: 'geojson',
     // Use a URL for the value for the `data` property.
-    data: 'polygon.geojson',
+    data: rawdata,//'polygon.geojson',
     });
     // Add a new layer to visualize the polygon.
     map.addLayer({
@@ -513,25 +504,56 @@ const geojson = {
     map.on('sourcedata', (e) => {
         //console.log(e)
         if(!a && e.sourceId === "points" && map.isSourceLoaded("points")){
-            stores = map.querySourceFeatures("points");
-            if(stores != "")
-            {
-                console.log(pointlist)
-                pointlist.features[0].properties.title = "H101";
-                console.log(pointlist)
-                map.getSource('points').setData(pointlist);
-
-                // console.log(stores)
-                // console.log(stores[0]);
-                // stores[0].properties.title = "H101";
-                // console.log(stores[0].properties.title);
-                // tt = [];
-                // tt.push(stores[0]);
-                // map.getSource('points').setData(stores);
-                a = true;
-            }
+            //console.log("abc")
+            pointlist.features[0].properties.title = "H101";
+            console.log(pointlist)
+            map.getSource('points').setData(pointlist);
+            // Add a symbol layer
+            map.addLayer({
+            'id': 'points',
+            'type': 'symbol',
+            'source': 'points',
+            'layout': {
+            //'icon-image': 'custom-marker',
+            // get the title name from the source's "title" property
+            'text-field': ['get', 'title'],
+            'text-font': [
+            'Open Sans Semibold',
+            'Arial Unicode MS Bold'
+            ],
+            'text-offset': [0, -3.5],
+            'text-anchor': 'top',
+            },
+            'paint': {
+                'text-color': ['get', 'color'],
+            },
+            });
+            a = true;
         }
     })
+
+    // When a click event occurs on a feature in the states layer,
+    // open a popup at the location of the click, with description
+    // HTML from the click event's properties.
+    map.on('click', 'poly1', (e) => {
+        console.log(123)
+    new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML(e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
+    .addTo(map);
+    });
+
+    // Change the cursor to a pointer when
+    // the mouse is over the states layer.
+    map.on('mouseenter', 'poly1', () => {
+    map.getCanvas().style.cursor = 'pointer';
+    });
+    
+    // Change the cursor back to a pointer
+    // when it leaves the states layer.
+    map.on('mouseleave', 'poly1', () => {
+    map.getCanvas().style.cursor = '';
+    });
 }
 
 a = false;
@@ -560,6 +582,7 @@ for (const input of inputs) {
         }
         else
             map.setStyle('mapbox://styles/mapbox/' + layerId); 
+        a = false;
     };
 }
 
