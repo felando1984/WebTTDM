@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>T-TDM test</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+#menu {
+position: absolute;
+background: #efefef;
+padding: 10px;
+font-family: 'Open Sans', sans-serif;
+}
+
+.map-overlay {
+font: 20px/30px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+position: absolute;
+width: 200px;
+top: 0;
+left: 0;
+padding: 10px;
+}
+ 
+.map-overlay .map-overlay-inner {
+background-color: #fff;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+border-radius: 3px;
+padding: 10px;
+margin-bottom: 10px;
+}
+ 
+.map-overlay-inner fieldset {
+border: none;
+padding: 0;
+margin: 0 0 10px;
+}
+ 
+.map-overlay-inner fieldset:last-child {
+margin: 0;
+}
+ 
+.map-overlay-inner select,
+.map-overlay-inner input {
+width: 100%;
+}
+ 
+.map-overlay-inner label {
+display: block;
+font-weight: bold;
+margin: 0 0 5px;
+}
+
+.legend {
+background-color: #fff;
+border-radius: 3px;
+top: 30px;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+font: 20px/25px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+padding: 10px;
+position: absolute;
+right: 10px;
+z-index: 1;
+}
+ 
+.legend h4 {
+margin: 0 0 10px;
+}
+ 
+.legend div span {
+border-radius: 50%;
+display: inline-block;
+height: 10px;
+margin-right: 5px;
+width: 10px;
+}
+</style>
+</head>
+<body>
+    <div id="state-legend" class="legend">
+        <h4>Population</h4>
+        <div><span style="background-color: #723122"></span>25,000,000</div>
+        <div><span style="background-color: #8b4225"></span>10,000,000</div>
+        <div><span style="background-color: #a25626"></span>7,500,000</div>
+        <div><span style="background-color: #b86b25"></span>5,000,000</div>
+        <div><span style="background-color: #ca8323"></span>2,500,000</div>
+        <div><span style="background-color: #da9c20"></span>1,000,000</div>
+        <div><span style="background-color: #e6b71e"></span>750,000</div>
+        <div><span style="background-color: #eed322"></span>500,000</div>
+        <div><span style="background-color: #f2f12d"></span>0</div>
+        </div>
+         
+        <div id="county-legend" class="legend" style="display: none">
+        <h4>Population</h4>
+        <div><span style="background-color: #723122"></span>1,000,000</div>
+        <div><span style="background-color: #8b4225"></span>500,000</div>
+        <div><span style="background-color: #a25626"></span>100,000</div>
+        <div><span style="background-color: #b86b25"></span>50,000</div>
+        <div><span style="background-color: #ca8323"></span>10,000</div>
+        <div><span style="background-color: #da9c20"></span>5,000</div>
+        <div><span style="background-color: #e6b71e"></span>1,000</div>
+        <div><span style="background-color: #eed322"></span>100</div>
+        <div><span style="background-color: #f2f12d"></span>0</div>
+        </div>
+<div id="map"></div>
+<div class="map-overlay top">
+    <div id="menu">
+        <!-- See a list of Mapbox-hosted public styles at -->
+        <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
+        <input id="light-v10" type="radio" name="rtoggle" value="light" checked="checked">
+        <label for="light-v10">light</label><br>
+        <input id="satellite-v9" type="radio" name="rtoggle" value="satellite">
+        <label for="satellite-v9">satellite</label><br>
+        <input id="dark-v10" type="radio" name="rtoggle" value="dark">
+        <label for="dark-v10">dark</label><br>
+        <input id="streets-v11" type="radio" name="rtoggle" value="streets">
+        <label for="streets-v11">streets</label><br>
+        <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors">
+        <label for="outdoors-v11">outdoors</label><br>
+        <input id="terrain" type="radio" name="rtoggle" value="outdoors">
+        <label for="terrain">terrain</label><br>
+        <button id="test">test</label><br>
+    </div>
+    <!-- <fieldset class="conic-param-input">
+    <label>Center Longitude: <span id="lng-value">0</span></label>
+    <input id="lng" type="range" min="-180" max="180" step="any" value="0">
+    </fieldset>
+    <fieldset class="conic-param-input">
+    <label>Center Latitude: <span id="lat-value">30</span></label>
+    <input id="lat" type="range" min="-90" max="90" step="any" value="30">
+    </fieldset>
+    <fieldset class="conic-param-input">
+    <label>Southern Parallel Lat: <span id="lat1-value">30</span></label>
+    <input id="lat1" type="range" min="-90" max="90" step="any" value="30">
+    </fieldset>
+    <fieldset class="conic-param-input">
+    <label>Northern Parallel Lat: <span id="lat2-value">30</span></label>
+    <input id="lat2" type="range" min="-90" max="90" step="any" value="30">
+    </fieldset> -->
+</div>
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJja25nYzMyNzAwNW92MnZvYnB5aTN4ajJlIn0.Jb4DZXmWDaDOSq6bBKM_Zw';
+    styleStr = 'mapbox://styles/mapbox/light-v10';
+    map = new mapboxgl.Map({
+        style: styleStr, 
+    //style: 'mapbox://styles/mapbox/light-v10',
+    //style: 'mapbox://styles/mapbox/streets-v11',
+    //style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+    center: [6.1645443, 62.4720013],
+    zoom: 16,
+    pitch: 0,
+    bearing: 0,
+    container: 'map',
+    antialias: true
+    });
+    loadBasicLayger();
+
+    layerId = "light-v10";
+    labelLayerId = 0;
+
+    radarData =  {
+    'type': 'image',
+    'url': 'https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif',
+    'coordinates': [
+    [6.1589338, 62.4723013],
+    [6.1644474, 62.47264497],
+    [6.165792, 62.471144],
+    [6.1596182, 62.4714755]
+    ]
+    }
+
+pointlist = {
+    'type': 'FeatureCollection',
+    'features': [
+    {
+    // H1， 278087398，62.4723013,6.1589338
+    'type': 'Feature',
+    'geometry': {
+    'type': 'Point',
+    'coordinates': [
+    6.1589338, 62.4723013
+    ]
+    },
+    'properties': {
+    'title': 'H1',
+    'color': "red"
+    }
+    },
+    {
+    // H2，7204337168,62.4726449,6.1644474
+    'type': 'Feature',
+    'geometry': {
+    'type': 'Point',
+    'coordinates': [
+    6.1644474, 62.4726449
+    ]
+    },
+    'properties': {
+    'title': 'H2',
+    'color': "blue"
+    }
+    },
+    {
+    // H3，8714559173,62.4714755,6.1596182
+    'type': 'Feature',
+    'geometry': {
+    'type': 'Point',
+    'coordinates': [
+    6.1596182, 62.4714755
+    ]
+    },
+    'properties': {
+    'title': 'H3',
+    'color': "green"
+    }
+    },
+    {
+    // H4, 7379970801,62.471144,6.165792
+    'type': 'Feature',
+    'geometry': {
+    'type': 'Point',
+    'coordinates': [
+    6.165792, 62.471144
+    ]
+    },
+    'properties': {
+    'title': 'H4',
+    'color': "purple"
+    }
+    }
+    ]
+    }
+
+
+function loadBasicLayger()
+{
+    map.on('style.load', (e) => {
+// Insert the layer beneath any symbol layer.
+if(layerId != "satellite-v9")
+{
+    const layers = map.getStyle().layers;
+    labelLayerId = layers.find(
+    (layer) => layer.type === 'symbol' && layer.layout['text-field']
+    ).id;
+    //console.log(layers)
+    //console.log(labelLayerId)
+}
+
+map.addSource('mapbox-dem', {
+'type': 'raster-dem',
+'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+'tileSize': 512,
+'maxzoom': 14
+});
+// add the DEM source as a terrain layer with exaggerated height
+map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+ 
+// add a sky layer that will show when the map is highly pitched
+map.addLayer({
+'id': 'sky',
+'type': 'sky',
+'paint': {
+'sky-type': 'atmosphere',
+'sky-atmosphere-sun': [0.0, 0.0],
+'sky-atmosphere-sun-intensity': 15
+}
+});
+
+if(layerId != "satellite-v9")
+{
+// The 'building' layer in the Mapbox Streets
+// vector tileset contains building height data
+// from OpenStreetMap.
+map.addLayer(
+{
+'id': 'add-3d-buildings',
+'source': 'composite',
+'source-layer': 'building',
+'filter': ['==', 'extrude', 'true'],
+'type': 'fill-extrusion',
+'minzoom': 15,
+'paint': {
+'fill-extrusion-color': '#aaa',
+ 
+// Use an 'interpolate' expression to
+// add a smooth transition effect to
+// the buildings as the user zooms in.
+'fill-extrusion-height': [
+'interpolate',
+['linear'],
+['zoom'],
+15,
+0,
+15.05,
+['get', 'height']
+],
+'fill-extrusion-base': [
+'interpolate',
+['linear'],
+['zoom'],
+15,
+0,
+15.05,
+['get', 'min_height']
+],
+'fill-extrusion-opacity': 0.6
+}
+},
+labelLayerId
+);
+}
+// Create a default Marker and add it to the map.
+const marker1 = new mapboxgl.Marker({color:"red"})
+.setLngLat([6.1589338, 62.4723013])
+.addTo(map);
+
+const marker2 = new mapboxgl.Marker({color:"blue"})
+.setLngLat([6.1644474, 62.4726449])
+.addTo(map);
+
+const marker3 = new mapboxgl.Marker({color:"green"})
+.setLngLat([6.1596182, 62.4714755])
+.addTo(map);
+
+const marker4 = new mapboxgl.Marker({color:"purple"})
+.setLngLat([6.165792, 62.471144])
+.addTo(map);
+
+    // Add an image to use as a custom marker
+    map.loadImage(
+    'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+    (error, image) => {
+    if (error) throw error;
+    map.addImage('custom-marker', image);
+    // Add a GeoJSON source with 4 points
+    map.addSource('points', {
+    'type': 'geojson',
+    'data': pointlist});
+
+    // Add a symbol layer
+    map.addLayer({
+    'id': 'points',
+    'type': 'symbol',
+    'source': 'points',
+    'layout': {
+    //'icon-image': 'custom-marker',
+    // get the title name from the source's "title" property
+    'text-field': ['get', 'title'],
+    'text-font': [
+    'Open Sans Semibold',
+    'Arial Unicode MS Bold'
+    ],
+    'text-offset': [0, -3.5],
+    'text-anchor': 'top',
+    },
+    'paint': {
+        'text-color': ['get', 'color'],
+    },
+    });
+
+    map.addSource('radar', radarData);
+    map.addLayer({
+    id: 'radar-layer',
+    'type': 'raster',
+    'source': 'radar',
+    'paint': {
+    'raster-fade-duration': 0
+    }
+    });
+
+    map.addSource('polygon1', {
+    type: 'geojson',
+    // Use a URL for the value for the `data` property.
+    data: 'polygon.geojson',
+    });
+    // Add a new layer to visualize the polygon.
+    map.addLayer({
+    'id': 'poly1',
+    'type': 'fill',
+    'source': 'polygon1', // reference the data source
+    'layout': {},
+    'paint': {
+    'fill-color': '#00ff00', // blue color fill
+    'fill-opacity': 1.0
+    }
+    });
+
+    // Add a data source containing GeoJSON data.
+    map.addSource('maine', {
+    'type': 'geojson',
+    'data': {
+    'type': 'Feature',
+    'geometry': {
+    'type': 'Polygon',
+    // These coordinates outline Maine.
+    'coordinates': [
+    [
+    [6.1589338, 62.4723013],
+    [6.1644474, 62.47264497],
+    [6.165792, 62.471144],
+    [6.1596182, 62.4714755],
+    [6.1589338, 62.4723013],
+    ]
+    ]
+    }
+    }
+    });
+    // Add a new layer to visualize the polygon.
+    // map.addLayer({
+    // 'id': 'maine',
+    // 'type': 'fill',
+    // 'source': 'maine', // reference the data source
+    // 'layout': {},
+    // 'paint': {
+    // 'fill-color': '#0080ff', // blue color fill
+    // 'fill-opacity': 0.5
+    // }
+    // });
+
+    // Add a data source containing GeoJSON data.
+    map.addSource('road1', {
+    'type': 'geojson',
+    lineMetrics: true,
+    'data': {
+    'type': 'Feature',
+    'geometry': {
+    'type': 'LineString',
+    // These coordinates outline Maine.
+    'coordinates': [
+    [
+    [6.1589338, 62.4723013],
+    [6.16444, 62.47264497],
+    [6.165792, 62.471144],
+    [6.1596182, 62.4714755],
+    ]
+    ]
+    }
+    }
+    });
+// 'line-gradient' can only be used with GeoJSON sources
+// and the source must have the 'lineMetrics' option set to true
+map.addSource('line', {
+type: 'geojson',
+lineMetrics: true,
+data: geojson
+});
+ 
+// the layer must be of type 'line'
+map.addLayer({
+type: 'line',
+source: 'line',
+id: 'line',
+paint: {
+'line-color': 'red',
+'line-width': 10,
+'line-width': 20,
+"line-dasharray": [2, 4]
+// 'line-gradient' must be specified using an expression
+// with the special 'line-progress' property
+// 'line-gradient': [
+// 'interpolate',
+// ['linear'],
+// ['line-progress'],
+// 0,
+// 'blue',
+// 0.1,
+// 'royalblue',
+// 0.3,
+// 'cyan',
+// 0.5,
+// 'lime',
+// 0.7,
+// 'yellow',
+// 1,
+// 'red'
+// ]
+},
+// layout: {
+// 'line-cap': 'round',
+// 'line-join': 'round'
+// }
+});
+    }
+);
+const geojson = {
+'type': 'FeatureCollection',
+'features': [
+{
+'type': 'Feature',
+'properties': {},
+'geometry': {
+'coordinates': [
+    [6.1589338, 62.4723013],
+    [6.16444, 62.47264497],
+    [6.165792, 62.471144],
+    [6.1596182, 62.4714755],
+],
+'type': 'LineString'
+}
+}
+]
+};
+//stores = map.queryRenderedFeatures({ layers: ['road1'] })
+//console.log(stores)
+// if(map.isSourceLoaded("polygon1")){
+//         const stores = map.querySourceFeatures("polygon1")
+//         console.log(stores)
+//     }
+});
+    map.on('sourcedata', (e) => {
+        //console.log(e)
+        if(!a && e.sourceId === "points" && map.isSourceLoaded("points")){
+            stores = map.querySourceFeatures("points");
+            if(stores != "")
+            {
+                console.log(pointlist)
+                pointlist.features[0].properties.title = "H101";
+                console.log(pointlist)
+                map.getSource('points').setData(pointlist);
+
+                // console.log(stores)
+                // console.log(stores[0]);
+                // stores[0].properties.title = "H101";
+                // console.log(stores[0].properties.title);
+                // tt = [];
+                // tt.push(stores[0]);
+                // map.getSource('points').setData(stores);
+                a = true;
+            }
+        }
+    })
+}
+
+a = false;
+
+//const map;
+function loadMap()
+{
+    loadBasicLayger();
+
+}
+const mapStyleInput = document.getElementById('mapStyle');
+
+const layerList = document.getElementById('menu');
+const inputs = layerList.getElementsByTagName('input');
+
+const testbutton = document.getElementById('test');
+
+for (const input of inputs) {
+    input.onclick = (layer) => {
+        layerId = layer.target.id;
+        console.log(layerId);
+        if(layerId == "terrain")
+        {
+            map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
+            //loadBasicLayger();
+        }
+        else
+            map.setStyle('mapbox://styles/mapbox/' + layerId); 
+    };
+}
+
+testbutton.onclick = () => {
+        radarData =  {
+        'type': 'image',
+        'url': 'ImplementationUI.jpg',
+        'coordinates': [
+        [6.1589338, 62.4723013],
+        [6.1644474, 62.47264497],
+        [6.165792, 62.471144],
+        [6.1596182, 62.4714755]
+        ]
+        }
+        //console.log(radarData);
+        map.getSource('radar').updateImage(radarData);
+    };
+
+</script>
+ 
+</body>
+</html>
