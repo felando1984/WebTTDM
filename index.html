@@ -5,6 +5,7 @@
 <title>T-TDM test</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
 <style>
 body { margin: 0; padding: 0; }
@@ -14,12 +15,34 @@ position: absolute;
 background: #efefef;
 padding: 10px;
 font-family: 'Open Sans', sans-serif;
+font-size: 16px;
+width: 250px;
+}
+
+#info {
+position: absolute;
+background: #efefef;
+padding: 10px;
+font-family: 'Open Sans', sans-serif;
+font-size: 16px;
+width: 250px;
+}
+
+.mapboxgl-popup {
+max-width: 300px;
+background: #efefef;
+font-family: 'Open Sans', sans-serif;
+font-size: 16px;
+}
+
+.mapboxgl-popup-content {
+  background-color: #efefef;
 }
 
 .map-overlay {
 font: 20px/30px 'Helvetica Neue', Arial, Helvetica, sans-serif;
 position: absolute;
-width: 200px;
+width: 300px;
 top: 0;
 left: 0;
 padding: 10px;
@@ -73,9 +96,45 @@ margin: 0 0 10px;
 .legend div span {
 border-radius: 50%;
 display: inline-block;
-height: 10px;
+height: 20px;
 margin-right: 5px;
-width: 10px;
+width: 20px;
+}
+
+.box {
+  margin-left: 5px;
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  border: 1px solid;
+}
+
+.scrollbar {
+  width: 230px;
+  height: 300px;
+  background: #efefef;
+  overflow-y: scroll;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+
+.force-overflow {
+  min-height: 450px;
+}
+
+.scrollbar-primary::-webkit-scrollbar {
+  width: 12px;
+  background-color: #F5F5F5;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  background-color: #4285F4;
+}
+
+.scrollbar-primary {
+  scrollbar-color: #4285F4 #F5F5F5;
 }
 </style>
 </head>
@@ -122,9 +181,35 @@ width: 10px;
         <label for="outdoors-v11">outdoors</label><br>
         <input id="terrain" type="radio" name="rtoggle" value="outdoors">
         <label for="terrain">terrain</label><br>
-        <button id="test">rb</label><br>
-        <button id="test1">rg</label><br>
+        <!-- <button id="test">rb</button><br>
+        <button id="test1">rg</button><br> -->
+        <div id="info">
+            <div><strong>VectexId:</strong> <span id='VectexId'></span></div>
+            <div><strong>Lat:</strong> <span id='Latitude'></span></div>
+            <div><strong>Lon:</strong> <span id='Longitude'></span></div>
+            <div><strong>Color alpha:</strong> <span id='Color_alpha'></span></div>
+            <br>
+            <div><strong>cfh height:</strong> <span id='height'></span></div>
+            <div><strong>cfh binaryStr:</strong> <span id='binaryStr'></span></div>
+            <div><strong>cfh featureStr:</strong> <span id='featureStr'></span></div>
+            <div><strong>cfh change threshold:</strong> <span id='threshold'></span></div>
+            <br>
+            <div><strong>tdm color:</strong> <span id='tdm_color'></span><div class="box" id="tdm_color_sample" style="background-color: #723122"></div></div>
+            <div><strong>tdm lambda max:</strong> <span id='tdm_lambda_max'></span></div>
+            <div><strong>tdm lambda min:</strong> <span id='tdm_lambda_min'></span></div>
+            <div><strong>tdm lambda:</strong> <span id='tdm_lambda'></span></div>
+            <div><strong>access time (s):</strong> <span id='access_time'></span></div>
+            <div><strong>ift cost (E dis^2):</strong> <span id='ift_cost'></span></div>
+            <div><strong>tdm cost (m):</strong> <span id='tdm_cost'></span></div>
+            <div class="scrollbar scrollbar-primary">
+                <div class="force-overflow"><div><strong>cfh matrix:</strong> <span id='cfh_matrix'></span></div>
+                </div>
+            </div>
+        </div>
+        
     </div>
+    
+    
     <!-- <fieldset class="conic-param-input">
     <label>Center Longitude: <span id="lng-value">0</span></label>
     <input id="lng" type="range" min="-180" max="180" step="any" value="0">
@@ -156,10 +241,27 @@ width: 10px;
     
     a = false;
     b = false;
+   
+    featureStr = "01";
+    Threshold = 0.0002;
+
+    const markerHeight = 50;
+    const markerRadius = 10;
+    const linearOffset = 25;
+    const popupOffsets = {
+    'top': [0, 0],
+    'top-left': [0, 0],
+    'top-right': [0, 0],
+    'bottom': [0, -markerHeight],
+    'bottom-left': [linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
+    'bottom-right': [-linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
+    'left': [markerRadius, (markerHeight - markerRadius) * -1],
+    'right': [-markerRadius, (markerHeight - markerRadius) * -1]
+    };
 
     abc()
 
-	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJja25nYzMyNzAwNW92MnZvYnB5aTN4ajJlIn0.Jb4DZXmWDaDOSq6bBKM_Zw';
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJjbDI0dHJ4cHIyMzhmM2lscHBiZ2VybWl0In0.O46bIQ6f08o0E55XLhESZg';
     styleStr = 'mapbox://styles/mapbox/light-v10';
     map = new mapboxgl.Map({
         style: styleStr, 
@@ -251,6 +353,28 @@ pointlist = {
     ]
     }
 
+
+function ComputeCFH(Matrix, featureStr, Threshold)
+{
+    if(Matrix.length >= featureStr.length)
+    { 
+        let binaryStr = "";
+        for(i = 0; i < 4; i++)//Matrix.length - 1
+        {
+            if(Math.abs(Matrix[i+1] - Matrix[i]) >= Threshold)
+            {
+                console.log(Math.abs(Matrix[i+1] - Matrix[i]));
+                binaryStr +="1";
+            }
+            else
+                binaryStr +="0";
+        }
+        console.log(binaryStr)
+        return [binaryStr, binaryStr.split(featureStr).length - 1];
+    }
+    else
+        return ["", 0]
+}
 
 function loadBasicLayger()
 {
@@ -529,10 +653,37 @@ const geojson = {
                 'text-color': ['get', 'color'],
             },
             });
+
+            map.addLayer({
+                'id': 'room-extrusion',
+                'type': 'fill-extrusion',
+                'source': 'polygon1',
+                'paint': {
+                // Get the `fill-extrusion-color` from the source `color` property.
+                //'fill-extrusion-color': ['get', 'color'],
+                'fill-extrusion-color':[
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    "green",
+                    "grey"
+                    ],//"grey",
+                
+                // Get `fill-extrusion-height` from the source `height` property.
+                'fill-extrusion-height': ['get', 'height'],
+                
+                // Get `fill-extrusion-base` from the source `base_height` property.
+                //'fill-extrusion-base': ['get', 'base_height'],
+                
+                // Make extrusions slightly opaque to see through indoor walls.
+                'fill-extrusion-opacity': 0.6
+                }
+                });
+
             a = true;
         }
     })
 
+    // after load the polygon raw data file, add layers
     map.on('sourcedata', (e) => {
         //console.log(e)
         if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
@@ -544,100 +695,82 @@ const geojson = {
             lambda_min = rawdata.features[i].properties.tdm_lambda_min;
             lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-            for(i=0; i<rawdata.features.length-1;i++)
+            dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
+            dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
+
+            dfeatureStr.textContent = featureStr;
+            dthreshold.textContent = Threshold;
+
+            console.log(rawdata.features.length)
+
+            for(i=0; i<rawdata.features.length-1;i++)//rawdata.features.length-1
             {
-                //rd = rawdata.features[i];
-                //console.log(rawdata.features[i].properties.name)
-                //rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
-                // if(rawdata.features[i].properties.name == "i3j3")
-                //     rawdata.features[i].properties.color = "red";
-                // else
-                //     rawdata.features[i].properties.color = "blue";
+                //console.log("abc")
+                props = rawdata.features[i].properties;
+                props.color = props.tdm_color;
+                // color mapping with lambda value
+                props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+                matrix = props.cfh_matrix;
 
-                rawdata.features[i].properties.color = rawdata.features[i].properties.tdm_color;
-                rawdata.features[i].properties.alpha = 1 - (rawdata.features[i].properties.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+                // console.log(matrix)
+                // if (i < 3)
+                // {
+                //     console.log("i_" + i)
+                //     ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+                //     //cfhresult = ComputeCFH(matrix, "01", 0.2);
+                //     //console.log(cfhresult)
+                // }
+                if(matrix.length >= featureStr.length)
+                { 
+                    let binaryStr = "";
+                    for(j = 0; j < matrix.length - 1; j++)//Matrix.length - 1
+                    {
+                        //console.log(Math.abs(matrix[j+1] - matrix[j]));
+                        if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
+                        {
+                            binaryStr +="1";
+                        }
+                        else
+                            binaryStr +="0";
+                    }
+                    //console.log(binaryStr)
+                    //console.log( binaryStr.split(featureStr).length - 1)
+                    props.cfh_bstr = binaryStr;
+                    props.height = (binaryStr.split(featureStr).length - 1);
+                }
+                else
+                {
+                    props.cfh_bstr = "";
+                    props.height = 0;
+                }
+
+                // height = 0;
+                // for(j = 0; j < matrix.length; j++)
+                //     height += matrix[j];
+                // props.height = height / matrix.length;
             }
-            
 
+            // cfhresult = ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+            // console.log(cfhresult)
 
             map.getSource('polygon1').setData(rawdata);
             console.log(rawdata)
 
-            map.addLayer({
-            'id': 'outline',
-            'type': 'line',
-            'source': 'polygon1',
-            'layout': {},
-            'paint': {
-            'line-width': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            4,
-            0
-            ],
-            'line-color': 'black'
-            }
-            });
-            b = true;
+            addLayers_Hover();
 
             // Add a new layer to visualize the polygon.
             map.addLayer({
-            'id': 'poly1',
-            'type': 'fill',
-            'source': 'polygon1', // reference the data source
-            'layout': {},
-            'paint': {
-            'fill-color': ['get', 'color'],//'#00ff00', // blue color fill
-            'fill-opacity': ['get', 'alpha']
-            }
+                'id': 'poly1',
+                'type': 'fill',
+                'source': 'polygon1', // reference the data source
+                'layout': {},
+                'paint': {
+                'fill-color': ['get', 'color'],//'#00ff00', // blue color fill
+                'fill-opacity': ['get', 'alpha']
+                }
             });
 
-            // Add a black outline around the polygon.
-            // map.addLayer({
-            // 'id': 'outline',
-            // 'type': 'line',
-            // 'source': 'polygon1',
-            // 'layout': {},
-            // 'paint': {
-            // 'line-color': 'white',//'#010101',
-            // 'line-width': 0.3
-            // }
-            // });
-
-            // map.addLayer({
-            // 'id': 'state-fills',
-            // 'type': 'fill',
-            // 'source': 'polygon1',
-            // 'layout': {},
-            // 'paint': {
-            // 'fill-color': '#627BC1',
-            // 'fill-opacity': [
-            // 'case',
-            // ['boolean', ['feature-state', 'hover'], false],
-            // 1,
-            // 0.5
-            // ]
-            // }
-            // });
-            
-            // The feature-state dependent fill-opacity expression will render the hover effect
-            // when a feature's hover state is set to true.
-            map.addLayer({
-            'id': 'state-fills',
-            'type': 'fill',
-            'source': 'polygon1',
-            'layout': {},
-            'paint': {
-            'fill-color': 'black',
-            'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            0,
-            0
-            ]
-            }
-            });
-
+            b = true;
         }
     })
 
@@ -646,23 +779,69 @@ const geojson = {
     // HTML from the click event's properties.
     map.on('click', 'poly1', (e) => {
         //console.log(123)
-    new mapboxgl.Popup()
+    new mapboxgl.Popup()//({className:"popstyle"})
     .setLngLat(e.lngLat)
-    .setHTML(e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
+    .setHTML(infoList.innerHTML)//e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
     .addTo(map);
+
+    //console.log(infoList.outerHTML)
     });
 
+    activeHover();
+}
+
+function addLayers_Hover()
+{
+    // add black outline
+    map.addLayer({
+        'id': 'outline',
+        'type': 'line',
+        'source': 'polygon1',
+        'layout': {},
+        'paint': {
+        'line-width': [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        4,
+        0
+        ],
+        'line-color': 'black'
+        }
+    });
+
+    // add transparent fill to capture the hover area
+    // The feature-state dependent fill-opacity expression will render the hover effect
+    // when a feature's hover state is set to true.
+    map.addLayer({
+        'id': 'state-fills',
+        'type': 'fill',
+        'source': 'polygon1',
+        'layout': {},
+        'paint': {
+        'fill-color': 'black',
+        'fill-opacity': [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        0,
+        0
+        ]
+        }
+    });
+}
+
+function activeHover()
+{
     // Change the cursor to a pointer when
     // the mouse is over the states layer.
-    // map.on('mouseenter', 'poly1', () => {
-    // map.getCanvas().style.cursor = 'pointer';
-    // });
+    map.on('mouseenter', 'poly1', () => {
+    map.getCanvas().style.cursor = 'pointer';
+    });
     
-    // // Change the cursor back to a pointer
-    // // when it leaves the states layer.
-    // map.on('mouseleave', 'poly1', () => {
-    // map.getCanvas().style.cursor = '';
-    // });
+    // Change the cursor back to a pointer
+    // when it leaves the states layer.
+    map.on('mouseleave', 'poly1', () => {
+    map.getCanvas().style.cursor = '';
+    });
     
     // When the user moves their mouse over the state-fill layer, we'll update the
     // feature state for the feature under the mouse.
@@ -679,22 +858,51 @@ const geojson = {
     { source: 'polygon1', id: hoveredStateId },
     { hover: true }
     );
+    dVectexId.textContent = hoveredStateId;
+    dLatitude.textContent = e.lngLat.lng;
+    dLongitude.textContent = e.lngLat.lat;
+
+    props = e.features[0].properties;
+    dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
+    dtdm_color.textContent = props.color;
+    dtdm_color_sample.style.backgroundColor = props.color;
+    dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
+    daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
+    dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
+    dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
+    dheight.textContent = parseFloat(props.height.toFixed(6));
+    dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
+    dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
     //console.log(hoveredStateId + ":true");
     }
     });
     
     // When the mouse leaves the state-fill layer, update the feature state of the
     // previously hovered feature.
-    map.on('mouseleave', 'state-fills', () => {
+    map.on('mouseleave', 'state-fills', (e) => {
     if (hoveredStateId !== null) {
         //console.log(hoveredStateId + ":false");
     map.setFeatureState(
     { source: 'polygon1', id: hoveredStateId },
     { hover: false }
     );
+    dVectexId.textContent = "No data";;
+    dLatitude.textContent = "No data";
+    dLongitude.textContent = "No data";
+    dColor_alpha.textContent = "No data";
+    dtdm_color.textContent = "No data";
+    dtdm_color_sample.style.backgroundColor = "white";
+    dtdm_lambda.textContent = "No data";
+    daccess_time.textContent = "No data";
+    dift_cost.textContent = "No data";
+    dtdm_cost.textContent = "No data";
     }
     hoveredStateId = null;
     });
+}
+
+function chunkString(str, length) {
+  return str.match(new RegExp('.{1,' + length + '}', 'g')).join('\n');
 }
 
 function componentToHex(c) {
@@ -712,13 +920,36 @@ function loadMap()
     loadBasicLayger();
 
 }
+
 const mapStyleInput = document.getElementById('mapStyle');
 
 const layerList = document.getElementById('menu');
+const infoList = document.getElementById('info');
 const inputs = layerList.getElementsByTagName('input');
 
 const testbutton = document.getElementById('test');
 const testbutton1 = document.getElementById('test1');
+
+const dVectexId = document.getElementById('VectexId');
+const dLatitude = document.getElementById('Latitude');
+const dLongitude = document.getElementById('Longitude');
+const dColor_alpha = document.getElementById('Color_alpha');
+
+const dtdm_color = document.getElementById('tdm_color');
+const dtdm_color_sample = document.getElementById('tdm_color_sample');
+const dtdm_lambda_max = document.getElementById('tdm_lambda_max');
+const dtdm_lambda_min = document.getElementById('tdm_lambda_min');
+const dtdm_lambda = document.getElementById('tdm_lambda');
+const daccess_time = document.getElementById('access_time');
+const dift_cost = document.getElementById('ift_cost');
+const dtdm_cost = document.getElementById('tdm_cost');
+
+const dheight = document.getElementById('height');
+const dthreshold = document.getElementById('threshold');
+const dbinaryStr = document.getElementById('binaryStr');
+const dfeatureStr = document.getElementById('featureStr');
+const dcfh_matrix = document.getElementById('cfh_matrix');
+
 
 for (const input of inputs) {
     input.onclick = (layer) => {
@@ -736,52 +967,52 @@ for (const input of inputs) {
     };
 }
 
-testbutton.onclick = () => {
-        radarData =  {
-        'type': 'image',
-        'url': 'ImplementationUI.jpg',
-        'coordinates': [
-        [6.1589338, 62.4723013],
-        [6.1644474, 62.47264497],
-        [6.165792, 62.471144],
-        [6.1596182, 62.4714755]
-        ]
-        }
-        //console.log(radarData);
-        map.getSource('radar').updateImage(radarData);
+// testbutton.onclick = () => {
+//         radarData =  {
+//         'type': 'image',
+//         'url': 'ImplementationUI.jpg',
+//         'coordinates': [
+//         [6.1589338, 62.4723013],
+//         [6.1644474, 62.47264497],
+//         [6.165792, 62.471144],
+//         [6.1596182, 62.4714755]
+//         ]
+//         }
+//         //console.log(radarData);
+//         map.getSource('radar').updateImage(radarData);
 
-        for(i=0; i<rawdata.features.length-1;i++)
-            {
-                rd = rawdata.features[i];
-                console.log(rawdata.features[i].properties.name)
-                rawdata.features[i].properties.color = rgbToHex(i*10,0,255-i*10)
-                // if(rawdata.features[i].properties.name == "i3j3")
-                //     rawdata.features[i].properties.color = "red";
-                // else
-                //     rawdata.features[i].properties.color = "blue";
-            }
+//         for(i=0; i<rawdata.features.length-1;i++)
+//             {
+//                 rd = rawdata.features[i];
+//                 console.log(rawdata.features[i].properties.name)
+//                 rawdata.features[i].properties.color = rgbToHex(i*10,0,255-i*10)
+//                 // if(rawdata.features[i].properties.name == "i3j3")
+//                 //     rawdata.features[i].properties.color = "red";
+//                 // else
+//                 //     rawdata.features[i].properties.color = "blue";
+//             }
             
 
 
-            map.getSource('polygon1').setData(rawdata);
-    };
+//             map.getSource('polygon1').setData(rawdata);
+//     };
 
-    testbutton1.onclick = () => {
-        for(i=0; i<rawdata.features.length-1;i++)
-            {
-                rd = rawdata.features[i];
-                console.log(rawdata.features[i].properties.name)
-                rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
-                // if(rawdata.features[i].properties.name == "i3j3")
-                //     rawdata.features[i].properties.color = "red";
-                // else
-                //     rawdata.features[i].properties.color = "blue";
-            }
+//     testbutton1.onclick = () => {
+//         for(i=0; i<rawdata.features.length-1;i++)
+//             {
+//                 rd = rawdata.features[i];
+//                 console.log(rawdata.features[i].properties.name)
+//                 rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
+//                 // if(rawdata.features[i].properties.name == "i3j3")
+//                 //     rawdata.features[i].properties.color = "red";
+//                 // else
+//                 //     rawdata.features[i].properties.color = "blue";
+//             }
             
 
 
-            map.getSource('polygon1').setData(rawdata);
-    };
+//             map.getSource('polygon1').setData(rawdata);
+//     };
 
 </script>
  
