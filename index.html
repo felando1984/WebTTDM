@@ -49,11 +49,12 @@ padding: 10px;
 }
  
 .map-overlay .map-overlay-inner {
-background-color: #fff;
-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+background-color: #efefef;
+box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 border-radius: 3px;
 padding: 10px;
-margin-bottom: 10px;
+margin-bottom: 1px;
+width: 250px;
 }
  
 .map-overlay-inner fieldset {
@@ -166,6 +167,11 @@ width: 20px;
         </div>
 <div id="map"></div>
 <div class="map-overlay top">
+    <div class="map-overlay-inner">
+        <h4>Significant earthquakes in 2015</h4>
+        <label id="month"></label>
+        <input id="slider" type="range" min="0" max="11" step="1" value="0">
+    </div>
     <div id="menu">
         <!-- See a list of Mapbox-hosted public styles at -->
         <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
@@ -887,18 +893,43 @@ function activeHover()
     { hover: false }
     );
     dVectexId.textContent = "No data";;
-    dLatitude.textContent = "No data";
-    dLongitude.textContent = "No data";
-    dColor_alpha.textContent = "No data";
-    dtdm_color.textContent = "No data";
+    dLatitude.textContent = "";
+    dLongitude.textContent = "";
+    dColor_alpha.textContent = "";
+    dtdm_color.textContent = "";
     dtdm_color_sample.style.backgroundColor = "white";
-    dtdm_lambda.textContent = "No data";
-    daccess_time.textContent = "No data";
-    dift_cost.textContent = "No data";
-    dtdm_cost.textContent = "No data";
+    dtdm_lambda.textContent = "";
+    daccess_time.textContent = "";
+    dift_cost.textContent = "";
+    dtdm_cost.textContent = "";
+    dheight.textContent = "";
+    dbinaryStr.textContent = "";
+    dcfh_matrix.textContent = "";
     }
     hoveredStateId = null;
     });
+}
+
+function filterBy(month) {
+// Set the label to the month
+document.getElementById('month').textContent = "time:" + month;
+
+i = rawdata.features.length - 1;
+lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+lambda_max = rawdata.features[i].properties.tdm_lambda_max;
+
+dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
+dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
+
+for(i=0; i<rawdata.features.length-1;i++)
+{
+    //console.log("abc")
+    props = rawdata.features[i].properties;
+    props.color = props.cfh_labelmatrix[month];
+    props.tdm_lambda = props.cfh_matrix[month];
+    props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+}
+map.getSource('polygon1').setData(rawdata);
 }
 
 function chunkString(str, length) {
@@ -966,6 +997,11 @@ for (const input of inputs) {
         b = false;
     };
 }
+
+document.getElementById('slider').addEventListener('input', (e) => {
+const month = parseInt(e.target.value, 10);
+filterBy(month);
+});
 
 // testbutton.onclick = () => {
 //         radarData =  {
