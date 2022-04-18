@@ -152,6 +152,11 @@ width: 10px;
         console.log(rawdata)
     }
     
+    let hoveredStateId = null;
+    
+    a = false;
+    b = false;
+
     abc()
 
 	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJja25nYzMyNzAwNW92MnZvYnB5aTN4ajJlIn0.Jb4DZXmWDaDOSq6bBKM_Zw';
@@ -341,6 +346,11 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
 .setLngLat([6.165792, 62.471144])
 .addTo(map);
 
+    map.addSource('states', {
+    'type': 'geojson',
+    'data': 'polygon.geojson'//'https://docs.mapbox.com/mapbox-gl-js/assets/us_states.geojson'
+    });
+
     // Add an image to use as a custom marker
     map.loadImage(
     'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
@@ -385,6 +395,7 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
     'type': 'geojson',
     'data': {
     'type': 'Feature',
+    'id': 1,
     'geometry': {
     'type': 'Polygon',
     // These coordinates outline Maine.
@@ -401,16 +412,21 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
     }
     });
     // Add a new layer to visualize the polygon.
-    // map.addLayer({
-    // 'id': 'maine',
-    // 'type': 'fill',
-    // 'source': 'maine', // reference the data source
-    // 'layout': {},
-    // 'paint': {
-    // 'fill-color': '#0080ff', // blue color fill
-    // 'fill-opacity': 0.5
-    // }
-    // });
+    map.addLayer({
+    'id': 'maine',
+    'type': 'fill',
+    'source': 'maine', // reference the data source
+    'layout': {},
+    'paint': {
+    'fill-color': '#0080ff', // blue color fill
+    'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1,
+            0
+            ]
+    }
+    });
 
     // Add a data source containing GeoJSON data.
     map.addSource('road1', {
@@ -547,6 +563,23 @@ const geojson = {
             map.getSource('polygon1').setData(rawdata);
             console.log(rawdata)
 
+            map.addLayer({
+            'id': 'outline',
+            'type': 'line',
+            'source': 'polygon1',
+            'layout': {},
+            'paint': {
+            'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            4,
+            0
+            ],
+            'line-color': 'black'
+            }
+            });
+            b = true;
+
             // Add a new layer to visualize the polygon.
             map.addLayer({
             'id': 'poly1',
@@ -570,7 +603,41 @@ const geojson = {
             // 'line-width': 0.3
             // }
             // });
-            b = true;
+
+            // map.addLayer({
+            // 'id': 'state-fills',
+            // 'type': 'fill',
+            // 'source': 'polygon1',
+            // 'layout': {},
+            // 'paint': {
+            // 'fill-color': '#627BC1',
+            // 'fill-opacity': [
+            // 'case',
+            // ['boolean', ['feature-state', 'hover'], false],
+            // 1,
+            // 0.5
+            // ]
+            // }
+            // });
+            
+            // The feature-state dependent fill-opacity expression will render the hover effect
+            // when a feature's hover state is set to true.
+            map.addLayer({
+            'id': 'state-fills',
+            'type': 'fill',
+            'source': 'polygon1',
+            'layout': {},
+            'paint': {
+            'fill-color': 'black',
+            'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0,
+            0
+            ]
+            }
+            });
+
         }
     })
 
@@ -578,7 +645,7 @@ const geojson = {
     // open a popup at the location of the click, with description
     // HTML from the click event's properties.
     map.on('click', 'poly1', (e) => {
-        console.log(123)
+        //console.log(123)
     new mapboxgl.Popup()
     .setLngLat(e.lngLat)
     .setHTML(e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
@@ -587,19 +654,48 @@ const geojson = {
 
     // Change the cursor to a pointer when
     // the mouse is over the states layer.
-    map.on('mouseenter', 'poly1', () => {
-    map.getCanvas().style.cursor = 'pointer';
+    // map.on('mouseenter', 'poly1', () => {
+    // map.getCanvas().style.cursor = 'pointer';
+    // });
+    
+    // // Change the cursor back to a pointer
+    // // when it leaves the states layer.
+    // map.on('mouseleave', 'poly1', () => {
+    // map.getCanvas().style.cursor = '';
+    // });
+    
+    // When the user moves their mouse over the state-fill layer, we'll update the
+    // feature state for the feature under the mouse.
+    map.on('mousemove', 'state-fills', (e) => {
+    if (e.features.length > 0) {
+    if (hoveredStateId !== null) {
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: false }
+    );
+    }
+    hoveredStateId = e.features[0].id;
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: true }
+    );
+    //console.log(hoveredStateId + ":true");
+    }
     });
     
-    // Change the cursor back to a pointer
-    // when it leaves the states layer.
-    map.on('mouseleave', 'poly1', () => {
-    map.getCanvas().style.cursor = '';
+    // When the mouse leaves the state-fill layer, update the feature state of the
+    // previously hovered feature.
+    map.on('mouseleave', 'state-fills', () => {
+    if (hoveredStateId !== null) {
+        //console.log(hoveredStateId + ":false");
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: false }
+    );
+    }
+    hoveredStateId = null;
     });
 }
-
-a = false;
-b = false;
 
 function componentToHex(c) {
   var hex = c.toString(16);
