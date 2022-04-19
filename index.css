@@ -1,0 +1,148 @@
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
+#info {
+background: #efefef;
+padding: 10px;
+font-family: 'Open Sans', sans-serif;
+font-size: 16px;
+width: 250px;
+}
+
+.mapboxgl-popup {
+max-width: 300px;
+background: #efefef;
+font-family: 'Open Sans', sans-serif;
+font-size: 16px;
+}
+
+.mapboxgl-popup-content {
+  background-color: #efefef;
+}
+
+.map-overlay {
+font: 20px/30px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+position: absolute;
+width: 300px;
+top: 0;
+left: 0;
+padding: 10px;
+}
+ 
+.map-overlay .map-overlay-inner {
+background-color: #efefef;
+box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+border-radius: 3px;
+padding: 10px;
+margin-bottom: 1px;
+width: 250px;
+}
+ 
+.map-overlay-inner fieldset {
+border: none;
+padding: 0;
+margin: 0 0 10px;
+}
+ 
+.map-overlay-inner fieldset:last-child {
+margin: 0;
+}
+ 
+.map-overlay-inner select,
+.map-overlay-inner input {
+width: 100%;
+}
+ 
+.map-overlay-inner label {
+font-weight: bold;
+margin-left: 10px;
+font-size: 16px;
+}
+
+.legend {
+background-color: #fff;
+border-radius: 3px;
+top: 30px;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+font: 20px/25px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+padding: 10px;
+position: absolute;
+right: 10px;
+display: none;
+z-index: 1;
+}
+
+.legendvis {
+background-color: #fff;
+border-radius: 3px;
+top: 30px;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+font: 20px/25px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+padding: 10px;
+position: absolute;
+right: 10px;
+z-index: 1;
+}
+ 
+.legend h4 {
+margin: 0 0 10px;
+}
+ 
+.legend div span {
+border-radius: 50%;
+display: inline-block;
+height: 20px;
+margin-right: 5px;
+width: 20px;
+}
+
+.box {
+  margin-left: 5px;
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  border: 1px solid;
+}
+
+.scrollbar {
+  width: 230px;
+  height: 300px;
+  background: #efefef;
+  overflow-y: scroll;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+
+.force-overflow {
+  min-height: 450px;
+}
+
+.scrollbar-primary::-webkit-scrollbar {
+  width: 12px;
+  background-color: #F5F5F5;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  background-color: #4285F4;
+}
+
+.scrollbar-primary {
+  scrollbar-color: #4285F4 #F5F5F5;
+}
+
+span.normal {
+  font-weight: normal;
+  color:black;
+}
+
+span.bold {
+  font-weight: bold;
+  color:red;
+}
+
+input.largerCheckbox {
+    width: 20px;
+    height: 20px;
+}

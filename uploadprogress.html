@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<style>
+.progress-wrapper {
+    width:100%;
+}
+.progress-wrapper .progress {
+    background-color:green;
+    width:0%;
+    padding:5px 0px 5px 0px;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+<script>
+function postFile() {
+    var formdata = new FormData();
+
+    formdata.append('file1', $('#file1')[0].files[0]);
+
+    var request = new XMLHttpRequest();
+
+    request.upload.addEventListener('progress', function (e) {
+        var file1Size = $('#file1')[0].files[0].size;
+
+        if (e.loaded <= file1Size) {
+            var percent = Math.round(e.loaded / file1Size * 100);
+            $('#progress-bar-file1').width(percent + '%').html(percent + '%');
+        } 
+
+        if(e.loaded == e.total){
+            $('#progress-bar-file1').width(100 + '%').html(100 + '%');
+        }
+    });   
+
+    request.open('post', '/echo/html/');
+    request.timeout = 45000;
+    request.send(formdata);
+}
+</script>
+</head>
+<form id="form1">
+    <input id="file1" type="file" />
+    <div class="progress-wrapper">
+        <div id="progress-bar-file1" class="progress"></div>
+    </div>
+    <button type="button" onclick="postFile()">Upload File</button>
+</form>
+</html>
+Share
+Edit
+Follow
+answered Dec 4, 2017 at 17:03
+user avatar
+Vipin Kumar
+6,20311 gold badge1616 silver badges2525 bronze badges
+It is still not working, please tell me if you need anymore details – 
+Sam Joeseph
+ Dec 4, 2017 at 17:06
+Where are you testing it? – 
+Vipin Kumar
+ Dec 4, 2017 at 17:07
+you can test it here w3schools.com/code/tryit.asp?filename=FM69GVNGDTP7 – 
+Vipin Kumar
+ Dec 4, 2017 at 17:09
+please tell me if you have solution for internet explorer too? It hangs to certain amount of percentage and does not work there after. – 
+Sam Joeseph
+ Dec 4, 2017 at 17:16 
+Sorry, but I am on mac not on windows. :( – 
+Vipin Kumar
+ Dec 4, 2017 at 17:17
+Show 1 more comment
+
+Report this ad
+
+2
+
+A version without JQuery
+
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<style>
+.progress-wrapper {
+    width:100%;
+}
+.progress-wrapper .progress {
+    background-color:green;
+    width:0%;
+    padding:5px 0px 5px 0px;
+}
+</style>
+<script>
+function postFile() {
+    var formdata = new FormData();
+
+    formdata.append('file1', document.getElementById('file1').files[0]);
+
+    var request = new XMLHttpRequest();
+
+    request.upload.addEventListener('progress', function (e) {
+        var file1Size = document.getElementById('file1').files[0].size;
+        console.log(file1Size);
+
+        if (e.loaded <= file1Size) {
+            var percent = Math.round(e.loaded / file1Size * 100);
+            document.getElementById('progress-bar-file1').style.width = percent + '%';
+            document.getElementById('progress-bar-file1').innerHTML = percent + '%';
+        } 
+
+        if(e.loaded == e.total){
+            document.getElementById('progress-bar-file1').style.width = '100%';
+            document.getElementById('progress-bar-file1').innerHTML = '100%';
+        }
+    });   
+
+    request.open('post', '/echo/html/');
+    request.timeout = 45000;
+    request.send(formdata);
+}
+</script>
+</head>
+<form id="form1">
+    <input id="file1" type="file" />
+    <div class="progress-wrapper">
+        <div id="progress-bar-file1" class="progress"></div>
+    </div>
+    <button type="button" onclick="postFile()">Upload File</button>
+</form>
+</html>

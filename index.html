@@ -6,6 +6,7 @@
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<link href="index.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/series-label.js"></script>
@@ -13,154 +14,6 @@
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-
-#info {
-background: #efefef;
-padding: 10px;
-font-family: 'Open Sans', sans-serif;
-font-size: 16px;
-width: 250px;
-}
-
-.mapboxgl-popup {
-max-width: 300px;
-background: #efefef;
-font-family: 'Open Sans', sans-serif;
-font-size: 16px;
-}
-
-.mapboxgl-popup-content {
-  background-color: #efefef;
-}
-
-.map-overlay {
-font: 20px/30px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-position: absolute;
-width: 300px;
-top: 0;
-left: 0;
-padding: 10px;
-}
- 
-.map-overlay .map-overlay-inner {
-background-color: #efefef;
-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-border-radius: 3px;
-padding: 10px;
-margin-bottom: 1px;
-width: 250px;
-}
- 
-.map-overlay-inner fieldset {
-border: none;
-padding: 0;
-margin: 0 0 10px;
-}
- 
-.map-overlay-inner fieldset:last-child {
-margin: 0;
-}
- 
-.map-overlay-inner select,
-.map-overlay-inner input {
-width: 100%;
-}
- 
-.map-overlay-inner label {
-font-weight: bold;
-margin-left: 10px;
-font-size: 16px;
-}
-
-.legend {
-background-color: #fff;
-border-radius: 3px;
-top: 30px;
-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-font: 20px/25px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-padding: 10px;
-position: absolute;
-right: 10px;
-display: none;
-z-index: 1;
-}
-
-.legendvis {
-background-color: #fff;
-border-radius: 3px;
-top: 30px;
-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-font: 20px/25px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-padding: 10px;
-position: absolute;
-right: 10px;
-z-index: 1;
-}
- 
-.legend h4 {
-margin: 0 0 10px;
-}
- 
-.legend div span {
-border-radius: 50%;
-display: inline-block;
-height: 20px;
-margin-right: 5px;
-width: 20px;
-}
-
-.box {
-  margin-left: 5px;
-  display: inline-block;
-  height: 20px;
-  width: 20px;
-  border: 1px solid;
-}
-
-.scrollbar {
-  width: 230px;
-  height: 300px;
-  background: #efefef;
-  overflow-y: scroll;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
-}
-
-.force-overflow {
-  min-height: 450px;
-}
-
-.scrollbar-primary::-webkit-scrollbar {
-  width: 12px;
-  background-color: #F5F5F5;
-}
-
-.scrollbar-primary::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
-  background-color: #4285F4;
-}
-
-.scrollbar-primary {
-  scrollbar-color: #4285F4 #F5F5F5;
-}
-
-span.normal {
-  font-weight: normal;
-  color:black;
-}
-
-span.bold {
-  font-weight: bold;
-  color:red;
-}
-
-input.largerCheckbox {
-    width: 20px;
-    height: 20px;
-}
 
 </style>
 </head>
@@ -249,15 +102,33 @@ input.largerCheckbox {
         </div>
         <br>
         <br>
+        <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label>Graph XY</label><br>
+        <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label>Auto rotate</label><br>
+        <input class="largerCheckbox" type="checkbox" id="terrainEnabled" unchecked><label>Terrain layer</label><br>
+        <input class="largerCheckbox" type="checkbox" id="buildingEnabled" unchecked><label>Building layer</label><br>
+        <input class="largerCheckbox" type="checkbox" id="colormapping" checked><label>Color mapping</label><br>
+        <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label>Height mapping</label><br>
+        <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label>Height CFH</label><br>
+        <div><label>Camera&nbsp</label><button type="button" class="btn btn-outline-secondary" onclick="copyCameraPosition()">Copy</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="pasteCameraPosition()">Paste</button></div>
+        <br>
+        <input type="file" class="form-control" name="file" id="file"><button class="btn btn-primary" onclick="doupload()" name="submit">Upload</button>
         <button type="button" class="btn btn-primary" id="play_button">Play/Pause</button><label id="month"></label>
         <input id="slider" type="range" min="1" max="11" step="1" value="1"></input>
         <label id="delaytime"></label>
         <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
-        <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label>Graph XY</label><br>
-        <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label>Auto rotate</label><br>
-        <input class="largerCheckbox" type="checkbox" id="colormapping" checked><label>Color mapping</label><br>
-        <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label>Height mapping</label><br>
-        <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label>Height CFH</label><br>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id='thresholdSet' placeholder="threshold ('0.01')" aria-label="Recipient's username" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" onclick="updateThreshold()">Update</button>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id='featureStrSet' placeholder="featureStr ('01')" aria-label="Recipient's username" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" onclick="updateFeatureStr()">Update</button>
+            </div>
+        </div>
     </div>
     
         <div id="info">
@@ -307,238 +178,237 @@ input.largerCheckbox {
 </div>
 <script>
     async function loadGeoJsonFile()
-    {
-        const response = await fetch(
-            'polygon.geojson'
-            );
-        rawdata = await response.json();
-        console.log(rawdata)
-    }
-    
-    let hoveredStateId = null;
-    let hoveredProps = null;
-    var last = Date.now();
-    let enableRotate = false;
-    let startangle = 0;
-    
-    a = false;
-    b = false;
-   
-    featureStr = "01";
-    Threshold = 0.0002;
-    timesteps = 10;
-    var g_play = false;
-    //var g_playspeed = 1;
-    var g_playwait = 1;
+{
+    const response = await fetch(
+        'polygon.geojson'
+        );
+    rawdata = await response.json();
+    console.log(rawdata)
+}
 
-    const markerHeight = 50;
-    const markerRadius = 10;
-    const linearOffset = 25;
-    const popupOffsets = {
-    'top': [0, 0],
-    'top-left': [0, 0],
-    'top-right': [0, 0],
-    'bottom': [0, -markerHeight],
-    'bottom-left': [linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
-    'bottom-right': [-linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
-    'left': [markerRadius, (markerHeight - markerRadius) * -1],
-    'right': [-markerRadius, (markerHeight - markerRadius) * -1]
-    };
+let hoveredStateId = null;
+let hoveredProps = null;
+var last = Date.now();
+let enableRotate = false;
+let startangle = 0;
+let cameraPos = {center: [6.1645443, 62.4720013], zoom: 16, pitch: 0, bearing: 0};
 
-    loadGeoJsonFile();
+a = false;
+b = false;
 
-	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJjbDI0dHJ4cHIyMzhmM2lscHBiZ2VybWl0In0.O46bIQ6f08o0E55XLhESZg';
-    styleStr = 'mapbox://styles/mapbox/light-v10';
-    map = new mapboxgl.Map({
-        style: styleStr, 
-    //style: 'mapbox://styles/mapbox/light-v10',
-    //style: 'mapbox://styles/mapbox/streets-v11',
-    //style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
-    center: [6.1645443, 62.4720013],
-    zoom: 16,
-    pitch: 0,
-    bearing: 0,
-    container: 'map',
-    antialias: true
-    });
-    loadBasicLayger();
+featureStr = "01";
+Threshold = 0.0002;
+timesteps = 10;
+var g_play = false;
+//var g_playspeed = 1;
+var g_playwait = 1;
 
-    layerId = "light-v10";
-    labelLayerId = 0;
+const markerHeight = 50;
+const markerRadius = 10;
+const linearOffset = 25;
+const popupOffsets = {
+'top': [0, 0],
+'top-left': [0, 0],
+'top-right': [0, 0],
+'bottom': [0, -markerHeight],
+'bottom-left': [linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
+'bottom-right': [-linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
+'left': [markerRadius, (markerHeight - markerRadius) * -1],
+'right': [-markerRadius, (markerHeight - markerRadius) * -1]
+};
 
-    radarData =  {
-    'type': 'image',
-    'url': 'https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif',
-    'coordinates': [
-    [6.1589338, 62.4723013],
-    [6.1644474, 62.47264497],
-    [6.165792, 62.471144],
-    [6.1596182, 62.4714755]
-    ]
-    }
+loadGeoJsonFile();
+
+mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJjbDI0dHJ4cHIyMzhmM2lscHBiZ2VybWl0In0.O46bIQ6f08o0E55XLhESZg';
+styleStr = 'mapbox://styles/mapbox/light-v10';
+map = new mapboxgl.Map({
+    style: styleStr, 
+//style: 'mapbox://styles/mapbox/light-v10',
+//style: 'mapbox://styles/mapbox/streets-v11',
+//style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+center: cameraPos.center,//[6.1645443, 62.4720013],
+zoom: cameraPos.zoom,//16,
+pitch: cameraPos.pitch,//0,
+bearing: cameraPos.bearing,//0,
+container: 'map',
+antialias: true
+});
+loadBasicLayger();
+
+layerId = "light-v10";
+labelLayerId = 0;
+
+radarData =  {
+'type': 'image',
+'url': 'https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif',
+'coordinates': [
+[6.1589338, 62.4723013],
+[6.1644474, 62.47264497],
+[6.165792, 62.471144],
+[6.1596182, 62.4714755]
+]
+}
 
 pointlist = {
-    'type': 'FeatureCollection',
-    'features': [
-    {
-    // H1， 278087398，62.4723013,6.1589338
-    'type': 'Feature',
-    'geometry': {
-    'type': 'Point',
-    'coordinates': [
-    6.1589338, 62.4723013
-    ]
-    },
-    'properties': {
-    'title': 'H1',
-    'color': "blue"
-    }
-    },
-    {
-    // H2，7204337168,62.4726449,6.1644474
-    'type': 'Feature',
-    'geometry': {
-    'type': 'Point',
-    'coordinates': [
-    6.1644474, 62.4726449
-    ]
-    },
-    'properties': {
-    'title': 'H2',
-    'color': "red"
-    }
-    },
-    {
-    // H3，8714559173,62.4714755,6.1596182
-    'type': 'Feature',
-    'geometry': {
-    'type': 'Point',
-    'coordinates': [
-    6.1596182, 62.4714755
-    ]
-    },
-    'properties': {
-    'title': 'H3',
-    'color': "green"
-    }
-    },
-    {
-    // H4, 7379970801,62.471144,6.165792
-    'type': 'Feature',
-    'geometry': {
-    'type': 'Point',
-    'coordinates': [
-    6.165792, 62.471144
-    ]
-    },
-    'properties': {
-    'title': 'H4',
-    'color': "purple"
-    }
-    }
-    ]
-    }
+'type': 'FeatureCollection',
+'features': [
+{
+// H1， 278087398，62.4723013,6.1589338
+'type': 'Feature',
+'geometry': {
+'type': 'Point',
+'coordinates': [
+6.1589338, 62.4723013
+]
+},
+'properties': {
+'title': 'H1',
+'color': "blue"
+}
+},
+{
+// H2，7204337168,62.4726449,6.1644474
+'type': 'Feature',
+'geometry': {
+'type': 'Point',
+'coordinates': [
+6.1644474, 62.4726449
+]
+},
+'properties': {
+'title': 'H2',
+'color': "red"
+}
+},
+{
+// H3，8714559173,62.4714755,6.1596182
+'type': 'Feature',
+'geometry': {
+'type': 'Point',
+'coordinates': [
+6.1596182, 62.4714755
+]
+},
+'properties': {
+'title': 'H3',
+'color': "green"
+}
+},
+{
+// H4, 7379970801,62.471144,6.165792
+'type': 'Feature',
+'geometry': {
+'type': 'Point',
+'coordinates': [
+6.165792, 62.471144
+]
+},
+'properties': {
+'title': 'H4',
+'color': "purple"
+}
+}
+]
+}
 
 
 function ComputeCFH(Matrix, featureStr, Threshold)
 {
-    if(Matrix.length >= featureStr.length)
-    { 
-        let binaryStr = "";
-        for(i = 0; i < 4; i++)//Matrix.length - 1
+if(Matrix.length >= featureStr.length)
+{ 
+    let binaryStr = "";
+    for(i = 0; i < 4; i++)//Matrix.length - 1
+    {
+        if(Math.abs(Matrix[i+1] - Matrix[i]) >= Threshold)
         {
-            if(Math.abs(Matrix[i+1] - Matrix[i]) >= Threshold)
-            {
-                console.log(Math.abs(Matrix[i+1] - Matrix[i]));
-                binaryStr +="1";
-            }
-            else
-                binaryStr +="0";
+            console.log(Math.abs(Matrix[i+1] - Matrix[i]));
+            binaryStr +="1";
         }
-        console.log(binaryStr)
-        return [binaryStr, binaryStr.split(featureStr).length - 1];
+        else
+            binaryStr +="0";
     }
-    else
-        return ["", 0]
+    console.log(binaryStr)
+    return [binaryStr, binaryStr.split(featureStr).length - 1];
+}
+else
+    return ["", 0]
 }
 
 function loadBasicLayger()
 {
-    map.on('style.load', (e) => {
-// Insert the layer beneath any symbol layer.
-// if(layerId != "satellite-v9")
-// {
-//     const layers = map.getStyle().layers;
-//     labelLayerId = layers.find(
-//     (layer) => layer.type === 'symbol' && layer.layout['text-field']
-//     ).id;
-//     //console.log(layers)
-//     //console.log(labelLayerId)
-// }
+map.on('style.load', (e) => {
 
-// map.addSource('mapbox-dem', {
-// 'type': 'raster-dem',
-// 'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-// 'tileSize': 512,
-// 'maxzoom': 14
-// });
-// // add the DEM source as a terrain layer with exaggerated height
-// map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
- 
+map.addSource('mapbox-dem', {
+'type': 'raster-dem',
+'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+'tileSize': 512,
+'maxzoom': 14
+});
+
 // // add a sky layer that will show when the map is highly pitched
-// map.addLayer({
-// 'id': 'sky',
-// 'type': 'sky',
-// 'paint': {
-// 'sky-type': 'atmosphere',
-// 'sky-atmosphere-sun': [0.0, 0.0],
-// 'sky-atmosphere-sun-intensity': 15
-// }
-// });
+map.addLayer({
+'id': 'sky',
+'type': 'sky',
+'paint': {
+'sky-type': 'atmosphere',
+'sky-atmosphere-sun': [0.0, 0.0],
+'sky-atmosphere-sun-intensity': 15
+}
+});
 
-// if(layerId != "satellite-v9")
-// {
-// // The 'building' layer in the Mapbox Streets
-// // vector tileset contains building height data
-// // from OpenStreetMap.
-// map.addLayer(
-// {
-// 'id': 'add-3d-buildings',
-// 'source': 'composite',
-// 'source-layer': 'building',
-// 'filter': ['==', 'extrude', 'true'],
-// 'type': 'fill-extrusion',
-// 'minzoom': 15,
-// 'paint': {
-// 'fill-extrusion-color': '#aaa',
- 
-// // Use an 'interpolate' expression to
-// // add a smooth transition effect to
-// // the buildings as the user zooms in.
-// 'fill-extrusion-height': [
-// 'interpolate',
-// ['linear'],
-// ['zoom'],
-// 15,
-// 0,
-// 15.05,
-// ['get', 'height']
-// ],
-// 'fill-extrusion-base': [
-// 'interpolate',
-// ['linear'],
-// ['zoom'],
-// 15,
-// 0,
-// 15.05,
-// ['get', 'min_height']
-// ],
-// 'fill-extrusion-opacity': 0.6
-// }
-// },
-// labelLayerId
-// );
-// }
+if(layerId != "satellite-v9")
+{
+        const layers = map.getStyle().layers;
+    labelLayerId = layers.find(
+    (layer) => layer.type === 'symbol' && layer.layout['text-field']
+    ).id;
+    //console.log(layers)
+    //console.log(labelLayerId)
+    // The 'building' layer in the Mapbox Streets
+    // vector tileset contains building height data
+    // from OpenStreetMap.
+    map.addLayer(
+    {
+    'id': 'add-3d-buildings',
+    'source': 'composite',
+    'source-layer': 'building',
+    'filter': ['==', 'extrude', 'true'],
+    'type': 'fill-extrusion',
+    'minzoom': 15,
+    'layout': {
+                // Make the layer visible by default.
+                'visibility': 'none'
+            },
+    'paint': {
+    'fill-extrusion-color': 'lightyellow',
+
+    // Use an 'interpolate' expression to
+    // add a smooth transition effect to
+    // the buildings as the user zooms in.
+    'fill-extrusion-height': [
+    'interpolate',
+    ['linear'],
+    ['zoom'],
+    15,
+    0,
+    15.05,
+    ['get', 'height']
+    ],
+    'fill-extrusion-base': [
+    'interpolate',
+    ['linear'],
+    ['zoom'],
+    15,
+    0,
+    15.05,
+    ['get', 'min_height']
+    ],
+    'fill-extrusion-opacity': 0.6
+    }
+    },
+    labelLayerId
+    );
+}
 // Create a default Marker and add it to the map.
 const marker1 = new mapboxgl.Marker({color:"blue"})
 .setLngLat([6.1589338, 62.4723013])
@@ -556,108 +426,108 @@ const marker4 = new mapboxgl.Marker({color:"purple"})
 .setLngLat([6.165792, 62.471144])
 .addTo(map);
 
-    map.addSource('states', {
-    'type': 'geojson',
-    'data': 'polygon.geojson'//'https://docs.mapbox.com/mapbox-gl-js/assets/us_states.geojson'
-    });
+map.addSource('states', {
+'type': 'geojson',
+'data': 'polygon.geojson'//'https://docs.mapbox.com/mapbox-gl-js/assets/us_states.geojson'
+});
 
-    // Add an image to use as a custom marker
-    map.loadImage(
-    'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
-    (error, image) => {
-    if (error) throw error;
-    map.addImage('custom-marker', image);
-    // Add a GeoJSON source with 4 points
-    map.addSource('points', {
-    'type': 'geojson',
-    'data': pointlist});
+// Add an image to use as a custom marker
+map.loadImage(
+'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+(error, image) => {
+if (error) throw error;
+map.addImage('custom-marker', image);
+// Add a GeoJSON source with 4 points
+map.addSource('points', {
+'type': 'geojson',
+'data': pointlist});
 
 
-    // map.addSource('radar', radarData);
-    // map.addLayer({
-    // id: 'radar-layer',
-    // 'type': 'raster',
-    // 'source': 'radar',
-    // 'paint': {
-    // 'raster-fade-duration': 0
-    // }
-    // });
+// map.addSource('radar', radarData);
+// map.addLayer({
+// id: 'radar-layer',
+// 'type': 'raster',
+// 'source': 'radar',
+// 'paint': {
+// 'raster-fade-duration': 0
+// }
+// });
 
-    // map.addSource('polygon1', {
-    // type: 'geojson',
-    // // Use a URL for the value for the `data` property.
-    // data: rawdata,//'polygon.geojson',
-    // });
-    // // Add a new layer to visualize the polygon.
-    // map.addLayer({
-    // 'id': 'poly1',
-    // 'type': 'fill',
-    // 'source': 'polygon1', // reference the data source
-    // 'layout': {},
-    // 'paint': {
-    // 'fill-color': '#00ff00', // blue color fill
-    // 'fill-opacity': 1.0
-    // }
-    // });
+// map.addSource('polygon1', {
+// type: 'geojson',
+// // Use a URL for the value for the `data` property.
+// data: rawdata,//'polygon.geojson',
+// });
+// // Add a new layer to visualize the polygon.
+// map.addLayer({
+// 'id': 'poly1',
+// 'type': 'fill',
+// 'source': 'polygon1', // reference the data source
+// 'layout': {},
+// 'paint': {
+// 'fill-color': '#00ff00', // blue color fill
+// 'fill-opacity': 1.0
+// }
+// });
 
-    // Add a data source containing GeoJSON data.
-    map.addSource('maine', {
-    'type': 'geojson',
-    'data': {
-    'type': 'Feature',
-    'id': 1,
-    'geometry': {
-    'type': 'Polygon',
-    // These coordinates outline Maine.
-    'coordinates': [
-    [
-    [6.1589338, 62.4723013],
-    [6.1644474, 62.47264497],
-    [6.165792, 62.471144],
-    [6.1596182, 62.4714755],
-    [6.1589338, 62.4723013],
-    ]
-    ]
-    }
-    }
-    });
-    // Add a new layer to visualize the polygon.
-    map.addLayer({
-    'id': 'maine',
-    'type': 'fill',
-    'source': 'maine', // reference the data source
-    'layout': {},
-    'paint': {
-    'fill-color': '#0080ff', // blue color fill
-    'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            1,
-            0
-            ]
-    }
-    });
+// Add a data source containing GeoJSON data.
+map.addSource('maine', {
+'type': 'geojson',
+'data': {
+'type': 'Feature',
+'id': 1,
+'geometry': {
+'type': 'Polygon',
+// These coordinates outline Maine.
+'coordinates': [
+[
+[6.1589338, 62.4723013],
+[6.1644474, 62.47264497],
+[6.165792, 62.471144],
+[6.1596182, 62.4714755],
+[6.1589338, 62.4723013],
+]
+]
+}
+}
+});
+// Add a new layer to visualize the polygon.
+map.addLayer({
+'id': 'maine',
+'type': 'fill',
+'source': 'maine', // reference the data source
+'layout': {},
+'paint': {
+'fill-color': '#0080ff', // blue color fill
+'fill-opacity': [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        1,
+        0
+        ]
+}
+});
 
-    // Add a data source containing GeoJSON data.
-    map.addSource('road1', {
-    'type': 'geojson',
-    lineMetrics: true,
-    'data': {
-    'type': 'Feature',
-    'geometry': {
-    'type': 'LineString',
-    // These coordinates outline Maine.
-    'coordinates': [
-    [
-    [6.1589338, 62.4723013],
-    [6.16444, 62.47264497],
-    [6.165792, 62.471144],
-    [6.1596182, 62.4714755],
-    ]
-    ]
-    }
-    }
-    });
+// Add a data source containing GeoJSON data.
+map.addSource('road1', {
+'type': 'geojson',
+lineMetrics: true,
+'data': {
+'type': 'Feature',
+'geometry': {
+'type': 'LineString',
+// These coordinates outline Maine.
+'coordinates': [
+[
+[6.1589338, 62.4723013],
+[6.16444, 62.47264497],
+[6.165792, 62.471144],
+[6.1596182, 62.4714755],
+]
+]
+}
+}
+});
 // 'line-gradient' can only be used with GeoJSON sources
 // and the source must have the 'lineMetrics' option set to true
 map.addSource('line', {
@@ -665,7 +535,7 @@ type: 'geojson',
 lineMetrics: true,
 data: geojson
 });
- 
+
 // // the layer must be of type 'line'
 // map.addLayer({
 // type: 'line',
@@ -678,7 +548,7 @@ data: geojson
 // "line-dasharray": [2, 4]
 // }
 // });
-    }
+}
 );
 const geojson = {
 'type': 'FeatureCollection',
@@ -688,10 +558,10 @@ const geojson = {
 'properties': {},
 'geometry': {
 'coordinates': [
-    [6.1589338, 62.4723013],
-    [6.16444, 62.47264497],
-    [6.165792, 62.471144],
-    [6.1596182, 62.4714755],
+[6.1589338, 62.4723013],
+[6.16444, 62.47264497],
+[6.165792, 62.471144],
+[6.1596182, 62.4714755],
 ],
 'type': 'LineString'
 }
@@ -705,461 +575,466 @@ const geojson = {
 //         console.log(stores)
 //     }
 });
-    map.on('sourcedata', (e) => {
-        //console.log(e)
-        if(!a && e.sourceId === "points" && map.isSourceLoaded("points")){
-            //console.log("abc")
-            pointlist.features[0].properties.title = "H1";//H101
-            console.log(pointlist)
-            map.getSource('points').setData(pointlist);
-            // Add a symbol layer
-            map.addSource('polygon1', {
-            type: 'geojson',
-            // Use a URL for the value for the `data` property.
-            data: rawdata,//'polygon.geojson',
-            });
-            
-            // Add a symbol layer
-            map.addLayer({
-            'id': 'points',
-            'type': 'symbol',
-            'source': 'points',
+map.on('sourcedata', (e) => {
+    //console.log(e)
+    if(!a && e.sourceId === "points" && map.isSourceLoaded("points")){
+        //console.log("abc")
+        pointlist.features[0].properties.title = "H1";//H101
+        console.log(pointlist)
+        map.getSource('points').setData(pointlist);
+        // Add a symbol layer
+        map.addSource('polygon1', {
+        type: 'geojson',
+        // Use a URL for the value for the `data` property.
+        data: rawdata,//'polygon.geojson',
+        });
+        
+        // Add a symbol layer
+        map.addLayer({
+        'id': 'points',
+        'type': 'symbol',
+        'source': 'points',
+        'layout': {
+        //'icon-image': 'custom-marker',
+        // get the title name from the source's "title" property
+        'text-field': ['get', 'title'],
+        'text-font': [
+        'Open Sans Semibold',
+        'Arial Unicode MS Bold'
+        ],
+        'text-offset': [0, -3.5],
+        'text-anchor': 'top',
+        },
+        'paint': {
+            'text-color': ['get', 'color'],
+        },
+        });
+
+        map.addLayer({
+            'id': 'room-extrusion',
+            'type': 'fill-extrusion',
+            'source': 'polygon1',
             'layout': {
-            //'icon-image': 'custom-marker',
-            // get the title name from the source's "title" property
-            'text-field': ['get', 'title'],
-            'text-font': [
-            'Open Sans Semibold',
-            'Arial Unicode MS Bold'
-            ],
-            'text-offset': [0, -3.5],
-            'text-anchor': 'top',
+                // Make the layer visible by default.
+                'visibility': 'visible'
             },
             'paint': {
-                'text-color': ['get', 'color'],
-            },
-            });
-
-            map.addLayer({
-                'id': 'room-extrusion',
-                'type': 'fill-extrusion',
-                'source': 'polygon1',
-                'layout': {
-                    // Make the layer visible by default.
-                    'visibility': 'visible'
-                },
-                'paint': {
-                // Get the `fill-extrusion-color` from the source `color` property.
-                //'fill-extrusion-color': ['get', 'color'],
-                'fill-extrusion-color':[
-                    'case',
-                    ['boolean', ['feature-state', 'hover'], false],
-                    "black",
-                    "grey"
-                    ],//"grey",
-                
-                // Get `fill-extrusion-height` from the source `height` property.
-                'fill-extrusion-height': ['get', 'height'],
-                
-                // Get `fill-extrusion-base` from the source `base_height` property.
-                //'fill-extrusion-base': ['get', 'base_height'],
-                
-                // Make extrusions slightly opaque to see through indoor walls.
-                'fill-extrusion-opacity': 0.5
-                }
-                });
-            a = true;
-        }
-    })
-
-    // after load the polygon raw data file, add layers
-    map.on('sourcedata', (e) => {
-        //console.log(e)
-        if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
-            //console.log("abc")
-            //console.log(rawdata.features.length)
-            //console.log(rawdata.features[0].properties.name)
-
-            i = rawdata.features.length - 1;
-            lambda_min = rawdata.features[i].properties.tdm_lambda_min;
-            lambda_max = rawdata.features[i].properties.tdm_lambda_max;
-
-            dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
-            dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
-
-
-            Threshold = (lambda_max - lambda_min) / 20;
-
-            dfeatureStr.textContent = featureStr;
-            dthreshold.textContent = Threshold;
-
-            console.log(rawdata.features.length)
-
-            timesteps = rawdata.features[0].properties.cfh_matrix.length;
-            console.log(timesteps)
-            document.getElementById('slider').setAttribute("max",timesteps);//40);
+            // Get the `fill-extrusion-color` from the source `color` property.
+            //'fill-extrusion-color': ['get', 'color'],
+            'fill-extrusion-color':[
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                "black",
+                "grey"
+                ],//"grey",
             
-            computeTTDM(document.getElementById('heightcfh').checked);
-
-            addLayers_Hover();
-
-            // Add a new layer to visualize the polygon.
-            map.addLayer({
-                'id': 'poly1',
-                'type': 'fill',
-                'source': 'polygon1', // reference the data source
-                'layout': {
-                    // Make the layer visible by default.
-                    'visibility': 'visible'
-                },
-                'paint': {
-                'fill-color': ['get', 'color'],//'#00ff00', // blue color fill
-                'fill-opacity': ['get', 'alpha']
-                }
+            // Get `fill-extrusion-height` from the source `height` property.
+            'fill-extrusion-height': ['get', 'height'],
+            
+            // Get `fill-extrusion-base` from the source `base_height` property.
+            //'fill-extrusion-base': ['get', 'base_height'],
+            
+            // Make extrusions slightly opaque to see through indoor walls.
+            'fill-extrusion-opacity': 0.5
+            }
             });
+        a = true;
+    }
+})
 
-            document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
-            document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
+// after load the polygon raw data file, add layers
+map.on('sourcedata', (e) => {
+    //console.log(e)
+    if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
+        //console.log("abc")
+        //console.log(rawdata.features.length)
+        //console.log(rawdata.features[0].properties.name)
 
-            //
-            var tick = function() {
-                tick_update();
-                window.requestAnimationFrame(tick, map);
-            };
-            tick();
-            rotateCamera(0);
-            b = true;
+        i = rawdata.features.length - 1;
+        lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+        lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-            colormappingChanged();
-            heightmappingChanged();
-            graphxyChanged();
-        }
-    })
+        dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
+        dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
 
-    // When a click event occurs on a feature in the states layer,
-    // open a popup at the location of the click, with description
-    // HTML from the click event's properties.
-    map.on('click', 'poly1', (e) => {
-        //console.log(123)
-    new mapboxgl.Popup()//({className:"popstyle"})
-    .setLngLat(e.lngLat)
-    .setHTML(infoList.innerHTML)//e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
-    .addTo(map);
 
-    //console.log(infoList.outerHTML)
-    });
+        Threshold = (lambda_max - lambda_min) / 20;
 
-    activeHover();
+        dfeatureStr.textContent = featureStr;
+        dthreshold.textContent = parseFloat(Threshold.toFixed(4));
+
+        console.log(rawdata.features.length)
+
+        timesteps = rawdata.features[0].properties.cfh_matrix.length;
+        console.log(timesteps)
+        document.getElementById('slider').setAttribute("max",timesteps);//40);
+        
+        computeTTDM(document.getElementById('heightcfh').checked);
+
+        addLayers_Hover();
+
+        // Add a new layer to visualize the polygon.
+        map.addLayer({
+            'id': 'poly1',
+            'type': 'fill',
+            'source': 'polygon1', // reference the data source
+            'layout': {
+                // Make the layer visible by default.
+                'visibility': 'visible'
+            },
+            'paint': {
+            'fill-color': ['get', 'color'],//'#00ff00', // blue color fill
+            'fill-opacity': ['get', 'alpha']
+            }
+        });
+
+        document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
+        document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
+
+        //
+        var tick = function() {
+            tick_update();
+            window.requestAnimationFrame(tick, map);
+        };
+        tick();
+        rotateCamera(0);
+        b = true;
+
+        colormappingChanged();
+        heightmappingChanged();
+        graphxyChanged();
+        terrainChanged();
+        buildingChanged();
+
+        cameraPos = {"center":{"lng":6.164544300000017,"lat":62.47200129999996},"zoom":16,"pitch":72.51072648495212,"bearing":43.206391505516535};
+        updateCameraPosition();
+    }
+})
+
+// When a click event occurs on a feature in the states layer,
+// open a popup at the location of the click, with description
+// HTML from the click event's properties.
+map.on('click', 'poly1', (e) => {
+    //console.log(123)
+new mapboxgl.Popup()//({className:"popstyle"})
+.setLngLat(e.lngLat)
+.setHTML(infoList.innerHTML)//e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
+.addTo(map);
+
+//console.log(infoList.outerHTML)
+});
+
+activeHover();
 }
 
 function computeTTDM(heightcfh)
 {
-    for(i=0; i<rawdata.features.length-1;i++)//rawdata.features.length-1
-    {
-        //console.log("abc")
-        props = rawdata.features[i].properties;
-        props.color = props.tdm_color;
-        // color mapping with lambda value
-        props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
-        matrix = props.cfh_matrix;
+for(i=0; i<rawdata.features.length-1;i++)//rawdata.features.length-1
+{
+    //console.log("abc")
+    props = rawdata.features[i].properties;
+    props.color = props.tdm_color;
+    // color mapping with lambda value
+    props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+    matrix = props.cfh_matrix;
 
-        // console.log(matrix)
-        // if (i < 3)
-        // {
-        //     console.log("i_" + i)
-        //     ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
-        //     //cfhresult = ComputeCFH(matrix, "01", 0.2);
-        //     //console.log(cfhresult)
-        // }
-        if(matrix.length >= featureStr.length)
-        { 
-            let binaryStr = "";
-            for(j = 0; j < matrix.length - 1; j++)//Matrix.length - 1
-            {
-                //console.log(matrix[j+1]);
-                //console.log(Math.abs(matrix[j+1] - matrix[j]));
-                if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
-                {
-                    binaryStr +="1";
-                }
-                else
-                    binaryStr +="0";
-            }
-            //console.log(binaryStr)
-            //console.log( binaryStr.split(featureStr).length - 1)
-            props.cfh_bstr = binaryStr;
-            if(!heightcfh)
-                props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
-            else
-                props.height = (binaryStr.split(featureStr).length - 1);
-        }
-        else
+    // console.log(matrix)
+    // if (i < 3)
+    // {
+    //     console.log("i_" + i)
+    //     ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+    //     //cfhresult = ComputeCFH(matrix, "01", 0.2);
+    //     //console.log(cfhresult)
+    // }
+    if(matrix.length >= featureStr.length)
+    { 
+        let binaryStr = "";
+        for(j = 0; j < matrix.length - 1; j++)//Matrix.length - 1
         {
-            props.cfh_bstr = "";
-            props.height = 0;
+            //console.log(matrix[j+1]);
+            //console.log(Math.abs(matrix[j+1] - matrix[j]));
+            if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
+            {
+                binaryStr +="1";
+            }
+            else
+                binaryStr +="0";
         }
-
-        // height = 0;
-        // for(j = 0; j < matrix.length; j++)
-        //     height += matrix[j];
-        // props.height = height / matrix.length;
+        //console.log(binaryStr)
+        //console.log( binaryStr.split(featureStr).length - 1)
+        props.cfh_bstr = binaryStr;
+        if(!heightcfh)
+            props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
+        else
+            props.height = (binaryStr.split(featureStr).length - 1);
+    }
+    else
+    {
+        props.cfh_bstr = "";
+        props.height = 0;
     }
 
-    // cfhresult = ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
-    // console.log(cfhresult)
+    // height = 0;
+    // for(j = 0; j < matrix.length; j++)
+    //     height += matrix[j];
+    // props.height = height / matrix.length;
+}
 
-    map.getSource('polygon1').setData(rawdata);
-    console.log(rawdata)
+// cfhresult = ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+// console.log(cfhresult)
+
+map.getSource('polygon1').setData(rawdata);
+console.log(rawdata)
 }
 
 function tick_update()
 {
-    var now = Date.now();   // Calculate the elapsed time
-    var elapsed = now - last;
-    
-    if(elapsed > g_playwait * 1000)
+var now = Date.now();   // Calculate the elapsed time
+var elapsed = now - last;
+
+if(elapsed > g_playwait * 1000)
+{
+    if(g_play)
     {
-        if(g_play)
-        {
-            value = parseInt(document.getElementById('slider').value);
-            if(value < timesteps)
-                newvalue = value + 1
-            else
-                newvalue = 1
-            document.getElementById('slider').value = newvalue;
-            console.log(newvalue)
-            update_last();
-            console.log("play")
-            filterBy(newvalue);
-        }
+        value = parseInt(document.getElementById('slider').value);
+        if(value < timesteps)
+            newvalue = value + 1
         else
-        {
-            update_last();
-            console.log("wait")
-        }
+            newvalue = 1
+        document.getElementById('slider').value = newvalue;
+        console.log(newvalue)
+        update_last();
+        console.log("play")
+        filterBy(newvalue);
     }
+    else
+    {
+        update_last();
+        console.log("wait")
+    }
+}
 }
 
 function update_last()
 {
-  var now = Date.now();   // Calculate the elapsed time
-  last = now;
+var now = Date.now();   // Calculate the elapsed time
+last = now;
 }
 
 function addLayers_Hover()
 {
-    // add black outline
-    map.addLayer({
-        'id': 'outline',
-        'type': 'line',
-        'source': 'polygon1',
-        'layout': {},
-        'paint': {
-        'line-width': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        4,
-        0
-        ],
-        'line-color': 'black'
-        }
-    });
+// add black outline
+map.addLayer({
+    'id': 'outline',
+    'type': 'line',
+    'source': 'polygon1',
+    'layout': {},
+    'paint': {
+    'line-width': [
+    'case',
+    ['boolean', ['feature-state', 'hover'], false],
+    4,
+    0
+    ],
+    'line-color': 'black'
+    }
+});
 
-    // add transparent fill to capture the hover area
-    // The feature-state dependent fill-opacity expression will render the hover effect
-    // when a feature's hover state is set to true.
-    map.addLayer({
-        'id': 'state-fills',
-        'type': 'fill',
-        'source': 'polygon1',
-        'layout': {},
-        'paint': {
-        'fill-color': 'black',
-        'fill-opacity': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        0,
-        0
-        ]
-        }
-    });
+// add transparent fill to capture the hover area
+// The feature-state dependent fill-opacity expression will render the hover effect
+// when a feature's hover state is set to true.
+map.addLayer({
+    'id': 'state-fills',
+    'type': 'fill',
+    'source': 'polygon1',
+    'layout': {},
+    'paint': {
+    'fill-color': 'black',
+    'fill-opacity': [
+    'case',
+    ['boolean', ['feature-state', 'hover'], false],
+    0,
+    0
+    ]
+    }
+});
 }
 
 function activeHover()
 {
-    // Change the cursor to a pointer when
-    // the mouse is over the states layer.
-    map.on('mouseenter', 'poly1', () => {
-    map.getCanvas().style.cursor = 'pointer';
-    });
-    
-    // Change the cursor back to a pointer
-    // when it leaves the states layer.
-    map.on('mouseleave', 'poly1', () => {
-    map.getCanvas().style.cursor = '';
-    });
-    
-    // When the user moves their mouse over the state-fill layer, we'll update the
-    // feature state for the feature under the mouse.
-    map.on('mousemove', 'state-fills', (e) => {
-    if (e.features.length > 0) {
-    if (hoveredStateId !== null) {
-    map.setFeatureState(
-    { source: 'polygon1', id: hoveredStateId },
-    { hover: false }
-    );
-    }
-    hoveredStateId = e.features[0].id;
-    hoveredProps = e.features[0].properties;
-    map.setFeatureState(
-    { source: 'polygon1', id: hoveredStateId },
-    { hover: true }
-    );
-    dVectexId.textContent = hoveredStateId;
-    dLatitude.textContent = e.lngLat.lng;
-    dLongitude.textContent = e.lngLat.lat;
+// Change the cursor to a pointer when
+// the mouse is over the states layer.
+map.on('mouseenter', 'poly1', () => {
+map.getCanvas().style.cursor = 'pointer';
+});
 
-    props = e.features[0].properties;
-    dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
-    dtdm_color.textContent = props.color;
-    dtdm_color_sample.style.backgroundColor = props.color;
-    dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
-    daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
-    dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
-    dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
-    dheight.textContent = parseFloat(props.height.toFixed(6));
-    dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
-    dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
-    //console.log(hoveredStateId + ":true");
-    }
-    });
-    
-    // When the mouse leaves the state-fill layer, update the feature state of the
-    // previously hovered feature.
-    map.on('mouseleave', 'state-fills', (e) => {
-    if (hoveredStateId !== null) {
-        //console.log(hoveredStateId + ":false");
-    map.setFeatureState(
-    { source: 'polygon1', id: hoveredStateId },
-    { hover: false }
-    );
-    dVectexId.textContent = "No data";;
-    dLatitude.textContent = "";
-    dLongitude.textContent = "";
-    dColor_alpha.textContent = "";
-    dtdm_color.textContent = "";
-    dtdm_color_sample.style.backgroundColor = "white";
-    dtdm_lambda.textContent = "";
-    daccess_time.textContent = "";
-    dift_cost.textContent = "";
-    dtdm_cost.textContent = "";
-    dheight.textContent = "";
-    dbinaryStr.textContent = "";
-    dcfh_matrix.textContent = "";
-    }
-    hoveredStateId = null;
-    hoveredProps = null;
-    });
+// Change the cursor back to a pointer
+// when it leaves the states layer.
+map.on('mouseleave', 'poly1', () => {
+map.getCanvas().style.cursor = '';
+});
+
+// When the user moves their mouse over the state-fill layer, we'll update the
+// feature state for the feature under the mouse.
+map.on('mousemove', 'state-fills', (e) => {
+if (e.features.length > 0) {
+if (hoveredStateId !== null) {
+map.setFeatureState(
+{ source: 'polygon1', id: hoveredStateId },
+{ hover: false }
+);
+}
+hoveredStateId = e.features[0].id;
+hoveredProps = e.features[0].properties;
+map.setFeatureState(
+{ source: 'polygon1', id: hoveredStateId },
+{ hover: true }
+);
+dVectexId.textContent = hoveredStateId;
+dLatitude.textContent = e.lngLat.lng;
+dLongitude.textContent = e.lngLat.lat;
+
+props = e.features[0].properties;
+dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
+dtdm_color.textContent = props.color;
+dtdm_color_sample.style.backgroundColor = props.color;
+dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
+daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
+dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
+dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
+dheight.textContent = parseFloat(props.height.toFixed(6));
+dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
+dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
+//console.log(hoveredStateId + ":true");
+}
+});
+
+// When the mouse leaves the state-fill layer, update the feature state of the
+// previously hovered feature.
+map.on('mouseleave', 'state-fills', (e) => {
+if (hoveredStateId !== null) {
+    //console.log(hoveredStateId + ":false");
+map.setFeatureState(
+{ source: 'polygon1', id: hoveredStateId },
+{ hover: false }
+);
+dVectexId.textContent = "No data";;
+dLatitude.textContent = "";
+dLongitude.textContent = "";
+dColor_alpha.textContent = "";
+dtdm_color.textContent = "";
+dtdm_color_sample.style.backgroundColor = "white";
+dtdm_lambda.textContent = "";
+daccess_time.textContent = "";
+dift_cost.textContent = "";
+dtdm_cost.textContent = "";
+dheight.textContent = "";
+dbinaryStr.textContent = "";
+dcfh_matrix.textContent = "";
+}
+hoveredStateId = null;
+hoveredProps = null;
+});
 }
 
 function filterBy(month) {
-    // Set the label to the month
-    //console.log(month);
-    document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
-    index = month - 1;
+// Set the label to the month
+//console.log(month);
+document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
+index = month - 1;
 
-    i = rawdata.features.length - 1;
-    lambda_min = rawdata.features[i].properties.tdm_lambda_min;
-    lambda_max = rawdata.features[i].properties.tdm_lambda_max;
+i = rawdata.features.length - 1;
+lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-    dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
-    dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
+dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
+dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
 
-    for(i=0; i<rawdata.features.length-1;i++)
-    {
-        //console.log("abc")
-        props = rawdata.features[i].properties;
-        props.color = props.cfh_labelmatrix[index];
-        props.tdm_lambda = props.cfh_matrix[index];
-        props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
-    }
-    map.getSource('polygon1').setData(rawdata);
-    // update information
-    if(hoveredProps != null)
-    {
-        props = rawdata.features[hoveredStateId].properties;
-        updatelabel(dColor_alpha, props.alpha);
-        dtdm_color.textContent = props.color;
-        dtdm_color_sample.style.backgroundColor = props.color;
-        //matrix = rawdata.features[hoveredStateId].properties.cfh_matrix;
-        updatelabel(dtdm_lambda, props.tdm_lambda);
-        //console.log("index " + index +',' + matrix[index]);
-    }
+for(i=0; i<rawdata.features.length-1;i++)
+{
+    //console.log("abc")
+    props = rawdata.features[i].properties;
+    props.color = props.cfh_labelmatrix[index];
+    props.tdm_lambda = props.cfh_matrix[index];
+    props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+}
+map.getSource('polygon1').setData(rawdata);
+// update information
+if(hoveredProps != null)
+{
+    props = rawdata.features[hoveredStateId].properties;
+    updatelabel(dColor_alpha, props.alpha);
+    dtdm_color.textContent = props.color;
+    dtdm_color_sample.style.backgroundColor = props.color;
+    //matrix = rawdata.features[hoveredStateId].properties.cfh_matrix;
+    updatelabel(dtdm_lambda, props.tdm_lambda);
+    //console.log("index " + index +',' + matrix[index]);
+}
 }
 
 function updatelabel(obj, val)
 {
-    valstr = parseFloat(val.toFixed(6));
-    if(valstr != obj.textContent)
-    {
-        obj.textContent = valstr;
-        obj.setAttribute('class', 'bold');
-    }
-    else
-        obj.setAttribute('class', 'normal');
+valstr = parseFloat(val.toFixed(6));
+if(valstr != obj.textContent)
+{
+    obj.textContent = valstr;
+    obj.setAttribute('class', 'bold');
+}
+else
+    obj.setAttribute('class', 'normal');
 }
 
 function play_pause(){
-  //console.log(g_play, '1');
-  if(g_play)
-  {g_play = false;}
-  else
-  {
-    update_last();
-    g_play = true;
-  }
+//console.log(g_play, '1');
+if(g_play)
+{g_play = false;}
+else
+{
+update_last();
+g_play = true;
+}
 }
 
 function rotateCamera() {
-    //console.log(enableRotate)
-    if(enableRotate)
-    {
-        // clamp the rotation between 0 -360 degrees
-        // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-        angle = (map.getBearing() + 0.1) % 360;
-        map.rotateTo(angle, { duration: 0 });
-        //console.log(map.getCenter());
-        //console.log(map.getZoom());
-        //console.log(map.getBearing());
-    }
-    else
-        startangle = map.getBearing()
-    // Request the next frame of the animation.
-    requestAnimationFrame(rotateCamera);
+//console.log(enableRotate)
+if(enableRotate)
+{
+    // clamp the rotation between 0 -360 degrees
+    // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+    angle = (map.getBearing() + 0.1) % 360;
+    map.rotateTo(angle, { duration: 0 });
+    //console.log(map.getCenter());
+    //console.log(map.getZoom());
+    //console.log(map.getBearing());
+}
+else
+    startangle = map.getBearing()
+// Request the next frame of the animation.
+requestAnimationFrame(rotateCamera);
 }
 
 function changeSelected(){
-  enableRotate = document.getElementById("rotate").checked;
-  console.log(enableRotate)
+enableRotate = document.getElementById("rotate").checked;
+console.log(enableRotate)
 }
 
 function chunkString(str, length) {
-  return str.match(new RegExp('.{1,' + length + '}', 'g')).join('\n');
+return str.match(new RegExp('.{1,' + length + '}', 'g')).join('\n');
 }
 
 function componentToHex(c) {
-  var hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
+var hex = c.toString(16);
+return hex.length == 1 ? "0" + hex : hex;
 }
 
 function rgbToHex(r, g, b) {
-  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
 //const map;
 function loadMap()
 {
-    loadBasicLayger();
+loadBasicLayger();
 
 }
 
@@ -1189,6 +1064,7 @@ const dthreshold = document.getElementById('threshold');
 const dbinaryStr = document.getElementById('binaryStr');
 const dfeatureStr = document.getElementById('featureStr');
 const dcfh_matrix = document.getElementById('cfh_matrix');
+const dfeatureStrSet = document.getElementById('featureStrSet');
 
 document.getElementById('slider').addEventListener('input', (e) => {
     //console.log("v" + e.target.value)
@@ -1205,35 +1081,60 @@ document.getElementById('delaySlider').addEventListener('input', (e) => {
 
 
 function heightcfhChanged(){
-  computeTTDM(document.getElementById("heightcfh").checked)
-}
+    computeTTDM(document.getElementById("heightcfh").checked)
+    }
 
 function colormappingChanged(){
     layerStr = 'poly1'
-  if(document.getElementById('colormapping').checked)
-  {    
+    if(document.getElementById('colormapping').checked)
+    {    
     map.setLayoutProperty(
         layerStr,'visibility', 'visible');
     }
-  else
-  {
+    else
+    {
     map.setLayoutProperty(
         layerStr,'visibility', 'none');
-  } 
+    } 
 }
 
 function heightmappingChanged(){
     layerStr = 'room-extrusion'
-  if(document.getElementById('heightmapping').checked)
-  {    
+    if(document.getElementById('heightmapping').checked)
+    {    
     map.setLayoutProperty(
         layerStr,'visibility', 'visible');
     }
-  else
-  {
+    else
+    {
     map.setLayoutProperty(
         layerStr,'visibility', 'none');
-  } 
+    } 
+}
+
+function buildingChanged(){
+    layerStr = 'add-3d-buildings'
+    if(document.getElementById('buildingEnabled').checked)
+    {    
+    map.setLayoutProperty(
+        layerStr,'visibility', 'visible');
+    }
+    else
+    {
+    map.setLayoutProperty(
+        layerStr,'visibility', 'none');
+    } 
+}
+
+function terrainChanged()
+{
+    if(document.getElementById('terrainEnabled').checked)
+    {
+        // add the DEM source as a terrain layer with exaggerated height
+        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+    }
+    else
+        map.setTerrain();
 }
 
 function refreshDataSourceTypeFun()
@@ -1288,13 +1189,109 @@ function graphxyChanged()
         document.getElementById('graph2d').setAttribute('class','legend')
 }
 
+function doupload() {
+let file = document.getElementById('file').files[0];
+
+  (async () => {
+    const fileContent = await file.text();
+    rawdata = JSON.parse(fileContent);
+    console.log('uploaded=', file, ',', rawdata);
+    computeTTDM(document.getElementById('heightcfh').checked);
+  })();
+};
+
+function updateFeatureStr()
+{
+    fstr = document.getElementById('featureStrSet').value;
+    console.log("fstr=",fstr);
+    var numbers = /^[0-1]+$/;
+    if(fstr.match(numbers))
+    {
+        featureStr = fstr;
+        dfeatureStr.textContent = featureStr;
+        computeTTDM(document.getElementById('heightcfh').checked);
+    }
+    else
+    {
+        document.getElementById('featureStrSet').value = featureStr;
+    }
+}
+
+function updateThreshold()
+{
+    fstr = document.getElementById('thresholdSet').value;
+    console.log("threshold=",fstr);
+    var numbers = /^[0-9]*\.?[0-9]*$/;
+    if(fstr.match(numbers))
+    {
+        Threshold = parseFloat(fstr);
+        console.log(Threshold)
+        dthreshold.textContent = Threshold;
+        computeTTDM(document.getElementById('heightcfh').checked);
+    }
+    else
+    {
+        document.getElementById('thresholdSet').value = Threshold;
+    } 
+}
+
+function copyCameraPosition()
+{
+    cameraPos.center = map.getCenter();
+    cameraPos.zoom = map.getZoom();
+    cameraPos.bearing = map.getBearing();
+    cameraPos.pitch = map.getPitch();
+    navigator.clipboard.writeText(JSON.stringify(cameraPos));
+}
+
+async function pasteCameraPosition()
+{
+    let text = await navigator.clipboard.readText();
+    console.log(text);
+    if(text.length < 200)
+    {
+        console.log(text)
+        tmp_cameraPos = JSON.parse(text);
+        if(tmp_cameraPos.center != null)
+        {
+            cameraPos.center = tmp_cameraPos.center;
+            cameraPos.zoom = tmp_cameraPos.zoom;
+            cameraPos.bearing = tmp_cameraPos.bearing;
+            cameraPos.pitch = tmp_cameraPos.pitch;
+            updateCameraPosition();
+            // map.setCenter(cameraPos.center);
+            // map.setZoom(cameraPos.zoom);
+            // map.setBearing(cameraPos.bearing);
+            // map.setPitch(cameraPos.pitch);
+        }
+    }
+}
+
+function updateCameraPosition()
+{
+    // Using easeTo options.
+    map.easeTo({
+                center: cameraPos.center,
+                zoom: cameraPos.zoom,
+                bearing: cameraPos.bearing,
+                pitch: cameraPos.pitch,
+                speed: 0.2,
+                curve: 1,
+                duration: 5000,
+                easing(t) {
+                return t;
+            }
+            });
+}
 
 document.getElementById("play_button").onclick = play_pause;
 document.getElementById("rotate").onchange = changeSelected;
 document.getElementById("heightcfh").onchange = heightcfhChanged;
 document.getElementById("heightmapping").onchange = heightmappingChanged;
 document.getElementById("colormapping").onchange = colormappingChanged;
-document.getElementById("graphxy").onclick = graphxyChanged;
+document.getElementById("graphxy").onchange = graphxyChanged;
+document.getElementById("terrainEnabled").onchange = terrainChanged;
+document.getElementById("buildingEnabled").onchange = buildingChanged;
 
 document.getElementById("rd_light").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_satellite").onclick = refreshDataSourceTypeFun;
@@ -1302,52 +1299,6 @@ document.getElementById("rd_dark").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_streets").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
-
-//         radarData =  {
-//         'type': 'image',
-//         'url': 'ImplementationUI.jpg',
-//         'coordinates': [
-//         [6.1589338, 62.4723013],
-//         [6.1644474, 62.47264497],
-//         [6.165792, 62.471144],
-//         [6.1596182, 62.4714755]
-//         ]
-//         }
-//         //console.log(radarData);
-//         map.getSource('radar').updateImage(radarData);
-
-//         for(i=0; i<rawdata.features.length-1;i++)
-//             {
-//                 rd = rawdata.features[i];
-//                 console.log(rawdata.features[i].properties.name)
-//                 rawdata.features[i].properties.color = rgbToHex(i*10,0,255-i*10)
-//                 // if(rawdata.features[i].properties.name == "i3j3")
-//                 //     rawdata.features[i].properties.color = "red";
-//                 // else
-//                 //     rawdata.features[i].properties.color = "blue";
-//             }
-            
-
-
-//             map.getSource('polygon1').setData(rawdata);
-//     };
-
-//     testbutton1.onclick = () => {
-//         for(i=0; i<rawdata.features.length-1;i++)
-//             {
-//                 rd = rawdata.features[i];
-//                 console.log(rawdata.features[i].properties.name)
-//                 rawdata.features[i].properties.color = rgbToHex(i*10,255-i*10,0)
-//                 // if(rawdata.features[i].properties.name == "i3j3")
-//                 //     rawdata.features[i].properties.color = "red";
-//                 // else
-//                 //     rawdata.features[i].properties.color = "blue";
-//             }
-            
-
-
-//             map.getSource('polygon1').setData(rawdata);
-//     };
 
 // Build 0003
 nFilterType = 0
@@ -1357,8 +1308,8 @@ nOldSourceType = 0
 nChartType = 3
 
 csv_addr = ['https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/03_covid_tests/national_tests.csv',
-    'https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/01_infected/msis/municipality_and_district.csv',
-    'https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/04_deaths/deaths_total_fhi.csv']
+'https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/01_infected/msis/municipality_and_district.csv',
+'https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/04_deaths/deaths_total_fhi.csv']
 
 titles = ['Covid tests', 'Infected cases', 'Covid deaths']
 
@@ -1366,190 +1317,189 @@ charttypes = ['line','area','column','bar']
 
 function drawHighCharts(x_data, y_data)
 {
-    document.getElementById("container").innerHTML = "";
-    Highcharts.chart('container', {
-    chart: {
-        type: charttypes[nChartType-1],
-        zoomType: 'x'
-	},
+document.getElementById("container").innerHTML = "";
+Highcharts.chart('container', {
+chart: {
+    type: charttypes[nChartType-1],
+    zoomType: 'x'
+},
 
+title: {
+    text: 'Covid Data'
+},
+
+subtitle: {
+    text: 'Source: https://www.covid19data.no/'
+},
+
+yAxis: {
+    min : 0,
+    scrollbar: {
+        enabled: true,
+        showFull: true
+    },
     title: {
-        text: 'Covid Data'
-    },
-
-    subtitle: {
-        text: 'Source: https://www.covid19data.no/'
-    },
-
-    yAxis: {
-        min : 0,
-        scrollbar: {
-            enabled: true,
-            showFull: true
-        },
-        title: {
-            text: 'Number'
-        }
-    },
-
-    xAxis: {
-        categories: x_data,
-        accessibility: {
-            rangeDescription: 'In recent year'
-        }
-    },
-
-    plotOptions: {
-        series: {
-            label: {
-                connectorAllowed: false
-            },
-        },
-
-        column: {
-            stacking: 'normal',
-            pointPadding : 0,
-            groupPadding : 0,
-            borderWidth: 0.5,
-            // dataLabels: {
-            //     enabled: true,
-            //     color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
-            // }
-        }
-    },
-
-    series: [{
-        name: titles[nSourceType],
-        data: y_data,
-    }],
-
-    responsive: {
-        rules: [{
-            condition: {
-                maxWidth: 500
-            },
-            chartOptions: {
-                legend: {
-                    layout: 'horizontal',
-                    align: 'center',
-                    verticalAlign: 'bottom'
-                }
-            }
-        }]
+        text: 'Number'
     }
+},
+
+xAxis: {
+    categories: x_data,
+    accessibility: {
+        rangeDescription: 'In recent year'
+    }
+},
+
+plotOptions: {
+    series: {
+        label: {
+            connectorAllowed: false
+        },
+    },
+
+    column: {
+        stacking: 'normal',
+        pointPadding : 0,
+        groupPadding : 0,
+        borderWidth: 0.5,
+        // dataLabels: {
+        //     enabled: true,
+        //     color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+        // }
+    }
+},
+
+series: [{
+    name: titles[nSourceType],
+    data: y_data,
+}],
+
+responsive: {
+    rules: [{
+        condition: {
+            maxWidth: 500
+        },
+        chartOptions: {
+            legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom'
+            }
+        }
+    }]
+}
 
 });
 }
 getmydata()
 async function getmydata(){
-    console.log(123)
-    var response = await fetch(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
-    var datastring = await response.text() //import to text/string
-    var array = datastring.split('\n') // split string by '\n' (newline)
-    console.log(array)
-    var data_array = new Array()
-    var data_Numbers = new Array()
-    var data_DateTimes = new Array()
-    // Split and Parse the float data for fruit prices (exclude headers)
-    if(nSourceType == 0)
+console.log(123)
+var response = await fetch(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
+var datastring = await response.text() //import to text/string
+var array = datastring.split('\n') // split string by '\n' (newline)
+console.log(array)
+var data_array = new Array()
+var data_Numbers = new Array()
+var data_DateTimes = new Array()
+// Split and Parse the float data for fruit prices (exclude headers)
+if(nSourceType == 0)
+{
+    // Tested
+    for (var i = array.length-1; i>=0; i--){
+        data_Numbers.push(parseFloat(array[i].split(',')[nFilterType + 1]))
+        data_DateTimes.push(array[i].split(',')[0])
+    }
+}
+else if(nSourceType == 1)
+{
+    // Infected
+    if(nFilterType == 0)
     {
-        // Tested
-        for (var i = array.length-1; i>=0; i--){
-            data_Numbers.push(parseFloat(array[i].split(',')[nFilterType + 1]))
+        if(array.length>0)
+        {
+            i_Date = 0
+            i_Number = 11
+            data_DateTimes.push(array[1].split(',')[i_Date])
+            sum = parseInt(array[1].split(',')[i_Number])
+            prev_sum = 0
+            for (var i = 1; i < array.length; i++)
+            {
+                infectedRow = array[i].split(',')
+                if(infectedRow[i_Date] == data_DateTimes[data_DateTimes.length-1])
+                    sum += parseInt(infectedRow[i_Number])
+                else
+                {
+                    if(data_Numbers.length == 0)
+                        data_Numbers.push(sum)
+                    else
+                    {
+                        data_Numbers.push(sum-prev_sum)
+                    }
+                    //console.log(infectedRow[i_Date],sum, prev_sum)
+                    prev_sum = sum
+                    sum = parseInt(infectedRow[i_Number])
+                    data_DateTimes.push(infectedRow[i_Date])
+                }
+            }
+            data_Numbers.push(sum) 
+            data_Numbers = data_Numbers.slice(1, data_Numbers.length-1);// slice, delete first day infected data
+            data_DateTimes = data_DateTimes.slice(1, data_DateTimes.length-1);
+        }
+    }
+    else if(nFilterType == 1)
+    {
+        // sort before calucation
+        // array.sort(function(a, b) {
+        //     return new Date(a[0]) > new Date(b[0]);
+        // });
+        //
+        if(array.length>0)
+        {
+            i_Date = 0
+            i_Number = 11
+            data_DateTimes.push(array[1].split(',')[i_Date])
+            sum = parseInt(array[1].split(',')[i_Number])
+            for (var i = 1; i < array.length; i++)
+            {
+                infectedRow = array[i].split(',')
+                if(infectedRow[i_Date] == data_DateTimes[data_DateTimes.length-1])
+                    sum += parseInt(infectedRow[i_Number])
+                else
+                {
+                    data_Numbers.push(sum) 
+                    sum = parseInt(infectedRow[i_Number])
+                    data_DateTimes.push(infectedRow[i_Date])
+                }
+            }
+            data_Numbers.push(sum) 
+        }
+    }
+}
+else if(nSourceType == 2)
+{
+    // Death
+    if(nFilterType == 0)
+    {
+        for (var i = array.length-1; i>=1; i--)// the first day death is unknown
+        {
+            //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
+            data_Numbers.push(parseFloat(parseFloat(array[i-1].split(',')[1]) - array[i].split(',')[1]))
             data_DateTimes.push(array[i].split(',')[0])
         }
     }
-    else if(nSourceType == 1)
+    else if(nFilterType == 1)
     {
-        // Infected
-        if(nFilterType == 0)
+        for (var i = array.length-1; i>=0; i--)
         {
-            if(array.length>0)
-            {
-                i_Date = 0
-                i_Number = 11
-                data_DateTimes.push(array[1].split(',')[i_Date])
-                sum = parseInt(array[1].split(',')[i_Number])
-                prev_sum = 0
-                for (var i = 1; i < array.length; i++)
-                {
-                    infectedRow = array[i].split(',')
-                    if(infectedRow[i_Date] == data_DateTimes[data_DateTimes.length-1])
-                        sum += parseInt(infectedRow[i_Number])
-                    else
-                    {
-                        if(data_Numbers.length == 0)
-                            data_Numbers.push(sum)
-                        else
-                        {
-                            data_Numbers.push(sum-prev_sum)
-                        }
-                        //console.log(infectedRow[i_Date],sum, prev_sum)
-                        prev_sum = sum
-                        sum = parseInt(infectedRow[i_Number])
-                        data_DateTimes.push(infectedRow[i_Date])
-                    }
-                }
-                data_Numbers.push(sum) 
-                data_Numbers = data_Numbers.slice(1, data_Numbers.length-1);// slice, delete first day infected data
-                data_DateTimes = data_DateTimes.slice(1, data_DateTimes.length-1);
-            }
-        }
-        else if(nFilterType == 1)
-        {
-            // sort before calucation
-            // array.sort(function(a, b) {
-            //     return new Date(a[0]) > new Date(b[0]);
-            // });
-            //
-            if(array.length>0)
-            {
-                i_Date = 0
-                i_Number = 11
-                data_DateTimes.push(array[1].split(',')[i_Date])
-                sum = parseInt(array[1].split(',')[i_Number])
-                for (var i = 1; i < array.length; i++)
-                {
-                    infectedRow = array[i].split(',')
-                    if(infectedRow[i_Date] == data_DateTimes[data_DateTimes.length-1])
-                        sum += parseInt(infectedRow[i_Number])
-                    else
-                    {
-                        data_Numbers.push(sum) 
-                        sum = parseInt(infectedRow[i_Number])
-                        data_DateTimes.push(infectedRow[i_Date])
-                    }
-                }
-                data_Numbers.push(sum) 
-            }
+            //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
+            data_Numbers.push(parseFloat(array[i].split(',')[1]))
+            data_DateTimes.push(array[i].split(',')[0])
         }
     }
-    else if(nSourceType == 2)
-    {
-        // Death
-        if(nFilterType == 0)
-        {
-            for (var i = array.length-1; i>=1; i--)// the first day death is unknown
-            {
-                //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
-                data_Numbers.push(parseFloat(parseFloat(array[i-1].split(',')[1]) - array[i].split(',')[1]))
-                data_DateTimes.push(array[i].split(',')[0])
-            }
-        }
-        else if(nFilterType == 1)
-        {
-            for (var i = array.length-1; i>=0; i--)
-            {
-                //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
-                data_Numbers.push(parseFloat(array[i].split(',')[1]))
-                data_DateTimes.push(array[i].split(',')[0])
-            }
-        }
-    }
-    console.log(data_array)
-    drawHighCharts(data_DateTimes,data_Numbers)
+}
+console.log(data_array)
+drawHighCharts(data_DateTimes,data_Numbers)
 }
 </script>
- 
 </body>
 </html>
