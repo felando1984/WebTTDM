@@ -20,12 +20,10 @@ width: 250px;
 }
 
 #info {
-position: absolute;
 background: #efefef;
 padding: 10px;
 font-family: 'Open Sans', sans-serif;
 font-size: 16px;
-width: 250px;
 }
 
 .mapboxgl-popup {
@@ -168,9 +166,9 @@ width: 20px;
 <div id="map"></div>
 <div class="map-overlay top">
     <div class="map-overlay-inner">
-        <h4>Significant earthquakes in 2015</h4>
-        <label id="month"></label>
-        <input id="slider" type="range" min="0" max="11" step="1" value="0">
+        <h4>T-TDM Graph4</h4>
+        <button type="button" class="btn btn-success" id="play_button">Play/Pause</button><label id="month"></label>
+        <input id="slider" type="range" min="1" max="11" step="1" value="1">
     </div>
     <div id="menu">
         <!-- See a list of Mapbox-hosted public styles at -->
@@ -250,6 +248,7 @@ width: 20px;
    
     featureStr = "01";
     Threshold = 0.0002;
+    timesteps = 10;
 
     const markerHeight = 50;
     const markerRadius = 10;
@@ -629,7 +628,7 @@ const geojson = {
         //console.log(e)
         if(!a && e.sourceId === "points" && map.isSourceLoaded("points")){
             //console.log("abc")
-            pointlist.features[0].properties.title = "H101";
+            pointlist.features[0].properties.title = "H1";//H101
             console.log(pointlist)
             map.getSource('points').setData(pointlist);
             // Add a symbol layer
@@ -670,7 +669,7 @@ const geojson = {
                 'fill-extrusion-color':[
                     'case',
                     ['boolean', ['feature-state', 'hover'], false],
-                    "green",
+                    "black",
                     "grey"
                     ],//"grey",
                 
@@ -681,7 +680,7 @@ const geojson = {
                 //'fill-extrusion-base': ['get', 'base_height'],
                 
                 // Make extrusions slightly opaque to see through indoor walls.
-                'fill-extrusion-opacity': 0.6
+                'fill-extrusion-opacity': 0.5
                 }
                 });
 
@@ -704,11 +703,17 @@ const geojson = {
             dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
             dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
 
+
+            Threshold = (lambda_max - lambda_min) / 20;
+
             dfeatureStr.textContent = featureStr;
             dthreshold.textContent = Threshold;
 
             console.log(rawdata.features.length)
 
+            timesteps = rawdata.features[0].properties.cfh_matrix.length;
+            console.log(timesteps)
+            document.getElementById('slider').setAttribute("max",timesteps);//40);
             for(i=0; i<rawdata.features.length-1;i++)//rawdata.features.length-1
             {
                 //console.log("abc")
@@ -743,6 +748,7 @@ const geojson = {
                     //console.log( binaryStr.split(featureStr).length - 1)
                     props.cfh_bstr = binaryStr;
                     props.height = (binaryStr.split(featureStr).length - 1);
+                    //props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
                 }
                 else
                 {
@@ -912,7 +918,9 @@ function activeHover()
 
 function filterBy(month) {
 // Set the label to the month
-document.getElementById('month').textContent = "time:" + month;
+//console.log(month);
+document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
+index = month - 1;
 
 i = rawdata.features.length - 1;
 lambda_min = rawdata.features[i].properties.tdm_lambda_min;
@@ -925,8 +933,8 @@ for(i=0; i<rawdata.features.length-1;i++)
 {
     //console.log("abc")
     props = rawdata.features[i].properties;
-    props.color = props.cfh_labelmatrix[month];
-    props.tdm_lambda = props.cfh_matrix[month];
+    props.color = props.cfh_labelmatrix[index];
+    props.tdm_lambda = props.cfh_matrix[index];
     props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
 }
 map.getSource('polygon1').setData(rawdata);
@@ -999,8 +1007,11 @@ for (const input of inputs) {
 }
 
 document.getElementById('slider').addEventListener('input', (e) => {
-const month = parseInt(e.target.value, 10);
-filterBy(month);
+    //console.log("v" + e.target.value)
+    let month = e.target.value;//parseInt(e.target.value, 1);
+    //console.log("m" + month)
+    if(month != null)
+        filterBy(month);
 });
 
 // testbutton.onclick = () => {
