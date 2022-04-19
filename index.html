@@ -7,23 +7,21 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <style>
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-#menu {
-position: absolute;
-background: #efefef;
-padding: 10px;
-font-family: 'Open Sans', sans-serif;
-font-size: 16px;
-width: 250px;
-}
 
 #info {
 background: #efefef;
 padding: 10px;
 font-family: 'Open Sans', sans-serif;
 font-size: 16px;
+width: 250px;
 }
 
 .mapboxgl-popup {
@@ -71,12 +69,25 @@ width: 100%;
 }
  
 .map-overlay-inner label {
-display: block;
 font-weight: bold;
-margin: 0 0 5px;
+margin-left: 10px;
+font-size: 16px;
 }
 
 .legend {
+background-color: #fff;
+border-radius: 3px;
+top: 30px;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+font: 20px/25px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+padding: 10px;
+position: absolute;
+right: 10px;
+display: none;
+z-index: 1;
+}
+
+.legendvis {
 background-color: #fff;
 border-radius: 3px;
 top: 30px;
@@ -135,11 +146,27 @@ width: 20px;
 .scrollbar-primary {
   scrollbar-color: #4285F4 #F5F5F5;
 }
+
+span.normal {
+  font-weight: normal;
+  color:black;
+}
+
+span.bold {
+  font-weight: bold;
+  color:red;
+}
+
+input.largerCheckbox {
+    width: 20px;
+    height: 20px;
+}
+
 </style>
 </head>
 <body>
-    <div id="state-legend" class="legend">
-        <h4>Population</h4>
+    <div id="graph2d" class="legend">
+         <!-- <h4>Population</h4>
         <div><span style="background-color: #723122"></span>25,000,000</div>
         <div><span style="background-color: #8b4225"></span>10,000,000</div>
         <div><span style="background-color: #a25626"></span>7,500,000</div>
@@ -161,32 +188,78 @@ width: 20px;
         <div><span style="background-color: #da9c20"></span>5,000</div>
         <div><span style="background-color: #e6b71e"></span>1,000</div>
         <div><span style="background-color: #eed322"></span>100</div>
-        <div><span style="background-color: #f2f12d"></span>0</div>
-        </div>
+        <div><span style="background-color: #f2f12d"></span>0</div> -->
+            <div class="dropdown">
+              <input type="button" class="btn btn-primary" id="btn_LoadData" value="RefreshData"/>
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuBtnStyle" data-bs-toggle="dropdown" aria-expanded="false">
+               Chart Style
+              </button>
+              <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuBtnStyle">
+                <li id="option1"><a class="dropdown-item" href="#">line</a></li>
+                <li id="option2"><a class="dropdown-item" href="#">area</a></li>
+                <li id="option3"><a class="dropdown-item" href="#">column</a></li>
+                <li id="option4"><a class="dropdown-item" href="#">bar</a></li>
+              </ul>
+            </div>
+            
+            <figure class="highcharts-figure">
+                <div id="container"></div>
+                <div style="float:left" class="btn-group" role="group" aria-label="data_filter_type">
+                    <input type="radio" class="btn-check" name="btnradio1" id="btnradio_Daily" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btnradio_Daily">Daily</label>
+                  
+                    <input type="radio" class="btn-check" name="btnradio1" id="btnradio_Cumu" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btnradio_Cumu">Cumulative</label>
+                  </div>
+            
+                <div style="float:right" class="btn-group" role="group" aria-label="data_source_type">
+                    <input type="radio" class="btn-check" name="btnradio2" id="btnradio_Tested" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btnradio_Tested">Covid tests</label>
+                  
+                    <input type="radio" class="btn-check" name="btnradio2" id="btnradio_Infected" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btnradio_Infected">Infected cases</label>
+            
+                    <input type="radio" class="btn-check" name="btnradio2" id="btnradio_Death" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btnradio_Death">Covid deaths</label>
+                  </div>
+            </figure>
+    </div>
 <div id="map"></div>
 <div class="map-overlay top">
     <div class="map-overlay-inner">
         <h4>T-TDM Graph4</h4>
-        <button type="button" class="btn btn-success" id="play_button">Play/Pause</button><label id="month"></label>
-        <input id="slider" type="range" min="1" max="11" step="1" value="1">
+        <div style="float:right" class="btn-group" role="group" aria-label="data_source_type">
+            <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="rd_light">L</label>
+            
+            <input type="radio" class="btn-check" name="btnradio2" id="rd_satellite" autocomplete="off">
+            <label class="btn btn-outline-primary" for="rd_satellite">S</label>
+
+            <input type="radio" class="btn-check" name="btnradio2" id="rd_dark" autocomplete="off">
+            <label class="btn btn-outline-primary" for="rd_dark">D</label>
+            
+            <input type="radio" class="btn-check" name="btnradio2" id="rd_streets" autocomplete="off">
+            <label class="btn btn-outline-primary" for="rd_streets">E</label>
+            
+            <input type="radio" class="btn-check" name="btnradio2" id="rd_outdoors" autocomplete="off">
+            <label class="btn btn-outline-primary" for="rd_outdoors">O</label>
+
+            <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off">
+            <label class="btn btn-outline-primary" for="rd_terrain">T</label>
+        </div>
+        <br>
+        <br>
+        <button type="button" class="btn btn-primary" id="play_button">Play/Pause</button><label id="month"></label>
+        <input id="slider" type="range" min="1" max="11" step="1" value="1"></input>
+        <label id="delaytime"></label>
+        <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
+        <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label>Graph XY</label><br>
+        <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label>Auto rotate</label><br>
+        <input class="largerCheckbox" type="checkbox" id="colormapping" checked><label>Color mapping</label><br>
+        <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label>Height mapping</label><br>
+        <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label>Height CFH</label><br>
     </div>
-    <div id="menu">
-        <!-- See a list of Mapbox-hosted public styles at -->
-        <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
-        <input id="light-v10" type="radio" name="rtoggle" value="light" checked="checked">
-        <label for="light-v10">light</label><br>
-        <input id="satellite-v9" type="radio" name="rtoggle" value="satellite">
-        <label for="satellite-v9">satellite</label><br>
-        <input id="dark-v10" type="radio" name="rtoggle" value="dark">
-        <label for="dark-v10">dark</label><br>
-        <input id="streets-v11" type="radio" name="rtoggle" value="streets">
-        <label for="streets-v11">streets</label><br>
-        <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors">
-        <label for="outdoors-v11">outdoors</label><br>
-        <input id="terrain" type="radio" name="rtoggle" value="outdoors">
-        <label for="terrain">terrain</label><br>
-        <!-- <button id="test">rb</button><br>
-        <button id="test1">rg</button><br> -->
+    
         <div id="info">
             <div><strong>VectexId:</strong> <span id='VectexId'></span></div>
             <div><strong>Lat:</strong> <span id='Latitude'></span></div>
@@ -209,7 +282,6 @@ width: 20px;
                 <div class="force-overflow"><div><strong>cfh matrix:</strong> <span id='cfh_matrix'></span></div>
                 </div>
             </div>
-        </div>
         
     </div>
     
@@ -230,9 +302,11 @@ width: 20px;
     <label>Northern Parallel Lat: <span id="lat2-value">30</span></label>
     <input id="lat2" type="range" min="-90" max="90" step="any" value="30">
     </fieldset> -->
+    
+    
 </div>
 <script>
-    async function abc()
+    async function loadGeoJsonFile()
     {
         const response = await fetch(
             'polygon.geojson'
@@ -242,6 +316,10 @@ width: 20px;
     }
     
     let hoveredStateId = null;
+    let hoveredProps = null;
+    var last = Date.now();
+    let enableRotate = false;
+    let startangle = 0;
     
     a = false;
     b = false;
@@ -249,6 +327,9 @@ width: 20px;
     featureStr = "01";
     Threshold = 0.0002;
     timesteps = 10;
+    var g_play = false;
+    //var g_playspeed = 1;
+    var g_playwait = 1;
 
     const markerHeight = 50;
     const markerRadius = 10;
@@ -264,7 +345,7 @@ width: 20px;
     'right': [-markerRadius, (markerHeight - markerRadius) * -1]
     };
 
-    abc()
+    loadGeoJsonFile();
 
 	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJjbDI0dHJ4cHIyMzhmM2lscHBiZ2VybWl0In0.O46bIQ6f08o0E55XLhESZg';
     styleStr = 'mapbox://styles/mapbox/light-v10';
@@ -663,6 +744,10 @@ const geojson = {
                 'id': 'room-extrusion',
                 'type': 'fill-extrusion',
                 'source': 'polygon1',
+                'layout': {
+                    // Make the layer visible by default.
+                    'visibility': 'visible'
+                },
                 'paint': {
                 // Get the `fill-extrusion-color` from the source `color` property.
                 //'fill-extrusion-color': ['get', 'color'],
@@ -683,7 +768,6 @@ const geojson = {
                 'fill-extrusion-opacity': 0.5
                 }
                 });
-
             a = true;
         }
     })
@@ -714,59 +798,8 @@ const geojson = {
             timesteps = rawdata.features[0].properties.cfh_matrix.length;
             console.log(timesteps)
             document.getElementById('slider').setAttribute("max",timesteps);//40);
-            for(i=0; i<rawdata.features.length-1;i++)//rawdata.features.length-1
-            {
-                //console.log("abc")
-                props = rawdata.features[i].properties;
-                props.color = props.tdm_color;
-                // color mapping with lambda value
-                props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
-                matrix = props.cfh_matrix;
-
-                // console.log(matrix)
-                // if (i < 3)
-                // {
-                //     console.log("i_" + i)
-                //     ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
-                //     //cfhresult = ComputeCFH(matrix, "01", 0.2);
-                //     //console.log(cfhresult)
-                // }
-                if(matrix.length >= featureStr.length)
-                { 
-                    let binaryStr = "";
-                    for(j = 0; j < matrix.length - 1; j++)//Matrix.length - 1
-                    {
-                        //console.log(Math.abs(matrix[j+1] - matrix[j]));
-                        if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
-                        {
-                            binaryStr +="1";
-                        }
-                        else
-                            binaryStr +="0";
-                    }
-                    //console.log(binaryStr)
-                    //console.log( binaryStr.split(featureStr).length - 1)
-                    props.cfh_bstr = binaryStr;
-                    props.height = (binaryStr.split(featureStr).length - 1);
-                    //props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
-                }
-                else
-                {
-                    props.cfh_bstr = "";
-                    props.height = 0;
-                }
-
-                // height = 0;
-                // for(j = 0; j < matrix.length; j++)
-                //     height += matrix[j];
-                // props.height = height / matrix.length;
-            }
-
-            // cfhresult = ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
-            // console.log(cfhresult)
-
-            map.getSource('polygon1').setData(rawdata);
-            console.log(rawdata)
+            
+            computeTTDM(document.getElementById('heightcfh').checked);
 
             addLayers_Hover();
 
@@ -775,14 +808,31 @@ const geojson = {
                 'id': 'poly1',
                 'type': 'fill',
                 'source': 'polygon1', // reference the data source
-                'layout': {},
+                'layout': {
+                    // Make the layer visible by default.
+                    'visibility': 'visible'
+                },
                 'paint': {
                 'fill-color': ['get', 'color'],//'#00ff00', // blue color fill
                 'fill-opacity': ['get', 'alpha']
                 }
             });
 
+            document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
+            document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
+
+            //
+            var tick = function() {
+                tick_update();
+                window.requestAnimationFrame(tick, map);
+            };
+            tick();
+            rotateCamera(0);
             b = true;
+
+            colormappingChanged();
+            heightmappingChanged();
+            graphxyChanged();
         }
     })
 
@@ -800,6 +850,100 @@ const geojson = {
     });
 
     activeHover();
+}
+
+function computeTTDM(heightcfh)
+{
+    for(i=0; i<rawdata.features.length-1;i++)//rawdata.features.length-1
+    {
+        //console.log("abc")
+        props = rawdata.features[i].properties;
+        props.color = props.tdm_color;
+        // color mapping with lambda value
+        props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+        matrix = props.cfh_matrix;
+
+        // console.log(matrix)
+        // if (i < 3)
+        // {
+        //     console.log("i_" + i)
+        //     ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+        //     //cfhresult = ComputeCFH(matrix, "01", 0.2);
+        //     //console.log(cfhresult)
+        // }
+        if(matrix.length >= featureStr.length)
+        { 
+            let binaryStr = "";
+            for(j = 0; j < matrix.length - 1; j++)//Matrix.length - 1
+            {
+                //console.log(matrix[j+1]);
+                //console.log(Math.abs(matrix[j+1] - matrix[j]));
+                if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
+                {
+                    binaryStr +="1";
+                }
+                else
+                    binaryStr +="0";
+            }
+            //console.log(binaryStr)
+            //console.log( binaryStr.split(featureStr).length - 1)
+            props.cfh_bstr = binaryStr;
+            if(!heightcfh)
+                props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
+            else
+                props.height = (binaryStr.split(featureStr).length - 1);
+        }
+        else
+        {
+            props.cfh_bstr = "";
+            props.height = 0;
+        }
+
+        // height = 0;
+        // for(j = 0; j < matrix.length; j++)
+        //     height += matrix[j];
+        // props.height = height / matrix.length;
+    }
+
+    // cfhresult = ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+    // console.log(cfhresult)
+
+    map.getSource('polygon1').setData(rawdata);
+    console.log(rawdata)
+}
+
+function tick_update()
+{
+    var now = Date.now();   // Calculate the elapsed time
+    var elapsed = now - last;
+    
+    if(elapsed > g_playwait * 1000)
+    {
+        if(g_play)
+        {
+            value = parseInt(document.getElementById('slider').value);
+            if(value < timesteps)
+                newvalue = value + 1
+            else
+                newvalue = 1
+            document.getElementById('slider').value = newvalue;
+            console.log(newvalue)
+            update_last();
+            console.log("play")
+            filterBy(newvalue);
+        }
+        else
+        {
+            update_last();
+            console.log("wait")
+        }
+    }
+}
+
+function update_last()
+{
+  var now = Date.now();   // Calculate the elapsed time
+  last = now;
 }
 
 function addLayers_Hover()
@@ -866,6 +1010,7 @@ function activeHover()
     );
     }
     hoveredStateId = e.features[0].id;
+    hoveredProps = e.features[0].properties;
     map.setFeatureState(
     { source: 'polygon1', id: hoveredStateId },
     { hover: true }
@@ -913,31 +1058,89 @@ function activeHover()
     dcfh_matrix.textContent = "";
     }
     hoveredStateId = null;
+    hoveredProps = null;
     });
 }
 
 function filterBy(month) {
-// Set the label to the month
-//console.log(month);
-document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
-index = month - 1;
+    // Set the label to the month
+    //console.log(month);
+    document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
+    index = month - 1;
 
-i = rawdata.features.length - 1;
-lambda_min = rawdata.features[i].properties.tdm_lambda_min;
-lambda_max = rawdata.features[i].properties.tdm_lambda_max;
+    i = rawdata.features.length - 1;
+    lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+    lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
-dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
+    dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
+    dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
 
-for(i=0; i<rawdata.features.length-1;i++)
-{
-    //console.log("abc")
-    props = rawdata.features[i].properties;
-    props.color = props.cfh_labelmatrix[index];
-    props.tdm_lambda = props.cfh_matrix[index];
-    props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+    for(i=0; i<rawdata.features.length-1;i++)
+    {
+        //console.log("abc")
+        props = rawdata.features[i].properties;
+        props.color = props.cfh_labelmatrix[index];
+        props.tdm_lambda = props.cfh_matrix[index];
+        props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+    }
+    map.getSource('polygon1').setData(rawdata);
+    // update information
+    if(hoveredProps != null)
+    {
+        props = rawdata.features[hoveredStateId].properties;
+        updatelabel(dColor_alpha, props.alpha);
+        dtdm_color.textContent = props.color;
+        dtdm_color_sample.style.backgroundColor = props.color;
+        //matrix = rawdata.features[hoveredStateId].properties.cfh_matrix;
+        updatelabel(dtdm_lambda, props.tdm_lambda);
+        //console.log("index " + index +',' + matrix[index]);
+    }
 }
-map.getSource('polygon1').setData(rawdata);
+
+function updatelabel(obj, val)
+{
+    valstr = parseFloat(val.toFixed(6));
+    if(valstr != obj.textContent)
+    {
+        obj.textContent = valstr;
+        obj.setAttribute('class', 'bold');
+    }
+    else
+        obj.setAttribute('class', 'normal');
+}
+
+function play_pause(){
+  //console.log(g_play, '1');
+  if(g_play)
+  {g_play = false;}
+  else
+  {
+    update_last();
+    g_play = true;
+  }
+}
+
+function rotateCamera() {
+    //console.log(enableRotate)
+    if(enableRotate)
+    {
+        // clamp the rotation between 0 -360 degrees
+        // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+        angle = (map.getBearing() + 0.1) % 360;
+        map.rotateTo(angle, { duration: 0 });
+        //console.log(map.getCenter());
+        //console.log(map.getZoom());
+        //console.log(map.getBearing());
+    }
+    else
+        startangle = map.getBearing()
+    // Request the next frame of the animation.
+    requestAnimationFrame(rotateCamera);
+}
+
+function changeSelected(){
+  enableRotate = document.getElementById("rotate").checked;
+  console.log(enableRotate)
 }
 
 function chunkString(str, length) {
@@ -962,9 +1165,7 @@ function loadMap()
 
 const mapStyleInput = document.getElementById('mapStyle');
 
-const layerList = document.getElementById('menu');
 const infoList = document.getElementById('info');
-const inputs = layerList.getElementsByTagName('input');
 
 const testbutton = document.getElementById('test');
 const testbutton1 = document.getElementById('test1');
@@ -989,23 +1190,6 @@ const dbinaryStr = document.getElementById('binaryStr');
 const dfeatureStr = document.getElementById('featureStr');
 const dcfh_matrix = document.getElementById('cfh_matrix');
 
-
-for (const input of inputs) {
-    input.onclick = (layer) => {
-        layerId = layer.target.id;
-        console.log(layerId);
-        if(layerId == "terrain")
-        {
-            map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
-            //loadBasicLayger();
-        }
-        else
-            map.setStyle('mapbox://styles/mapbox/' + layerId); 
-        a = false;
-        b = false;
-    };
-}
-
 document.getElementById('slider').addEventListener('input', (e) => {
     //console.log("v" + e.target.value)
     let month = e.target.value;//parseInt(e.target.value, 1);
@@ -1014,7 +1198,111 @@ document.getElementById('slider').addEventListener('input', (e) => {
         filterBy(month);
 });
 
-// testbutton.onclick = () => {
+document.getElementById('delaySlider').addEventListener('input', (e) => {
+    g_playwait = e.target.value;
+    document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
+});
+
+
+function heightcfhChanged(){
+  computeTTDM(document.getElementById("heightcfh").checked)
+}
+
+function colormappingChanged(){
+    layerStr = 'poly1'
+  if(document.getElementById('colormapping').checked)
+  {    
+    map.setLayoutProperty(
+        layerStr,'visibility', 'visible');
+    }
+  else
+  {
+    map.setLayoutProperty(
+        layerStr,'visibility', 'none');
+  } 
+}
+
+function heightmappingChanged(){
+    layerStr = 'room-extrusion'
+  if(document.getElementById('heightmapping').checked)
+  {    
+    map.setLayoutProperty(
+        layerStr,'visibility', 'visible');
+    }
+  else
+  {
+    map.setLayoutProperty(
+        layerStr,'visibility', 'none');
+  } 
+}
+
+function refreshDataSourceTypeFun()
+{
+    if(document.getElementById("rd_light").checked)
+    {
+        layerId = "light-v10"
+    }
+    else if(document.getElementById("rd_satellite").checked)
+    {
+        layerId = "satellite-v9"
+    }
+    else if(document.getElementById("rd_dark").checked)
+    {
+        layerId = "dark-v10"
+    }
+    else if(document.getElementById("rd_streets").checked)
+    {
+        layerId = "streets-v11"
+    }
+    else if(document.getElementById("rd_outdoors").checked)
+    {
+        layerId = "outdoors-v11"
+    }
+    else if(document.getElementById("rd_terrain").checked)
+    {
+        layerId = "terrain"
+    }
+    else
+    {
+        layerId = "light"
+    }
+    console.log(layerId);
+    if(layerId == "terrain")
+    {
+        map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
+        //loadBasicLayger();
+    }
+    else
+        map.setStyle('mapbox://styles/mapbox/' + layerId); 
+    a = false;
+    b = false;
+}
+
+function graphxyChanged()
+{
+    if(document.getElementById('graphxy').checked)
+    {
+        document.getElementById('graph2d').setAttribute('class','legendvis')
+    }
+    else
+        document.getElementById('graph2d').setAttribute('class','legend')
+}
+
+
+document.getElementById("play_button").onclick = play_pause;
+document.getElementById("rotate").onchange = changeSelected;
+document.getElementById("heightcfh").onchange = heightcfhChanged;
+document.getElementById("heightmapping").onchange = heightmappingChanged;
+document.getElementById("colormapping").onchange = colormappingChanged;
+document.getElementById("graphxy").onclick = graphxyChanged;
+
+document.getElementById("rd_light").onclick = refreshDataSourceTypeFun;
+document.getElementById("rd_satellite").onclick = refreshDataSourceTypeFun;
+document.getElementById("rd_dark").onclick = refreshDataSourceTypeFun;
+document.getElementById("rd_streets").onclick = refreshDataSourceTypeFun;
+document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
+document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
+
 //         radarData =  {
 //         'type': 'image',
 //         'url': 'ImplementationUI.jpg',
@@ -1061,6 +1349,206 @@ document.getElementById('slider').addEventListener('input', (e) => {
 //             map.getSource('polygon1').setData(rawdata);
 //     };
 
+// Build 0003
+nFilterType = 0
+nSourceType = 0
+nOldFilterType = 0
+nOldSourceType = 0
+nChartType = 3
+
+csv_addr = ['https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/03_covid_tests/national_tests.csv',
+    'https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/01_infected/msis/municipality_and_district.csv',
+    'https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/04_deaths/deaths_total_fhi.csv']
+
+titles = ['Covid tests', 'Infected cases', 'Covid deaths']
+
+charttypes = ['line','area','column','bar']
+
+function drawHighCharts(x_data, y_data)
+{
+    document.getElementById("container").innerHTML = "";
+    Highcharts.chart('container', {
+    chart: {
+        type: charttypes[nChartType-1],
+        zoomType: 'x'
+	},
+
+    title: {
+        text: 'Covid Data'
+    },
+
+    subtitle: {
+        text: 'Source: https://www.covid19data.no/'
+    },
+
+    yAxis: {
+        min : 0,
+        scrollbar: {
+            enabled: true,
+            showFull: true
+        },
+        title: {
+            text: 'Number'
+        }
+    },
+
+    xAxis: {
+        categories: x_data,
+        accessibility: {
+            rangeDescription: 'In recent year'
+        }
+    },
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+        },
+
+        column: {
+            stacking: 'normal',
+            pointPadding : 0,
+            groupPadding : 0,
+            borderWidth: 0.5,
+            // dataLabels: {
+            //     enabled: true,
+            //     color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+            // }
+        }
+    },
+
+    series: [{
+        name: titles[nSourceType],
+        data: y_data,
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+
+});
+}
+getmydata()
+async function getmydata(){
+    console.log(123)
+    var response = await fetch(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
+    var datastring = await response.text() //import to text/string
+    var array = datastring.split('\n') // split string by '\n' (newline)
+    console.log(array)
+    var data_array = new Array()
+    var data_Numbers = new Array()
+    var data_DateTimes = new Array()
+    // Split and Parse the float data for fruit prices (exclude headers)
+    if(nSourceType == 0)
+    {
+        // Tested
+        for (var i = array.length-1; i>=0; i--){
+            data_Numbers.push(parseFloat(array[i].split(',')[nFilterType + 1]))
+            data_DateTimes.push(array[i].split(',')[0])
+        }
+    }
+    else if(nSourceType == 1)
+    {
+        // Infected
+        if(nFilterType == 0)
+        {
+            if(array.length>0)
+            {
+                i_Date = 0
+                i_Number = 11
+                data_DateTimes.push(array[1].split(',')[i_Date])
+                sum = parseInt(array[1].split(',')[i_Number])
+                prev_sum = 0
+                for (var i = 1; i < array.length; i++)
+                {
+                    infectedRow = array[i].split(',')
+                    if(infectedRow[i_Date] == data_DateTimes[data_DateTimes.length-1])
+                        sum += parseInt(infectedRow[i_Number])
+                    else
+                    {
+                        if(data_Numbers.length == 0)
+                            data_Numbers.push(sum)
+                        else
+                        {
+                            data_Numbers.push(sum-prev_sum)
+                        }
+                        //console.log(infectedRow[i_Date],sum, prev_sum)
+                        prev_sum = sum
+                        sum = parseInt(infectedRow[i_Number])
+                        data_DateTimes.push(infectedRow[i_Date])
+                    }
+                }
+                data_Numbers.push(sum) 
+                data_Numbers = data_Numbers.slice(1, data_Numbers.length-1);// slice, delete first day infected data
+                data_DateTimes = data_DateTimes.slice(1, data_DateTimes.length-1);
+            }
+        }
+        else if(nFilterType == 1)
+        {
+            // sort before calucation
+            // array.sort(function(a, b) {
+            //     return new Date(a[0]) > new Date(b[0]);
+            // });
+            //
+            if(array.length>0)
+            {
+                i_Date = 0
+                i_Number = 11
+                data_DateTimes.push(array[1].split(',')[i_Date])
+                sum = parseInt(array[1].split(',')[i_Number])
+                for (var i = 1; i < array.length; i++)
+                {
+                    infectedRow = array[i].split(',')
+                    if(infectedRow[i_Date] == data_DateTimes[data_DateTimes.length-1])
+                        sum += parseInt(infectedRow[i_Number])
+                    else
+                    {
+                        data_Numbers.push(sum) 
+                        sum = parseInt(infectedRow[i_Number])
+                        data_DateTimes.push(infectedRow[i_Date])
+                    }
+                }
+                data_Numbers.push(sum) 
+            }
+        }
+    }
+    else if(nSourceType == 2)
+    {
+        // Death
+        if(nFilterType == 0)
+        {
+            for (var i = array.length-1; i>=1; i--)// the first day death is unknown
+            {
+                //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
+                data_Numbers.push(parseFloat(parseFloat(array[i-1].split(',')[1]) - array[i].split(',')[1]))
+                data_DateTimes.push(array[i].split(',')[0])
+            }
+        }
+        else if(nFilterType == 1)
+        {
+            for (var i = array.length-1; i>=0; i--)
+            {
+                //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
+                data_Numbers.push(parseFloat(array[i].split(',')[1]))
+                data_DateTimes.push(array[i].split(',')[0])
+            }
+        }
+    }
+    console.log(data_array)
+    drawHighCharts(data_DateTimes,data_Numbers)
+}
 </script>
  
 </body>
