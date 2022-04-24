@@ -7,17 +7,20 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 <link href="index.css" rel="stylesheet">
+
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/series-label.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <style>
 
 </style>
 </head>
 <body>
+    
     <div id="graph2d" class="legend">
          <!-- <h4>Population</h4>
         <div><span style="background-color: #723122"></span>25,000,000</div>
@@ -78,9 +81,12 @@
             </figure>
     </div>
 <div id="map"></div>
-<div class="map-overlay top">
+
+<div class="map-overlay top hidden">
+    
     <div class="map-overlay-inner">
-        <h4>T-TDM Graph4</h4>
+        
+        <h4>&nbsp&nbsp&nbsp&nbspT-TDM Graph4</h4>
         <div style="float:right" class="btn-group" role="group" aria-label="data_source_type">
             <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off" checked>
             <label class="btn btn-outline-primary" for="rd_light">L</label>
@@ -101,6 +107,11 @@
             <label class="btn btn-outline-primary" for="rd_terrain">T</label>
         </div>
         <br>
+        <!-- <div id="key" style="opacity: 0.8;">
+            <div class="blank min"></div><div class="blank max"></div>
+            <div id="min" style="color: white; font-weight: 600;">&lt;16µg/m³</div><div id="max" style="color: white; font-weight: 600;">&gt;97µg/m³</div>
+            <div style="width: 1px; height: 18px; margin: 0 0 0 120px; background: blue"></div>
+        </div> -->
         <br>
         <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY</label><br>
         <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label for="rotate">Auto rotate</label><br>
@@ -153,29 +164,9 @@
                 <div class="force-overflow"><div><strong>cfh matrix:</strong> <span id='cfh_matrix'></span></div>
                 </div>
             </div>
-        
-    </div>
-    
-    
-    <!-- <fieldset class="conic-param-input">
-    <label>Center Longitude: <span id="lng-value">0</span></label>
-    <input id="lng" type="range" min="-180" max="180" step="any" value="0">
-    </fieldset>
-    <fieldset class="conic-param-input">
-    <label>Center Latitude: <span id="lat-value">30</span></label>
-    <input id="lat" type="range" min="-90" max="90" step="any" value="30">
-    </fieldset>
-    <fieldset class="conic-param-input">
-    <label>Southern Parallel Lat: <span id="lat1-value">30</span></label>
-    <input id="lat1" type="range" min="-90" max="90" step="any" value="30">
-    </fieldset>
-    <fieldset class="conic-param-input">
-    <label>Northern Parallel Lat: <span id="lat2-value">30</span></label>
-    <input id="lat2" type="range" min="-90" max="90" step="any" value="30">
-    </fieldset> -->
-    
-    
+    </div>  
 </div>
+<div id="panel_control" class="overlay closed"></div>
 <script>
     async function loadGeoJsonFile()
 {
@@ -1500,6 +1491,34 @@ else if(nSourceType == 2)
 console.log(data_array)
 drawHighCharts(data_DateTimes,data_Numbers)
 }
+
+var panel_control_ob
+panel_control_class=function(){
+	var _self=this
+	this.setup=function(){
+		
+		$("#panel_control").bind("click",function(){
+			if($("#panel_control").hasClass("open")){
+				$("#panel_control").removeClass("open").addClass("closed")	
+				$(".overlay:not(#panel_control)").addClass("hidden")
+                $(".map-overlay").addClass("hidden")
+			}else{
+				$("#panel_control").removeClass("closed").addClass("open")	
+				$(".overlay:not(#panel_control)").removeClass("hidden")
+                $(".map-overlay").removeClass("hidden")
+			}
+		})
+	}
+}
+function create_panel_control_ob(){
+	panel_control_ob=new panel_control_class()
+	panel_control_ob.setup()
+}
+$(document).ready(function(){
+	if($("#panel_control").length>0){
+		create_panel_control_ob()
+	}
+})
 </script>
 </body>
 </html>

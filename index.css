@@ -28,7 +28,11 @@ top: 0;
 left: 0;
 padding: 10px;
 }
- 
+
+.map-overlay.hidden {
+  display: none;
+}
+
 .map-overlay .map-overlay-inner {
 background-color: #efefef;
 box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -145,4 +149,42 @@ span.bold {
 input.largerCheckbox {
     width: 20px;
     height: 20px;
+}
+
+#panel_control.overlay {
+  top: 10px;
+  left: 10px;
+  height: 25px;
+  width: 25px;
+  padding: 0;
+  background: url(resources/block-top-left.svg) no-repeat 4px 4px rgba(12,12,12,0.68);
+  background-size: 16px 16px;
+  border-radius: 4px 4px;
+  color: #FFF;
+  z-index: 100;
+  position: absolute;
+  font-family: "proxima-nova",sans-serif;
+  font-size: 0.76em;
+  line-height: 1.3em;
+}
+
+#panel_control.overlay.closed:hover {
+  background: url(resources/block-bottom-right.svg) no-repeat 4px 4px #0d6efd;
+  background-size: 16px 16px;
+}
+#panel_control.overlay:hover {
+  cursor: pointer;
+  background: url(resources/block-top-left.svg) no-repeat 4px 4px #0d6efd;
+  background-size: 16px 16px;
+}
+#panel_control.overlay.closed {
+  background: url(resources/block-bottom-right.svg) no-repeat 4px 4px rgba(12,12,12,0.68);
+  background-size: 16px 16px;
+}
+
+#key {
+  height: 18px;
+  margin-top: 15px;
+  border: solid 1px #FFF;
+  background: linear-gradient(to right, blue, red), #FFF;
 }
