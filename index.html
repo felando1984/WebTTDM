@@ -527,6 +527,21 @@ lineMetrics: true,
 data: geojson
 });
 
+// Add a new layer to visualize the polygon.
+map.addLayer({
+    'id': 'road',
+    'type': 'fill',
+    'source': 'line', // reference the data source
+    'layout': {
+        // Make the layer visible by default.
+        'visibility': 'visible'
+    },
+    'paint': {
+    'fill-color': '#000000', // blue color fill
+    'fill-opacity': 1
+    }
+});
+
 // // the layer must be of type 'line'
 // map.addLayer({
 // type: 'line',
@@ -549,12 +564,41 @@ const geojson = {
 'properties': {},
 'geometry': {
 'coordinates': [
-[6.1589338, 62.4723013],
-[6.16444, 62.47264497],
-[6.165792, 62.471144],
-[6.1596182, 62.4714755],
+[[6.1589338,62.4723013],[6.16444,62.47264497],[6.164436885306187,62.472694872892525],[6.158932554122474,62.472321261157006],[6.1589338,62.4723013]]
+]
+// [6.1589338, 62.4723013],
+// [6.16444, 62.47264497],
+// [6.165792, 62.471144],
+// [6.1596182, 62.4714755],
+,
+'type': 'Polygon'
+}
+},
+{
+'type': 'Feature',
+'properties': {},
+'geometry': {
+'coordinates': [[[6.16444,62.47264497],[6.165792,62.471144],[6.165806860333545,62.47115738545804],[6.164477150833863,62.47267843364509],[6.16444,62.47264497]]
 ],
-'type': 'LineString'
+'type': 'Polygon'
+}
+},
+{
+'type': 'Feature',
+'properties': {},
+'geometry': {
+'coordinates':[[[6.165792,62.471144],[6.1596182,62.4714755],[6.159615519129591,62.47142557192239],[6.165790927651837,62.471124028768955],[6.165792,62.471144]]
+],
+'type': 'Polygon'
+}
+},
+{
+'type': 'Feature',
+'properties': {},
+'geometry': {
+'coordinates': [[[6.1596182,62.4714755],[6.1589338,62.4723013],[6.1589184010870275,62.47228853781056],[6.1595797027175685,62.4714435945264],[6.1596182,62.4714755]]
+],
+'type': 'Polygon'
 }
 }
 ]

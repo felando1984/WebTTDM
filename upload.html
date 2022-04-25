@@ -4,6 +4,93 @@
     <input type="file" name="file" id="file"><button onclick="doupload()" name="submit">Upload File</button>
 
   <script>
+    rawdata = [
+[6.1589338, 62.4723013], //x, y
+[6.16444, 62.47264497],
+[6.165792, 62.471144],
+[6.1596182, 62.4714755],
+]
+
+﻿
+//[[6.1589338,62.4723013],[6.16444,62.47264497],[6.164436885306187,62.472694872892525],[6.158932554122474,62.472321261157006],[6.1589338,62.4723013]]
+//[[6.16444,62.47264497],[6.165792,62.471144],[6.165806860333545,62.47115738545804],[6.164477150833863,62.47267843364509],[6.16444,62.47264497]]
+//[[6.165792,62.471144],[6.1596182,62.4714755],[6.159615519129591,62.47142557192239],[6.165790927651837,62.471124028768955],[6.165792,62.471144]]
+//[[6.1596182,62.4714755],[6.1589338,62.4723013],[6.1589184010870275,62.47228853781056],[6.1595797027175685,62.4714435945264],[6.1596182,62.4714755]]
+    rawwidth = [
+    5,1,2,5
+    ]
+
+    scale = 0.00001;
+    // 2 points to 5 points of one polygon
+    function TaperedLine2(data1,data2,width1,width2){
+      poly = [];
+      poly.push(data1);
+      poly.push(data2);
+      poly.push(ExtendedPointPrev(data2, data1, width2));
+      poly.push(ExtendedPointNext(data1, data2, width1));
+      poly.push(data1);
+      return poly
+    }
+
+    //console.log(rawdata[2])
+    function TaperedLinePoly(data,width){
+      //console.log(data[3]);
+      poly = [];
+      for(i = 0; i < data.length-1; i++)
+      {
+        poly.insert(i, data[i]);
+        extPoint = ExtendedPointNext(data[i], data[i+1], rawwidth[i]);
+        poly.insert(i+1, extPoint);
+      }
+      poly.insert(i, data[i]);
+      extPoint = ExtendedPointPrev(data[i], data[i-1], rawwidth[i]);
+      poly.insert(i+1, extPoint);
+      return poly
+    }
+
+    // calculate based on the next point position
+    function ExtendedPointNext(p, np, w)
+    {
+      w = w * scale;
+      //console.log(point[0])
+      x1 = p[0]
+      x2 = np[0]
+      y1 = p[1]
+      y2 = np[1]
+      // (x1,y1)
+      //         (x2,y2)
+      d = Math.sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
+      x_offset = ((y1-y2) / d)*w;
+      y_offset = ((x2-x1) / d)*w;
+      //         (x2,y2)
+      // (x1,y1)
+      return [p[0]+x_offset,p[1]+y_offset]
+    }
+
+    // calculate based on the previous point position
+    function ExtendedPointPrev(p, pp, w)
+    {
+      w = w * scale;
+      //console.log(point[0])
+      x1 = p[0]
+      x2 = pp[0]
+      y1 = p[1]
+      y2 = pp[1]
+      // (x1,y1)
+      //         (x2,y2)
+      d = Math.sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
+      x_offset = ((y1-y2) / d)*w;
+      y_offset = ((x2-x1) / d)*w;
+      //         (x2,y2)
+      // (x1,y1)
+      return [p[0]-x_offset,p[1]-y_offset]
+    }
+
+    Array.prototype.insert = function ( index, item ) {
+      this.splice( index, 0, item );
+    };
+
+    console.log("[[" + TaperedLine2(rawdata[3], rawdata[0], 5,2).join("],[") + "]]");
     //document.getElementById('input').addEventListener('change', function(e) 
     function doupload(){
       let file = document.getElementById('file').files[0];
@@ -17,3 +104,11 @@
   </script>
 </body>
 </html>
+0: (2) [6.1589338, 62.4723013]
+1: (2) [6.16444, 62.47264497]
+2: (2) [6.165792, 62.471144]
+3: (2) [6.1596182, 62.4714755]
+4: (2) [6.162299070408421, 62.52140357761023]
+5: (2) [6.164719651836632, 62.45117276895591]
+6: (2) [6.171870166772645, 62.479337699019666]
+7: (2) [6.155819106186781, 62.522204192525884]
