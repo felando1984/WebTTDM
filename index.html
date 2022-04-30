@@ -144,8 +144,8 @@
     
         <div id="info">
             <div><strong>VectexId:</strong> <span id='VectexId'></span></div>
-            <div><strong>Lat:</strong> <span id='Latitude'></span></div>
             <div><strong>Lon:</strong> <span id='Longitude'></span></div>
+            <div><strong>Lat:</strong> <span id='Latitude'></span></div>
             <div><strong>Color alpha:</strong> <span id='Color_alpha'></span></div>
             <br>
             <div><strong>cfh height:</strong> <span id='height'></span></div>
@@ -183,6 +183,13 @@ var last = Date.now();
 let enableRotate = false;
 let startangle = 0;
 let cameraPos = {center: [6.1645443, 62.4720013], zoom: 16, pitch: 0, bearing: 0};
+let lon_min;
+let lat_min;
+let lon_step;
+let lat_step;
+let nrows;
+let ncols;
+let startnode_index;
 
 a = false;
 b = false;
@@ -680,32 +687,32 @@ map.on('sourcedata', (e) => {
 map.on('sourcedata', (e) => {
     //console.log(e)
     if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
-        // //console.log("abc")
-        // //console.log(rawdata.features.length)
-        // //console.log(rawdata.features[0].properties.name)
+        //console.log("abc")
+        //console.log(rawdata.features.length)
+        //console.log(rawdata.features[0].properties.name)
 
-        // i = rawdata.features.length - 1;
-        // lambda_min = rawdata.features[i].properties.tdm_lambda_min;
-        // lambda_max = rawdata.features[i].properties.tdm_lambda_max;
+        i = rawdata.features.length - 2;
+        lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+        lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-        // dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
-        // dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
+        dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
+        dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
 
 
-        // Threshold = (lambda_max - lambda_min) / 20;
+        Threshold = (lambda_max - lambda_min) / 20;
 
-        // dfeatureStr.textContent = featureStr;
-        // dthreshold.textContent = parseFloat(Threshold.toFixed(4));
+        dfeatureStr.textContent = featureStr;
+        dthreshold.textContent = parseFloat(Threshold.toFixed(4));
 
-        // console.log(rawdata.features.length)
+        console.log(rawdata.features.length)
 
-        // timesteps = rawdata.features[0].properties.cfh_matrix.length;
-        // console.log(timesteps)
-        // document.getElementById('slider').setAttribute("max",timesteps);//40);
+        timesteps = rawdata.features[0].properties.cfh_matrix.length;
+        console.log(timesteps)
+        document.getElementById('slider').setAttribute("max",timesteps);//40);
         
-        // computeTTDM(document.getElementById('heightcfh').checked);
+        computeTTDM(document.getElementById('heightcfh').checked);
 
-        // addLayers_Hover();
+        addLayers_Hover();
 
         // color map for the TTDM
         // Add a new layer to visualize the polygon.
@@ -747,7 +754,7 @@ map.on('sourcedata', (e) => {
             'source': 'polygon1', // reference the data source
             'layout': {
                 // Make the layer visible by default.
-                'visibility': 'none'
+                'visibility': 'visible'//'none'
             },
             'filter': ['==', '$type', 'LineString'],
             paint: {
@@ -779,44 +786,47 @@ map.on('sourcedata', (e) => {
             {
                 edge = edges.geometry.coordinates[j];
                 n_points = edge.length;
-                // console.log(JSON.parse(JSON.stringify(TgjFeature)));
+                //console.log(JSON.stringify(edge));
+                //console.log(JSON.parse(JSON.stringify(TgjFeature)));
                 gjFeature = JSON.parse(JSON.stringify(TgjFeature));
                 let ConnectedCoorStr = [];
                 for(i = 0; i < n_points -1; i++)//n_points
                 {
                     if(!((edge[i][0] == edge[i+1][0]) && (edge[i][1] == edge[i+1][1])))
                     {
-                        CoorStr = TaperedLine2(edge[i], edge[i+1], 3*(i)/n_points, 3*(i+1)/n_points);//widths[i], widths[i+1]);
-                        //console.log(edge.length);
-                        if(ConnectedCoorStr.length == 0)
-                        {
-                            ConnectedCoorStr = JSON.parse(JSON.stringify(CoorStr))[0];
-                            console.log(ConnectedCoorStr);
-                        }
-                        else
-                        {
-                            l = ConnectedCoorStr.length;
-                            p1 = ConnectedCoorStr.slice(0, (l-1)/2);
-                            p2 = CoorStr[0].slice(0, CoorStr[0].length - 1);
-                            p3 = ConnectedCoorStr.slice((l-1)/2, l);
-                            ConnectedCoorStr = p1.concat(p2).concat(p3);
-                            console.log(p1.length + "+" + p2.length + "+" + p3.length + "=" + ConnectedCoorStr.length);
-                        }
-                        //gjFeature.geometry.coordinates.push(CoorStr);
+                        CoorStr = TaperedLine2(edge[i], edge[i+1], 8);//3*(i)/n_points, 3*(i+1)/n_points);//widths[i], widths[i+1]);
+                        // //console.log(edge.length);
+                        // if(ConnectedCoorStr.length == 0)
+                        // {
+                        //     ConnectedCoorStr = JSON.parse(JSON.stringify(CoorStr))[0];
+                        //     console.log(JSON.stringify(CoorStr));
+                        // }
+                        // else
+                        // {
+                        //     l = ConnectedCoorStr.length;
+                        //     p1 = ConnectedCoorStr.slice(0, (l-1)/2);
+                        //     p2 = CoorStr[0].slice(0, CoorStr[0].length - 1);
+                        //     p3 = ConnectedCoorStr.slice((l-1)/2, l);
+                        //     ConnectedCoorStr = p1.concat(p2).concat(p3);
+                        //     //console.log(p1.length + "+" + p2.length + "+" + p3.length + "=" + ConnectedCoorStr.length);
+                        // }
+                        gjFeature.geometry.coordinates.push(CoorStr);
                     }
                 }
-                gjFeature.geometry.coordinates.push([ConnectedCoorStr]);
-                console.log(j % 3)
-                if(j % 4 == 0)
-                    gjFeature.properties = {'color': "blue"};
-                else if(j % 4 == 1)
-                    gjFeature.properties = {'color': "red"};
-                else if(j % 4 == 2)
-                    gjFeature.properties = {'color': "green"};
-                else
-                    gjFeature.properties = {'color': "purple"};
-                // console.log(JSON.stringify(gjFeature))
-                //console.log(JSON.stringify(gjFeature))
+                //console.log(JSON.stringify(CoorStr));
+                //gjFeature.geometry.coordinates.push([ConnectedCoorStr]);
+                // //console.log(j % 3)
+                // if(j % 4 == 0)
+                //     gjFeature.properties = {'color': "blue"};
+                // else if(j % 4 == 1)
+                //     gjFeature.properties = {'color': "red"};
+                // else if(j % 4 == 2)
+                //     gjFeature.properties = {'color': "green"};
+                // else
+                //     gjFeature.properties = {'color': "purple"};
+                // // console.log(JSON.stringify(gjFeature))
+                console.log(JSON.stringify(gjFeature))
+                gjFeature.properties = {'color': rawdata.features[startnode_index].properties.color}
                 gjFeatureC.features.push(gjFeature);
             }
         }
@@ -865,116 +875,150 @@ activeHover();
 
 function computeTTDM(heightcfh)
 {
-for(i=0; i<rawdata.features.length-1;i++)//rawdata.features.length-1
-{
-    //console.log("abc")
+    i = rawdata.features.length-2;
     props = rawdata.features[i].properties;
-    props.color = props.tdm_color;
-    // color mapping with lambda value
-    props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
-    matrix = props.cfh_matrix;
+    ncols = props.ncols;
+    nrows = props.nrows;
+    lon_min = props.lon_min;
+    lat_min = props.lat_min;
+    lon_step = props.lon_step;
+    lat_step = props.lat_step;
+    //console.log(lon_min);
+    //console.log(lon_min + lon_step);
 
-    // console.log(matrix)
-    // if (i < 3)
-    // {
-    //     console.log("i_" + i)
-    //     ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
-    //     //cfhresult = ComputeCFH(matrix, "01", 0.2);
-    //     //console.log(cfhresult)
-    // }
-    if(matrix.length >= featureStr.length)
-    { 
-        let binaryStr = "";
-        for(j = 0; j < matrix.length - 1; j++)//Matrix.length - 1
-        {
-            //console.log(matrix[j+1]);
-            //console.log(Math.abs(matrix[j+1] - matrix[j]));
-            if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
-            {
-                binaryStr +="1";
-            }
-            else
-                binaryStr +="0";
-        }
-        //console.log(binaryStr)
-        //console.log( binaryStr.split(featureStr).length - 1)
-        props.cfh_bstr = binaryStr;
-        if(!heightcfh)
-            props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
-        else
-            props.height = (binaryStr.split(featureStr).length - 1);
-    }
-    else
+    for(i=0; i<rawdata.features.length-2;i++)//rawdata.features.length-1
     {
-        props.cfh_bstr = "";
-        props.height = 0;
+        //console.log("abc")
+        props = rawdata.features[i].properties;
+        props.color = props.tdm_color;
+        // color mapping with lambda value
+        props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+        matrix = props.cfh_matrix;
+
+        // console.log(matrix)
+        // if (i < 3)
+        // {
+        //     console.log("i_" + i)
+        //     ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+        //     //cfhresult = ComputeCFH(matrix, "01", 0.2);
+        //     //console.log(cfhresult)
+        // }
+        if(matrix.length >= featureStr.length)
+        { 
+            let binaryStr = "";
+            for(j = 0; j < matrix.length - 1; j++)//Matrix.length - 1
+            {
+                //console.log(matrix[j+1]);
+                //console.log(Math.abs(matrix[j+1] - matrix[j]));
+                if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
+                {
+                    binaryStr +="1";
+                }
+                else
+                    binaryStr +="0";
+            }
+            //console.log(binaryStr)
+            //console.log( binaryStr.split(featureStr).length - 1)
+            props.cfh_bstr = binaryStr;
+            if(!heightcfh)
+                props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
+            else
+                props.height = (binaryStr.split(featureStr).length - 1);
+        }
+        else
+        {
+            props.cfh_bstr = "";
+            props.height = 0;
+        }
+
+        // height = 0;
+        // for(j = 0; j < matrix.length; j++)
+        //     height += matrix[j];
+        // props.height = height / matrix.length;
     }
 
-    // height = 0;
-    // for(j = 0; j < matrix.length; j++)
-    //     height += matrix[j];
-    // props.height = height / matrix.length;
-}
+    // cfhresult = ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
+    // console.log(cfhresult)
 
-// cfhresult = ComputeCFH([79.77503, 79.770546, 79.76627, 79.76627, 79.76889, 79.77992, 79.77701, 79.77503, 79.77433, 79.77361, 79.76804, 79.7653656, 79.7584839, 79.7584839, 79.7584839, 79.7584839, 79.7644348, 79.76154, 79.7584839, 79.770546], "01", 0.0002);
-// console.log(cfhresult)
+    map.getSource('polygon1').setData(rawdata);
 
-map.getSource('polygon1').setData(rawdata);
+    // Test 1 ok,
+    // gjFeatureC = TgjFeatureC;
+    // gjFeature = TgjFeature;
+    // //JSON.parse(JSON.stringify(TCgjFeature))
+    // CoorStr = [[[6.1589338,62.4723013],[6.16444,62.47264497],[6.164436885306187,62.472694872892525],[6.158932554122474,62.472321261157006],[6.1589338,62.4723013]]];
+    // gjFeature.geometry.coordinates.push(CoorStr);
+    // gjFeatureC.features.push(gjFeature);
+    // CoorStr = [[[6.16444,62.47264497],[6.165792,62.471144],[6.165806860333545,62.47115738545804],[6.164477150833863,62.47267843364509],[6.16444,62.47264497]]];
+    // gjFeature.geometry.coordinates.push(CoorStr);
+    // gjFeatureC.features.push(gjFeature);
+    // CoorStr = [[[6.165792,62.471144],[6.1596182,62.4714755],[6.159615519129591,62.47142557192239],[6.165790927651837,62.471124028768955],[6.165792,62.471144]]];
+    // gjFeature.geometry.coordinates.push(CoorStr);
+    // gjFeatureC.features.push(gjFeature);
+    // CoorStr = [[[6.1596182,62.4714755],[6.1589338,62.4723013],[6.1589184010870275,62.47228853781056],[6.1595797027175685,62.4714435945264],[6.1596182,62.4714755]]];
+    // gjFeature.geometry.coordinates.push(CoorStr);
+    // gjFeatureC.features.push(gjFeature);
+    // //console.log("abc"+gjFeatureC.toString());
 
-// Test 1 ok,
-// gjFeatureC = TgjFeatureC;
-// gjFeature = TgjFeature;
-// //JSON.parse(JSON.stringify(TCgjFeature))
-// CoorStr = [[[6.1589338,62.4723013],[6.16444,62.47264497],[6.164436885306187,62.472694872892525],[6.158932554122474,62.472321261157006],[6.1589338,62.4723013]]];
-// gjFeature.geometry.coordinates.push(CoorStr);
-// gjFeatureC.features.push(gjFeature);
-// CoorStr = [[[6.16444,62.47264497],[6.165792,62.471144],[6.165806860333545,62.47115738545804],[6.164477150833863,62.47267843364509],[6.16444,62.47264497]]];
-// gjFeature.geometry.coordinates.push(CoorStr);
-// gjFeatureC.features.push(gjFeature);
-// CoorStr = [[[6.165792,62.471144],[6.1596182,62.4714755],[6.159615519129591,62.47142557192239],[6.165790927651837,62.471124028768955],[6.165792,62.471144]]];
-// gjFeature.geometry.coordinates.push(CoorStr);
-// gjFeatureC.features.push(gjFeature);
-// CoorStr = [[[6.1596182,62.4714755],[6.1589338,62.4723013],[6.1589184010870275,62.47228853781056],[6.1595797027175685,62.4714435945264],[6.1596182,62.4714755]]];
-// gjFeature.geometry.coordinates.push(CoorStr);
-// gjFeatureC.features.push(gjFeature);
-// //console.log("abc"+gjFeatureC.toString());
+    // Test 2 ok,
+    // lines = [
+    // [6.1589338, 62.4723013], //x, y
+    // [6.16444, 62.47264497],
+    // [6.165792, 62.471144],
+    // [6.1596182, 62.4714755],
+    // [6.1589338, 62.4723013]
+    // ]
+    // widths = [
+    //     5,1,2,5,5
+    // ]
+    // scale = 0.00001;
 
-// Test 2 ok,
-// lines = [
-// [6.1589338, 62.4723013], //x, y
-// [6.16444, 62.47264497],
-// [6.165792, 62.471144],
-// [6.1596182, 62.4714755],
-// [6.1589338, 62.4723013]
-// ]
-// widths = [
-//     5,1,2,5,5
-// ]
-// scale = 0.00001;
-
-// gjFeatureC = TgjFeatureC;
-// for(i = 0; i < lines.length - 1; i++)
-// {
-//     gjFeature = TgjFeature;
-//     CoorStr = TaperedLine2(lines[i], lines[i+1], widths[i], widths[i+1]);
-//     gjFeature.geometry.coordinates.push(CoorStr);
-//     gjFeatureC.features.push(gjFeature);
-// }
-////console.log(gjFeatureC.stringify())
-//map.getSource('line').setData(gjFeatureC);
-console.log(rawdata)
-
+    // gjFeatureC = TgjFeatureC;
+    // for(i = 0; i < lines.length - 1; i++)
+    // {
+    //     gjFeature = TgjFeature;
+    //     CoorStr = TaperedLine2(lines[i], lines[i+1], widths[i], widths[i+1]);
+    //     gjFeature.geometry.coordinates.push(CoorStr);
+    //     gjFeatureC.features.push(gjFeature);
+    // }
+    ////console.log(gjFeatureC.stringify())
+    //map.getSource('line').setData(gjFeatureC);
+    console.log(rawdata)
 }
 
 // 2 points to 5 points of one polygon
-function TaperedLine2(data1,data2,width1,width2){
-      poly = [];
-      poly.push(data1);
-      poly.push(data2);
-      poly.push(ExtendedPointPrev(data2, data1, width2));
-      poly.push(ExtendedPointNext(data1, data2, width1));
-      poly.push(data1);
-      return [poly]
+function TaperedLine2Old(data1,data2,width1,width2){
+    poly = [];
+    poly.push(data1);
+    poly.push(data2);
+    poly.push(ExtendedPointPrev(data2, data1, width2));
+    poly.push(ExtendedPointNext(data1, data2, width1));
+    poly.push(data1);
+    return [poly]
+}
+
+// 2 points to 5 points of one polygon
+function TaperedLine2(data1,data2,widthscale){
+    //console.log(edge[i][0]);
+    //console.log(lon_min);
+    x_index = Math.floor((data1[0] - lon_min)/lon_step);
+    y_index = Math.floor((data1[1] - lat_min)/lat_step);
+    //console.log(x_index + y_index * ncols);
+    startnode_index = x_index + y_index * ncols;
+    props = rawdata.features[x_index + y_index * ncols].properties;
+    width1 = widthscale * (1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min));
+    x_index = Math.floor((data2[0] - lon_min)/lon_step);
+    y_index = Math.floor((data2[1] - lat_min)/lat_step);
+    //console.log(x_index + y_index * ncols);
+    props = rawdata.features[x_index + y_index * ncols].properties;
+    width2 = widthscale * (1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min));
+    poly = [];
+    poly.push(data1);
+    poly.push(data2);
+    poly.push(ExtendedPointPrev(data2, data1, width2));
+    poly.push(ExtendedPointNext(data1, data2, width1));
+    poly.push(data1);
+    return [poly]
 }
 
 // calculate based on the next point position
@@ -993,7 +1037,7 @@ function ExtendedPointNext(p, np, w)
     y_offset = ((x2-x1) / d)*w;
     //         (x2,y2)
     // (x1,y1)
-    return [p[0]+x_offset,p[1]+y_offset]
+    return [p[0]+x_offset,p[1]+y_offset/4]
 }
 
 // calculate based on the previous point position
@@ -1012,7 +1056,7 @@ function ExtendedPointPrev(p, pp, w)
     y_offset = ((x2-x1) / d)*w;
     //         (x2,y2)
     // (x1,y1)
-    return [p[0]-x_offset,p[1]-y_offset]
+    return [p[0]-x_offset,p[1]-y_offset/4]
 }
 
 function tick_update()
@@ -1090,79 +1134,87 @@ map.addLayer({
 
 function activeHover()
 {
-// Change the cursor to a pointer when
-// the mouse is over the states layer.
-map.on('mouseenter', 'poly1', () => {
-map.getCanvas().style.cursor = 'pointer';
-});
+    // Change the cursor to a pointer when
+    // the mouse is over the states layer.
+    map.on('mouseenter', 'poly1', () => {
+    map.getCanvas().style.cursor = 'pointer';
+    });
 
-// Change the cursor back to a pointer
-// when it leaves the states layer.
-map.on('mouseleave', 'poly1', () => {
-map.getCanvas().style.cursor = '';
-});
+    // Change the cursor back to a pointer
+    // when it leaves the states layer.
+    map.on('mouseleave', 'poly1', () => {
+    map.getCanvas().style.cursor = '';
+    });
 
-// When the user moves their mouse over the state-fill layer, we'll update the
-// feature state for the feature under the mouse.
-map.on('mousemove', 'state-fills', (e) => {
-if (e.features.length > 0) {
-if (hoveredStateId !== null) {
-map.setFeatureState(
-{ source: 'polygon1', id: hoveredStateId },
-{ hover: false }
-);
-}
-hoveredStateId = e.features[0].id;
-hoveredProps = e.features[0].properties;
-map.setFeatureState(
-{ source: 'polygon1', id: hoveredStateId },
-{ hover: true }
-);
-dVectexId.textContent = hoveredStateId;
-dLatitude.textContent = e.lngLat.lng;
-dLongitude.textContent = e.lngLat.lat;
+    // When the user moves their mouse over the state-fill layer, we'll update the
+    // feature state for the feature under the mouse.
+    map.on('mousemove', 'state-fills', (e) => {
+    
+    //console.log(e.features[0].geometry.type)
+    if ((e.features.length > 0) && (e.features[0].geometry.type == 'Polygon')) {
+    if (hoveredStateId !== null) {
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: false }
+    );
+    }
+    //console.log(JSON.stringify(e.features[0]));
 
-props = e.features[0].properties;
-dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
-dtdm_color.textContent = props.color;
-dtdm_color_sample.style.backgroundColor = props.color;
-dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
-daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
-dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
-dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
-dheight.textContent = parseFloat(props.height.toFixed(6));
-dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
-dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
-//console.log(hoveredStateId + ":true");
-}
-});
+    hoveredStateId = e.features[0].id;
+    hoveredProps = e.features[0].properties;
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: true }
+    );
+    dVectexId.textContent = hoveredStateId;
+    dLatitude.textContent = e.lngLat.lat;
+    dLongitude.textContent = e.lngLat.lng;
 
-// When the mouse leaves the state-fill layer, update the feature state of the
-// previously hovered feature.
-map.on('mouseleave', 'state-fills', (e) => {
-if (hoveredStateId !== null) {
-    //console.log(hoveredStateId + ":false");
-map.setFeatureState(
-{ source: 'polygon1', id: hoveredStateId },
-{ hover: false }
-);
-dVectexId.textContent = "No data";;
-dLatitude.textContent = "";
-dLongitude.textContent = "";
-dColor_alpha.textContent = "";
-dtdm_color.textContent = "";
-dtdm_color_sample.style.backgroundColor = "white";
-dtdm_lambda.textContent = "";
-daccess_time.textContent = "";
-dift_cost.textContent = "";
-dtdm_cost.textContent = "";
-dheight.textContent = "";
-dbinaryStr.textContent = "";
-dcfh_matrix.textContent = "";
-}
-hoveredStateId = null;
-hoveredProps = null;
-});
+    props = e.features[0].properties;
+    //console.log(JSON.stringify(props))
+    //if(props != null)
+    {
+        dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
+        dtdm_color.textContent = props.color;
+        dtdm_color_sample.style.backgroundColor = props.color;
+        dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
+        daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
+        dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
+        dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
+        dheight.textContent = parseFloat(props.height.toFixed(6));
+        dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
+        dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
+        //console.log(hoveredStateId + ":true");
+    }
+    }
+    });
+
+    // When the mouse leaves the state-fill layer, update the feature state of the
+    // previously hovered feature.
+    map.on('mouseleave', 'state-fills', (e) => {
+    if (hoveredStateId !== null) {
+        //console.log(hoveredStateId + ":false");
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: false }
+    );
+    dVectexId.textContent = "No data";;
+    dLatitude.textContent = "";
+    dLongitude.textContent = "";
+    dColor_alpha.textContent = "";
+    dtdm_color.textContent = "";
+    dtdm_color_sample.style.backgroundColor = "white";
+    dtdm_lambda.textContent = "";
+    daccess_time.textContent = "";
+    dift_cost.textContent = "";
+    dtdm_cost.textContent = "";
+    dheight.textContent = "";
+    dbinaryStr.textContent = "";
+    dcfh_matrix.textContent = "";
+    }
+    hoveredStateId = null;
+    hoveredProps = null;
+    });
 }
 
 function filterBy(month) {
@@ -1171,14 +1223,14 @@ function filterBy(month) {
 document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
 index = month - 1;
 
-i = rawdata.features.length - 1;
+i = rawdata.features.length - 2;
 lambda_min = rawdata.features[i].properties.tdm_lambda_min;
 lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
 dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
 dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
 
-for(i=0; i<rawdata.features.length-1;i++)
+for(i=0; i<rawdata.features.length-2;i++)
 {
     //console.log("abc")
     props = rawdata.features[i].properties;
