@@ -120,11 +120,14 @@
         <input class="largerCheckbox" type="checkbox" id="colormapping" checked><label for="colormapping">Color mapping</label><br>
         <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label for="heightmapping">Height mapping</label><br>
         <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label for="heightcfh">Height CFH</label><br>
+        <label id="alpha"></label>
+        <input id="alphaslider" type="range" min="0" max="100" step="1" value="80"></input>
         <div><label>Camera&nbsp</label><button type="button" class="btn btn-outline-secondary" onclick="copyCameraPosition()">Copy</button>
         <button type="button" class="btn btn-outline-secondary" onclick="pasteCameraPosition()">Paste</button></div>
         <br>
         <input type="file" class="form-control" name="file" id="file"><button class="btn btn-primary" onclick="doupload()" name="submit">Upload</button>
-        <button type="button" class="btn btn-primary" id="play_button">Play/Pause</button><label id="month"></label>
+        <button type="button" class="btn btn-primary" id="play_button">Play/Pause</button>
+        <label id="month"></label>
         <input id="slider" type="range" min="1" max="11" step="1" value="1"></input>
         <label id="delaytime"></label>
         <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
@@ -665,7 +668,7 @@ map.on('sourcedata', (e) => {
             //'fill-extrusion-base': ['get', 'base_height'],
             
             // Make extrusions slightly opaque to see through indoor walls.
-            'fill-extrusion-opacity': 0.8
+            'fill-extrusion-opacity': document.getElementById('alphaslider').value/100//0.8
             }
             });
 
@@ -700,7 +703,7 @@ map.on('sourcedata', (e) => {
         console.log(timesteps)
         document.getElementById('slider').setAttribute("max",timesteps);//40);
         
-        computeTTDM(document.getElementById('heightcfh').checked);
+        computeTTDM();
 
         addLayers_Hover();
 
@@ -794,6 +797,7 @@ map.on('sourcedata', (e) => {
 
         document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
         document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
+        document.getElementById('alpha').textContent = "Alpha:" + document.getElementById('alphaslider').value + "%";
 
         //
         var tick = function() {
@@ -844,8 +848,11 @@ new mapboxgl.Popup()//({className:"popstyle"})
     activeHoverTexture();
 }
 
-function computeTTDM(heightcfh, colormap = true, heightmap = true)
+function computeTTDM()
 {
+    heightcfh = document.getElementById("heightcfh").checked;
+    colormap = document.getElementById('colormapping').checked;
+    heightmap = document.getElementById("heightmapping").checked;
     // load global properties
     i = rawdata.features.length-2;
     props = rawdata.features[i].properties;
@@ -1452,6 +1459,11 @@ document.getElementById('slider').addEventListener('input', (e) => {
         filterBy(month);
 });
 
+document.getElementById('alphaslider').addEventListener('input', (e) => {
+    document.getElementById('alpha').textContent = "Alpha:"+e.target.value.toString()+"%";
+    map.setPaintProperty('room-extrusion', 'fill-extrusion-opacity', e.target.value / 100)
+});
+
 document.getElementById('delaySlider').addEventListener('input', (e) => {
     g_playwait = e.target.value;
     document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
@@ -1459,7 +1471,7 @@ document.getElementById('delaySlider').addEventListener('input', (e) => {
 
 
 function heightcfhChanged(){
-    computeTTDM(document.getElementById("heightcfh").checked, document.getElementById('colormapping').checked, document.getElementById("heightmapping").checked)
+    computeTTDM()
     }
 
 function colormappingChanged(){
@@ -1565,7 +1577,7 @@ let file = document.getElementById('file').files[0];
     const fileContent = await file.text();
     rawdata = JSON.parse(fileContent);
     console.log('uploaded=', file, ',', rawdata);
-    computeTTDM(document.getElementById('heightcfh').checked);
+    computeTTDM();
     // update to new data file
     networkmappingChange();
   })();
@@ -1580,7 +1592,7 @@ function updateFeatureStr()
     {
         featureStr = fstr;
         dfeatureStr.textContent = featureStr;
-        computeTTDM(document.getElementById('heightcfh').checked);
+        computeTTDM();
     }
     else
     {
@@ -1598,7 +1610,7 @@ function updateThreshold()
         Threshold = parseFloat(fstr);
         console.log(Threshold)
         dthreshold.textContent = Threshold;
-        computeTTDM(document.getElementById('heightcfh').checked);
+        computeTTDM();
     }
     else
     {
