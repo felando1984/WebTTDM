@@ -680,13 +680,13 @@ map.on('sourcedata', (e) => {
                 ],//"grey",
             
             // Get `fill-extrusion-height` from the source `height` property.
-            'fill-extrusion-height': 0,//['get', 'height'],
+            'fill-extrusion-height': ['get', 'height'],
             
             // Get `fill-extrusion-base` from the source `base_height` property.
             //'fill-extrusion-base': ['get', 'base_height'],
             
             // Make extrusions slightly opaque to see through indoor walls.
-            'fill-extrusion-opacity': 0.1
+            'fill-extrusion-opacity': 0.8
             }
             });
         a = true;
@@ -800,7 +800,6 @@ map.on('sourcedata', (e) => {
         b = true;
 
         createNodes();
-        createHoverForNodes();
         networkmappingChange()
         colormappingChanged();
         heightmappingChanged();
@@ -1083,7 +1082,7 @@ function networkmappingChange()
                         // if(ConnectedCoorStr.length == 0)
                         // {
                         //     ConnectedCoorStr = JSON.parse(JSON.stringify(CoorStr))[0];
-                        //     console.log(JSON.stringify(CoorStr));
+                        //     //console.log(JSON.stringify(CoorStr));
                         // }
                         // else
                         // {
@@ -1097,6 +1096,7 @@ function networkmappingChange()
                         gjFeature.geometry.coordinates.push(CoorStr);
                     }
                 }
+                //gjFeature.geometry.coordinates.push([ConnectedCoorStr]);
                 x_index = Math.floor((edge[0][0] - lon_min)/lon_step);
                 y_index = Math.floor((edge[0][1] - lat_min)/lat_step);
                 startnode_index = x_index + y_index * ncols;
@@ -1294,7 +1294,7 @@ for(i=0; i<rawdata.features.length-2;i++)
 map.getSource('polygon1').setData(rawdata);
 if(gjFeatureC_Array.length > 0)
 {
-    //console.log(gjFeatureC_Array.length);
+    console.log(gjFeatureC_Array.length);
     map.getSource('line').setData(gjFeatureC_Array[index]);
 }
 
