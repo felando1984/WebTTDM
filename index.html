@@ -638,27 +638,6 @@ map.on('sourcedata', (e) => {
         // Use a URL for the value for the `data` property.
         data: rawdata,//'polygon.geojson',
         });
-        
-        // Add a symbol layer
-        map.addLayer({
-        'id': 'points',
-        'type': 'symbol',
-        'source': 'points',
-        'layout': {
-        //'icon-image': 'custom-marker',
-        // get the title name from the source's "title" property
-        'text-field': ['get', 'title'],
-        'text-font': [
-        'Open Sans Semibold',
-        'Arial Unicode MS Bold'
-        ],
-        'text-offset': [0, -3.5],
-        'text-anchor': 'top',
-        },
-        'paint': {
-            'text-color': ['get', 'color'],
-        },
-        });
 
         map.addLayer({
             'id': 'room-extrusion',
@@ -689,6 +668,7 @@ map.on('sourcedata', (e) => {
             'fill-extrusion-opacity': 0.8
             }
             });
+
         a = true;
     }
 })
@@ -726,20 +706,20 @@ map.on('sourcedata', (e) => {
 
         // color map for the TTDM
         // Add a new layer to visualize the polygon.
-        map.addLayer({
-            'id': 'poly1',
-            'type': 'fill',
-            'source': 'polygon1', // reference the data source
-            'layout': {
-                // Make the layer visible by default.
-                'visibility': 'visible'
-            },
-            'filter': ['==', '$type', 'Polygon'],
-            'paint': {
-            'fill-color': ['get', 'clrA'],//'color'],//'#00ff00', // blue color fill
-            'fill-opacity': 0.5//['get', 'alpha']
-            }
-        });
+        // map.addLayer({
+        //     'id': 'poly1',
+        //     'type': 'fill',
+        //     'source': 'polygon1', // reference the data source
+        //     'layout': {
+        //         // Make the layer visible by default.
+        //         'visibility': 'visible'
+        //     },
+        //     'filter': ['==', '$type', 'Polygon'],
+        //     'paint': {
+        //     'fill-color': ['get', 'clrA'],//'color'],//'#00ff00', // blue color fill
+        //     'fill-opacity': 0.5//['get', 'alpha']
+        //     }
+        // });
 
         // Add a new layer to visualize the polygon.
         map.addLayer({
@@ -781,10 +761,35 @@ map.on('sourcedata', (e) => {
             'source': 'nodes',
             'paint': {
                 'circle-color': ['get', 'color'],
-                'circle-radius': 8,
+                'circle-radius': 6,
                 'circle-stroke-width': 1,
                 'circle-stroke-color': '#ffffff'
         }
+        });
+
+        // Add a symbol layer
+        map.addLayer({
+            'id': 'points',
+            'type': 'symbol',
+            'source': 'points',
+            'layout': {
+            //'icon-image': 'custom-marker',
+            // get the title name from the source's "title" property
+            'text-field': ['get', 'title'],
+            'text-font': [
+            'Open Sans Semibold',
+            'Arial Unicode MS Bold'
+            ],
+            'text-size': 25,
+            'text-offset': [0, -2.5],
+            'text-anchor': 'top',
+            },
+            'paint': {
+                'text-color': ['get', 'color'],
+                "text-halo-width": 0.5,
+                "text-halo-color": "black",
+                //'text-halo-blur':1,
+            },
         });
 
         document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
@@ -825,21 +830,21 @@ new mapboxgl.Popup()//({className:"popstyle"})
 //console.log(infoList.outerHTML)
 });
 
-map.on('click', 'poly1', (e) => { 
-    //console.log(123)
-new mapboxgl.Popup()//({className:"popstyle"})
-.setLngLat(e.lngLat)
-.setHTML(infoList.innerHTML)//e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
-.addTo(map);
+// map.on('click', 'poly1', (e) => { 
+//     //console.log(123)
+// new mapboxgl.Popup()//({className:"popstyle"})
+// .setLngLat(e.lngLat)
+// .setHTML(infoList.innerHTML)//e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
+// .addTo(map);
 
-//console.log(infoList.outerHTML)
-});
+// //console.log(infoList.outerHTML)
+// });
 
     activeHoverNodes();
     activeHoverTexture();
 }
 
-function computeTTDM(heightcfh)
+function computeTTDM(heightcfh, colormap = true, heightmap = true)
 {
     // load global properties
     i = rawdata.features.length-2;
@@ -890,10 +895,16 @@ function computeTTDM(heightcfh)
             props.cfh_bstr = "";
             props.height = 0;
         }
+        if(colormap && !heightmap)
+            props.height = 0;
+        else if(!colormap && heightmap)
+        {
+            props.clrA = computeClrA('#000000', props.alpha);
+        }
     }
 
     map.getSource('polygon1').setData(rawdata);
-    console.log(rawdata)
+    //console.log(rawdata)
 }
 
 function createNodes()
@@ -970,13 +981,13 @@ function activeHoverTexture()
 {
     // Change the cursor to a pointer when
     // the mouse is over the states layer.
-    map.on('mouseenter', 'poly1', () => {
+    map.on('mouseenter', 'room-extrusion', () => {
     map.getCanvas().style.cursor = 'pointer';
     });
 
     // Change the cursor back to a pointer
     // when it leaves the states layer.
-    map.on('mouseleave', 'poly1', () => {
+    map.on('mouseleave', 'room-extrusion', () => {
     map.getCanvas().style.cursor = '';
     });
 
@@ -1111,7 +1122,7 @@ function networkmappingChange()
     console.log("loaded")
     //rawdata.features.pop();
     //console.log(JSON.stringify(gjFeatureC));
-    console.log(gjFeatureC_Array)
+    //console.log(gjFeatureC_Array)
     map.getSource('line').setData(gjFeatureC_Array[0]);
 }
 
@@ -1448,35 +1459,26 @@ document.getElementById('delaySlider').addEventListener('input', (e) => {
 
 
 function heightcfhChanged(){
-    computeTTDM(document.getElementById("heightcfh").checked)
+    computeTTDM(document.getElementById("heightcfh").checked, document.getElementById('colormapping').checked, document.getElementById("heightmapping").checked)
     }
 
 function colormappingChanged(){
-    layerStr = 'poly1'
-    if(document.getElementById('colormapping').checked)
+    layerStr = 'room-extrusion'
+    if(!document.getElementById('colormapping').checked && !document.getElementById('heightmapping').checked)
     {    
     map.setLayoutProperty(
-        layerStr,'visibility', 'visible');
+        layerStr,'visibility', 'none');
     }
     else
     {
     map.setLayoutProperty(
-        layerStr,'visibility', 'none');
+        layerStr,'visibility', 'visible');
     } 
+    heightcfhChanged()
 }
 
 function heightmappingChanged(){
-    layerStr = 'room-extrusion'
-    if(document.getElementById('heightmapping').checked)
-    {    
-    map.setLayoutProperty(
-        layerStr,'visibility', 'visible');
-    }
-    else
-    {
-    map.setLayoutProperty(
-        layerStr,'visibility', 'none');
-    } 
+    colormappingChanged()
 }
 
 function buildingChanged(){
