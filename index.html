@@ -144,7 +144,7 @@
     
         <div id="info">
             <div><strong>VectexId:</strong> <span id='VectexId'></span></div>
-            <div><strong>Lon:</strong> <span id='Longitude'></span></div>
+            <div><strong>Lng:</strong> <span id='Longitude'></span></div>
             <div><strong>Lat:</strong> <span id='Latitude'></span></div>
             <div><strong>Color alpha:</strong> <span id='Color_alpha'></span></div>
             <br>
@@ -325,6 +325,8 @@ var TgjFeature = {
     },
     "properties":null
 };
+let gjFeatureC_Array_Nodes = [];
+let gjFeatureC_Nodes = {};
 
 
 function ComputeCFH(Matrix, featureStr, Threshold)
@@ -552,6 +554,12 @@ lineMetrics: true,
 data: null
 });
 
+map.addSource('nodes', {
+type: 'geojson',
+lineMetrics: true,
+data: null
+});
+
 
 
 // // the layer must be of type 'line'
@@ -672,13 +680,13 @@ map.on('sourcedata', (e) => {
                 ],//"grey",
             
             // Get `fill-extrusion-height` from the source `height` property.
-            'fill-extrusion-height': ['get', 'height'],
+            'fill-extrusion-height': 0,//['get', 'height'],
             
             // Get `fill-extrusion-base` from the source `base_height` property.
             //'fill-extrusion-base': ['get', 'base_height'],
             
             // Make extrusions slightly opaque to see through indoor walls.
-            'fill-extrusion-opacity': 1
+            'fill-extrusion-opacity': 0.1
             }
             });
         a = true;
@@ -765,6 +773,20 @@ map.on('sourcedata', (e) => {
             }
         });
 
+        // intersection, nodes
+        // Add a layer showing the places.
+        map.addLayer({
+            'id': 'nodeslayer',
+            'type': 'circle',
+            'source': 'nodes',
+            'paint': {
+                'circle-color': ['get', 'color'],
+                'circle-radius': 8,
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#ffffff'
+        }
+        });
+
         document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
         document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
 
@@ -777,6 +799,8 @@ map.on('sourcedata', (e) => {
         rotateCamera(0);
         b = true;
 
+        createNodes();
+        createHoverForNodes();
         networkmappingChange()
         colormappingChanged();
         heightmappingChanged();
@@ -792,7 +816,7 @@ map.on('sourcedata', (e) => {
 // When a click event occurs on a feature in the states layer,
 // open a popup at the location of the click, with description
 // HTML from the click event's properties.
-map.on('click', 'poly1', (e) => {
+map.on('click', 'room-extrusion', (e) => { //poly1
     //console.log(123)
 new mapboxgl.Popup()//({className:"popstyle"})
 .setLngLat(e.lngLat)
@@ -802,7 +826,18 @@ new mapboxgl.Popup()//({className:"popstyle"})
 //console.log(infoList.outerHTML)
 });
 
-activeHover();
+map.on('click', 'poly1', (e) => { 
+    //console.log(123)
+new mapboxgl.Popup()//({className:"popstyle"})
+.setLngLat(e.lngLat)
+.setHTML(infoList.innerHTML)//e.features[0].properties.cfh + "," + e.features[0].properties.name + "," + e.lngLat)
+.addTo(map);
+
+//console.log(infoList.outerHTML)
+});
+
+    activeHoverNodes();
+    activeHoverTexture();
 }
 
 function computeTTDM(heightcfh)
@@ -860,6 +895,161 @@ function computeTTDM(heightcfh)
 
     map.getSource('polygon1').setData(rawdata);
     console.log(rawdata)
+}
+
+function createNodes()
+{
+    i = rawdata.features.length - 2;
+    nodes_geo = rawdata.features[i].properties.nodes_geo;
+    nodes_name = rawdata.features[i].properties.nodes_name;
+    
+    {
+        n_nodes = nodes_geo.length;
+        //console.log(n_edges)
+        timesteps = rawdata.features[0].properties.cfh_matrix.length;
+        gjFeatureC_Array_Nodes = [];
+        for(k=1; k<timesteps+1;k++)
+        {
+            gjFeatureC_Nodes = JSON.parse(JSON.stringify(TgjFeatureC));
+            for(j = 0; j < n_nodes; j++)//n_nodes
+            {
+                gjFeature = JSON.parse(JSON.stringify(TgjFeature));
+                gjFeature.geometry.type = "Point";
+                gjFeature.geometry.coordinates = nodes_geo[j];
+                gjFeature.properties = {'name': nodes_name[j],
+                    'color': 'black'};//rawdata.features[startnode_index].properties.color}
+                gjFeatureC_Nodes.features.push(gjFeature);
+            }
+            //console.log(gjFeatureC)
+            gjFeatureC_Array_Nodes.push(gjFeatureC_Nodes);
+        }
+    }
+    console.log("nodes loaded")
+    //rawdata.features.pop();
+    //console.log(JSON.stringify(gjFeatureC));
+    //console.log(JSON.stringify(gjFeatureC_Array_Nodes[0]))
+    map.getSource('nodes').setData(gjFeatureC_Array_Nodes[0]);
+}
+
+function activeHoverNodes()
+{
+    // Create a popup, but don't add it to the map yet.
+    const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+        });
+        map.on('mouseenter', 'nodeslayer', (e) => {
+        // Change the cursor style as a UI indicator.
+        map.getCanvas().style.cursor = 'pointer';
+        
+        console.log(e.features[0].properties.name)
+        // Copy coordinates array.
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const description ="<b>Name:</b>" + e.features[0].properties.name 
+            + "\n<b>Lng</b>:" + e.features[0].geometry.coordinates[0] 
+            + "\n<b>Lat</b>:" + e.features[0].geometry.coordinates[1];
+        
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+        
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup.setLngLat(coordinates).setHTML(description).addTo(map);
+        });
+        
+        map.on('mouseleave', 'nodeslayer', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+        });         
+}
+
+function activeHoverTexture()
+{
+    // Change the cursor to a pointer when
+    // the mouse is over the states layer.
+    map.on('mouseenter', 'poly1', () => {
+    map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change the cursor back to a pointer
+    // when it leaves the states layer.
+    map.on('mouseleave', 'poly1', () => {
+    map.getCanvas().style.cursor = '';
+    });
+
+    // When the user moves their mouse over the state-fill layer, we'll update the
+    // feature state for the feature under the mouse.
+    map.on('mousemove', 'state-fills', (e) => {
+    
+    //console.log(e.features[0].geometry.type)
+    if ((e.features.length > 0) && (e.features[0].geometry.type == 'Polygon')) {
+    if (hoveredStateId !== null) {
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: false }
+    );
+    }
+    //console.log(JSON.stringify(e.features[0]));
+
+    hoveredStateId = e.features[0].id;
+    hoveredProps = e.features[0].properties;
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: true }
+    );
+    dVectexId.textContent = hoveredStateId;
+    dLatitude.textContent = e.lngLat.lat;
+    dLongitude.textContent = e.lngLat.lng;
+
+    props = e.features[0].properties;
+    //console.log(JSON.stringify(props))
+    //if(props != null)
+    {
+        dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
+        dtdm_color.textContent = props.color;
+        dtdm_color_sample.style.backgroundColor = props.color;
+        dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
+        daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
+        dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
+        dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
+        dheight.textContent = parseFloat(props.height.toFixed(6));
+        dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
+        dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
+        //console.log(hoveredStateId + ":true");
+    }
+    }
+    });
+
+    // When the mouse leaves the state-fill layer, update the feature state of the
+    // previously hovered feature.
+    map.on('mouseleave', 'state-fills', (e) => {
+    if (hoveredStateId !== null) {
+        //console.log(hoveredStateId + ":false");
+    map.setFeatureState(
+    { source: 'polygon1', id: hoveredStateId },
+    { hover: false }
+    );
+    dVectexId.textContent = "No data";;
+    dLatitude.textContent = "";
+    dLongitude.textContent = "";
+    dColor_alpha.textContent = "";
+    dtdm_color.textContent = "";
+    dtdm_color_sample.style.backgroundColor = "white";
+    dtdm_lambda.textContent = "";
+    daccess_time.textContent = "";
+    dift_cost.textContent = "";
+    dtdm_cost.textContent = "";
+    dheight.textContent = "";
+    dbinaryStr.textContent = "";
+    dcfh_matrix.textContent = "";
+    }
+    hoveredStateId = null;
+    hoveredProps = null;
+    });
 }
 
 function networkmappingChange()
@@ -1077,90 +1267,6 @@ map.addLayer({
 });
 }
 
-function activeHover()
-{
-    // Change the cursor to a pointer when
-    // the mouse is over the states layer.
-    map.on('mouseenter', 'poly1', () => {
-    map.getCanvas().style.cursor = 'pointer';
-    });
-
-    // Change the cursor back to a pointer
-    // when it leaves the states layer.
-    map.on('mouseleave', 'poly1', () => {
-    map.getCanvas().style.cursor = '';
-    });
-
-    // When the user moves their mouse over the state-fill layer, we'll update the
-    // feature state for the feature under the mouse.
-    map.on('mousemove', 'state-fills', (e) => {
-    
-    //console.log(e.features[0].geometry.type)
-    if ((e.features.length > 0) && (e.features[0].geometry.type == 'Polygon')) {
-    if (hoveredStateId !== null) {
-    map.setFeatureState(
-    { source: 'polygon1', id: hoveredStateId },
-    { hover: false }
-    );
-    }
-    //console.log(JSON.stringify(e.features[0]));
-
-    hoveredStateId = e.features[0].id;
-    hoveredProps = e.features[0].properties;
-    map.setFeatureState(
-    { source: 'polygon1', id: hoveredStateId },
-    { hover: true }
-    );
-    dVectexId.textContent = hoveredStateId;
-    dLatitude.textContent = e.lngLat.lat;
-    dLongitude.textContent = e.lngLat.lng;
-
-    props = e.features[0].properties;
-    //console.log(JSON.stringify(props))
-    //if(props != null)
-    {
-        dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
-        dtdm_color.textContent = props.color;
-        dtdm_color_sample.style.backgroundColor = props.color;
-        dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
-        daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
-        dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
-        dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
-        dheight.textContent = parseFloat(props.height.toFixed(6));
-        dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
-        dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
-        //console.log(hoveredStateId + ":true");
-    }
-    }
-    });
-
-    // When the mouse leaves the state-fill layer, update the feature state of the
-    // previously hovered feature.
-    map.on('mouseleave', 'state-fills', (e) => {
-    if (hoveredStateId !== null) {
-        //console.log(hoveredStateId + ":false");
-    map.setFeatureState(
-    { source: 'polygon1', id: hoveredStateId },
-    { hover: false }
-    );
-    dVectexId.textContent = "No data";;
-    dLatitude.textContent = "";
-    dLongitude.textContent = "";
-    dColor_alpha.textContent = "";
-    dtdm_color.textContent = "";
-    dtdm_color_sample.style.backgroundColor = "white";
-    dtdm_lambda.textContent = "";
-    daccess_time.textContent = "";
-    dift_cost.textContent = "";
-    dtdm_cost.textContent = "";
-    dheight.textContent = "";
-    dbinaryStr.textContent = "";
-    dcfh_matrix.textContent = "";
-    }
-    hoveredStateId = null;
-    hoveredProps = null;
-    });
-}
 
 function filterBy(month) {
 // Set the label to the month
@@ -1260,6 +1366,8 @@ function computeClrA(c, a)
 {
     var clr = hexToRgb(c);
     var bclr = hexToRgb("#FFFFFF");
+    if(a > 1)
+        a = 1;
     clr.r = Math.floor(clr.r * a + (1 - a) * bclr.r);
     if(clr.r > 255)
         clr.r = 255;
