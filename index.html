@@ -181,6 +181,8 @@
 }
 
 let hoveredStateId = null;
+let hoveredNodeId = null;
+let hoveredEdgeId = null;
 let hoveredProps = null;
 var last = Date.now();
 let enableRotate = false;
@@ -734,7 +736,12 @@ map.on('sourcedata', (e) => {
                 'visibility': 'visible',//'visible'
             },
             'paint': {
-            'fill-color': ['get', 'color'],//'#000000', // blue color fill
+            'fill-color': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                "black",
+                ['get', 'color']//"grey"
+                ],//['get', 'color']//'#000000', // blue color fill
             'fill-opacity': 1
             }
         });
@@ -764,7 +771,12 @@ map.on('sourcedata', (e) => {
             'source': 'nodes',
             'paint': {
                 'circle-color': ['get', 'color'],
-                'circle-radius': 6,
+                'circle-radius': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                20,
+                5//"grey"
+                ],
                 'circle-stroke-width': 1,
                 'circle-stroke-color': '#ffffff'
         }
@@ -845,6 +857,7 @@ new mapboxgl.Popup()//({className:"popstyle"})
 // });
 
     activeHoverNodes();
+    activeHoverEdges();
     activeHoverTexture();
 }
 
@@ -933,7 +946,7 @@ function createNodes()
                 gjFeature = JSON.parse(JSON.stringify(TgjFeature));
                 gjFeature.geometry.type = "Point";
                 gjFeature.geometry.coordinates = nodes_geo[j];
-                gjFeature.properties = {'name': nodes_name[j],
+                gjFeature.properties = {'name': nodes_name[j],'index': j,
                     'color': 'black'};//rawdata.features[startnode_index].properties.color}
                 gjFeatureC_Nodes.features.push(gjFeature);
             }
@@ -959,10 +972,11 @@ function activeHoverNodes()
         // Change the cursor style as a UI indicator.
         map.getCanvas().style.cursor = 'pointer';
         
-        console.log(e.features[0].properties.name)
+        //console.log(e.features[0].properties.name)
         // Copy coordinates array.
         const coordinates = e.features[0].geometry.coordinates.slice();
-        const description ="<b>Name:</b>" + e.features[0].properties.name 
+        const description ="<b>Node</b>"+ "\n<b>Index</b>:" + e.features[0].properties.index
+            + "\n<br><b>Name:</b>" + e.features[0].properties.name 
             + "\n<b>Lng</b>:" + e.features[0].geometry.coordinates[0] 
             + "\n<b>Lat</b>:" + e.features[0].geometry.coordinates[1];
         
@@ -981,6 +995,57 @@ function activeHoverNodes()
         map.on('mouseleave', 'nodeslayer', () => {
         map.getCanvas().style.cursor = '';
         popup.remove();
+        });         
+}
+
+function activeHoverEdges()
+{
+    // Create a popup, but don't add it to the map yet.
+    const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+        });
+        map.on('mouseenter', 'road', (e) => {
+        // Change the cursor style as a UI indicator.
+        map.getCanvas().style.cursor = 'pointer';
+        
+        if (hoveredEdgeId !== null) {
+        map.setFeatureState(
+        { source: 'line', id: hoveredEdgeId },
+        { hover: false }
+        );
+        }
+
+        hoveredEdgeId = e.features[0].id ;
+        map.setFeatureState(
+        { source: 'line', id: hoveredEdgeId },
+        { hover: true }
+        );
+
+        //console.log(e.features[0].properties)
+        const description ="<b>Edge</b>\n<b>Index:</b>" + e.features[0].properties.index 
+            + "\n<br><b>Nodes</b>:(" + e.features[0].properties.startnode_index
+            + "," + e.features[0].properties.stopnode_index
+            + ")<br><b>Color:</b><span></span>" + e.features[0].properties.color + "<div class='box' id='tdm_color_sample' style='background-color: " + e.features[0].properties.color
+            + "'></div>";
+        //console.log(description)
+        
+        
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup.setLngLat(e.lngLat).setHTML(description).addTo(map);
+        });
+        
+        map.on('mouseleave', 'road', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+        if (hoveredEdgeId !== null) {
+        //console.log(hoveredStateId + ":false");
+        map.setFeatureState(
+        { source: 'line', id: hoveredEdgeId },
+        { hover: false }
+        );
+        }
         });         
 }
 
@@ -1118,8 +1183,13 @@ function networkmappingChange()
                 x_index = Math.floor((edge[0][0] - lon_min)/lon_step);
                 y_index = Math.floor((edge[0][1] - lat_min)/lat_step);
                 startnode_index = x_index + y_index * ncols;
-                //console.log("ab"+startnode_index);
-                gjFeature.properties = {'color': rawdata.features[startnode_index].properties.color}
+                x_index = Math.floor((edge[n_points -1][0] - lon_min)/lon_step);
+                y_index = Math.floor((edge[n_points -1][1] - lat_min)/lat_step);
+                stopnode_index = x_index + y_index * ncols;
+                //console.log(startnode_index)
+                gjFeature.id = j;
+                gjFeature.properties = {'index': j, 'startnode_index': startnode_index, 'stopnode_index': stopnode_index,
+                    'color': rawdata.features[startnode_index].properties.color}
                 gjFeatureC.features.push(gjFeature);
             }
             //console.log(gjFeatureC)
