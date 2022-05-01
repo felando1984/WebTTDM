@@ -4,6 +4,8 @@
     <input type="file" name="file" id="file"><button onclick="doupload()" name="submit">Upload File</button>
 
   <script>
+    console.log(computeClrA("#1F2FFF", 0.1))
+
     rawdata = [
 [6.1589338, 62.4723013], //x, y
 [6.16444, 62.47264497],
@@ -161,6 +163,40 @@ for(i = 0; i < lines.length - 1; i++)
     gjFeatureC.features.push(gjFeature);
 }
 console.log(JSON.stringify(gjFeatureC))
+
+function computeClrA(c, a)
+{
+    var clr = hexToRgb(c);
+    clr.r = Math.floor(clr.r * a);
+    if(clr.r > 255)
+        clr.r = 255;
+    clr.g = Math.floor(clr.g * a);
+    if(clr.g > 255)
+        clr.g = 255;
+    clr.b = Math.floor(clr.b * a);
+    if(clr.b > 255)
+        clr.b = 255;
+    return rgbToHex(clr.r, clr.g, clr.b)
+}
+
+function componentToHex(c) {
+var hex = c.toString(16);
+return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
   </script>
 </body>
 </html>
