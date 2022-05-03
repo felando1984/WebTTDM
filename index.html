@@ -1376,7 +1376,7 @@ for(i=0; i<rawdata.features.length-2;i++)
     props.color = clrPOIs[props.cfh_labelmatrix[index]];
     props.tdm_lambda = props.cfh_matrix[index];
     props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
-    //props.clrA = computeClrA(props.color, props.alpha);
+    props.clrA = computeClrA(props.color, props.alpha);
 }
 
 map.getSource('polygon1').setData(rawdata);
