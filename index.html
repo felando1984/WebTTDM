@@ -5,8 +5,11 @@
 <title>T-TDM test</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
 <link href="index.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -85,64 +88,81 @@
 <div class="map-overlay top hidden">
     
     <div class="map-overlay-inner">
-        
         <h4>&nbsp&nbsp&nbsp&nbspT-TDM Graph4</h4>
-        <div style="float:right" class="btn-group" role="group" aria-label="data_source_type">
-            <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off" checked>
-            <label class="btn btn-outline-primary" for="rd_light">L</label>
-            
-            <input type="radio" class="btn-check" name="btnradio2" id="rd_satellite" autocomplete="off">
-            <label class="btn btn-outline-primary" for="rd_satellite">S</label>
 
-            <input type="radio" class="btn-check" name="btnradio2" id="rd_dark" autocomplete="off">
-            <label class="btn btn-outline-primary" for="rd_dark">D</label>
-            
-            <input type="radio" class="btn-check" name="btnradio2" id="rd_streets" autocomplete="off">
-            <label class="btn btn-outline-primary" for="rd_streets">E</label>
-            
-            <input type="radio" class="btn-check" name="btnradio2" id="rd_outdoors" autocomplete="off">
-            <label class="btn btn-outline-primary" for="rd_outdoors">O</label>
-
-            <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off">
-            <label class="btn btn-outline-primary" for="rd_terrain">T</label>
-        </div>
-        <br>
-        <!-- <div id="key" style="opacity: 0.8;">
-            <div class="blank min"></div><div class="blank max"></div>
-            <div id="min" style="color: white; font-weight: 600;">&lt;16µg/m³</div><div id="max" style="color: white; font-weight: 600;">&gt;97µg/m³</div>
-            <div style="width: 1px; height: 18px; margin: 0 0 0 120px; background: blue"></div>
-        </div> -->
-        <br>
-        <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY</label><br>
-        <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label for="rotate">Auto rotate</label><br>
-        <input class="largerCheckbox" type="checkbox" id="terrainEnabled" unchecked><label for="terrainEnabled">Terrain layer</label><br>
-        <input class="largerCheckbox" type="checkbox" id="buildingEnabled" unchecked><label for="buildingEnabled">Building layer</label><br>
-        <input class="largerCheckbox" type="checkbox" id="colormapping" checked><label for="colormapping">Color mapping</label><br>
-        <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label for="heightmapping">Height mapping</label><br>
-        <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label for="heightcfh">Height CFH</label><br>
-        <label id="alpha"></label>
-        <input id="alphaslider" type="range" min="0" max="100" step="1" value="80"></input>
-        <div><label>Camera&nbsp</label><button type="button" class="btn btn-outline-secondary" onclick="copyCameraPosition()">Copy</button>
-        <button type="button" class="btn btn-outline-secondary" onclick="pasteCameraPosition()">Paste</button></div>
-        <br>
-        <input type="file" class="form-control" name="file" id="file"><button class="btn btn-primary" onclick="doupload()" name="submit">Upload</button>
-        <button type="button" class="btn btn-primary" id="play_button">Play/Pause</button>
-        <label id="month"></label>
-        <input id="slider" type="range" min="1" max="11" step="1" value="1"></input>
-        <label id="delaytime"></label>
-        <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" id='thresholdSet' placeholder="threshold ('0.01')" aria-label="Recipient's username" aria-describedby="basic-addon2">
-            <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button" onclick="updateThreshold()">Update</button>
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Load</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Layers</button>
+            </li>
+          </ul>
+          <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <input type="file" class="form-control" name="file" id="file"><button class="btn btn-primary" onclick="doupload()" name="submit">Upload</button>
+                <button type="button" class="btn btn-primary" id="play_button">Play/Pause</button>
+                <label id="month"></label>
+                <input id="slider" type="range" min="1" max="11" step="1" value="1"></input>
+                <label id="delaytime"></label>
+                <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id='thresholdSet' placeholder="threshold ('0.01')" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="updateThreshold()">Update</button>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id='featureStrSet' placeholder="featureStr ('01')" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="updateFeatureStr()">Update</button>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" id='featureStrSet' placeholder="featureStr ('01')" aria-label="Recipient's username" aria-describedby="basic-addon2">
-            <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button" onclick="updateFeatureStr()">Update</button>
+            <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                <div style="float:right" class="btn-group" role="group" aria-label="data_source_type">
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="rd_light">L</label>
+                    
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_satellite" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_satellite">S</label>
+        
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_dark" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_dark">D</label>
+                    
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_streets" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_streets">E</label>
+                    
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_outdoors" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_outdoors">O</label>
+        
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_terrain">T</label>
+                </div>
+                <br>
+                <!-- <div id="key" style="opacity: 0.8;">
+                    <div class="blank min"></div><div class="blank max"></div>
+                    <div id="min" style="color: white; font-weight: 600;">&lt;16µg/m³</div><div id="max" style="color: white; font-weight: 600;">&gt;97µg/m³</div>
+                    <div style="width: 1px; height: 18px; margin: 0 0 0 120px; background: blue"></div>
+                </div> -->
+                <br>
+                <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY</label><br>
+                <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label for="rotate">Auto rotate</label><br>
+                <input class="largerCheckbox" type="checkbox" id="terrainEnabled" unchecked><label for="terrainEnabled">Terrain layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="buildingEnabled" unchecked><label for="buildingEnabled">Building layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="POIEnabled" checked><label for="POIEnabled">POIs layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="nodesEnabled" checked><label for="nodesEnabled">Intersection layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="rawroadEnabled" checked><label for="rawroadEnabled">Road layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="taperedEnabled" checked><label for="taperedEnabled">Network color mapping</label><br>
+                <input class="largerCheckbox" type="checkbox" id="colormapping" checked><label for="colormapping">Density color mapping</label><br>
+                <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label for="heightmapping">Height mapping</label><br>
+                <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label for="heightcfh">Height CFH</label><br>
+                <label id="alpha"></label>
+                <input id="alphaslider" type="range" min="0" max="100" step="1" value="80"></input>
+                <div><label>Camera&nbsp</label><button type="button" class="btn btn-outline-secondary" onclick="copyCameraPosition()">Copy</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="pasteCameraPosition()">Paste</button></div>
             </div>
-        </div>
+          </div>
     </div>
     
         <div id="info">
@@ -171,6 +191,17 @@
 </div>
 <div id="panel_control" class="overlay closed"></div>
 <script>
+
+var triggerTabList = [].slice.call(document.querySelectorAll('#pills-tab a'))
+triggerTabList.forEach(function (triggerEl) {
+  var tabTrigger = new bootstrap.Tab(triggerEl)
+
+  triggerEl.addEventListener('click', function (event) {
+    event.preventDefault()
+    tabTrigger.show()
+  })
+})
+
     async function loadGeoJsonFile()
 {
     const response = await fetch(
@@ -196,6 +227,9 @@ let nrows;
 let ncols;
 let startnode_index;
 let clrPOIs;
+let indexPOIs;
+// markers saved here
+let currentMarkers=[];
 
 a = false;
 b = false;
@@ -269,48 +303,6 @@ pointlist = {
 'title': 'H1',
 'color': "blue"
 }
-},
-{
-// H2，7204337168,62.4726449,6.1644474
-'type': 'Feature',
-'geometry': {
-'type': 'Point',
-'coordinates': [
-6.1644474, 62.4726449
-]
-},
-'properties': {
-'title': 'H2',
-'color': "red"
-}
-},
-{
-// H3，8714559173,62.4714755,6.1596182
-'type': 'Feature',
-'geometry': {
-'type': 'Point',
-'coordinates': [
-6.1596182, 62.4714755
-]
-},
-'properties': {
-'title': 'H3',
-'color': "green"
-}
-},
-{
-// H4, 7379970801,62.471144,6.165792
-'type': 'Feature',
-'geometry': {
-'type': 'Point',
-'coordinates': [
-6.165792, 62.471144
-]
-},
-'properties': {
-'title': 'H4',
-'color': "purple"
-}
 }
 ]
 }
@@ -332,6 +324,8 @@ var TgjFeature = {
 };
 let gjFeatureC_Array_Nodes = [];
 let gjFeatureC_Nodes = {};
+let gjFeatureC_Array_POIs = [];
+let gjFeatureC_POIs = {};
 
 
 function ComputeCFH(Matrix, featureStr, Threshold)
@@ -431,22 +425,6 @@ if(layerId != "satellite-v9")
     labelLayerId
     );
 }
-// Create a default Marker and add it to the map.
-const marker1 = new mapboxgl.Marker({color:"blue"})
-.setLngLat([6.1589338, 62.4723013])
-.addTo(map);
-
-const marker2 = new mapboxgl.Marker({color:"red"})
-.setLngLat([6.1644474, 62.4726449])
-.addTo(map);
-
-const marker3 = new mapboxgl.Marker({color:"green"})
-.setLngLat([6.1596182, 62.4714755])
-.addTo(map);
-
-const marker4 = new mapboxgl.Marker({color:"purple"})
-.setLngLat([6.165792, 62.471144])
-.addTo(map);
 
 map.addSource('states', {
 'type': 'geojson',
@@ -634,9 +612,9 @@ map.on('sourcedata', (e) => {
     //console.log(e)
     if(!a && e.sourceId === "points" && map.isSourceLoaded("points")){
         //console.log("abc")
-        pointlist.features[0].properties.title = "H1";//H101
-        console.log(pointlist)
-        map.getSource('points').setData(pointlist);
+        // pointlist.features[0].properties.title = "H1";//H101
+        // console.log(pointlist)
+        // map.getSource('points').setData(pointlist);
         // Add a symbol layer
         map.addSource('polygon1', {
         type: 'geojson',
@@ -673,7 +651,112 @@ map.on('sourcedata', (e) => {
             'fill-extrusion-opacity': document.getElementById('alphaslider').value/100//0.8
             }
             });
+        
+        
+            addLayers_Hover();
 
+            // color map for the TTDM
+            // Add a new layer to visualize the polygon.
+            // map.addLayer({
+            //     'id': 'poly1',
+            //     'type': 'fill',
+            //     'source': 'polygon1', // reference the data source
+            //     'layout': {
+            //         // Make the layer visible by default.
+            //         'visibility': 'visible'
+            //     },
+            //     'filter': ['==', '$type', 'Polygon'],
+            //     'paint': {
+            //     'fill-color': ['get', 'clrA'],//'color'],//'#00ff00', // blue color fill
+            //     'fill-opacity': 0.5//['get', 'alpha']
+            //     }
+            // });
+
+            // Add a new layer to visualize the polygon.
+            map.addLayer({
+                'id': 'road',
+                'type': 'fill',
+                'source': 'line', // reference the data source
+                'layout': {
+                    // Make the layer visible by default.
+                    'visibility': 'visible',//'visible'
+                },
+                'paint': {
+                'fill-color': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    "black",
+                    ['get', 'color']//"grey"
+                    ],//['get', 'color']//'#000000', // blue color fill
+                'fill-opacity': 1
+                }
+            });
+
+            // raw road
+            // Add a new layer to visualize the polygon.
+            map.addLayer({
+                'id': 'rawroad',
+                'type': 'line',
+                'source': 'polygon1', // reference the data source
+                'layout': {
+                    // Make the layer visible by default.
+                    'visibility': 'visible'//'none'
+                },
+                'filter': ['==', '$type', 'LineString'],
+                paint: {
+                'line-color': 'black',
+                'line-width': 2
+                }
+            });
+
+            // intersection, nodes
+            // Add a layer showing the places.
+            map.addLayer({
+                'id': 'nodeslayer',
+                'type': 'circle',
+                'source': 'nodes',
+                'layout': {
+                    // Make the layer visible by default.
+                    'visibility': 'visible'//'none'
+                },
+                'paint': {
+                    'circle-color': ['get', 'color'],
+                    'circle-radius': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    20,
+                    5//"grey"
+                    ],
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#ffffff'
+            }
+            });
+
+            // Add a symbol layer
+            map.addLayer({
+                'id': 'points',
+                'type': 'symbol',
+                'source': 'points',
+                'layout': {
+                    'visibility': 'visible',//'none'
+                    //'icon-image': 'custom-marker',
+                    // get the title name from the source's "title" property
+                    'text-field': ['get', 'title'],
+                    'text-font': [
+                    'Open Sans Semibold',
+                    'Arial Unicode MS Bold'
+                ],
+                'text-size': 25,
+                'text-offset': [0, -2.5],
+                'text-anchor': 'top',
+                },
+                'paint': {
+                    'text-color': ['get', 'color'],
+                    "text-halo-width": 0.5,
+                    "text-halo-color": "black",
+                    //'text-halo-blur':1,
+                },
+            });
         a = true;
     }
 })
@@ -682,134 +765,10 @@ map.on('sourcedata', (e) => {
 map.on('sourcedata', (e) => {
     //console.log(e)
     if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
-        //console.log("abc")
-        //console.log(rawdata.features.length)
-        //console.log(rawdata.features[0].properties.name)
+        updateData();
 
-        i = rawdata.features.length - 2;
-        lambda_min = rawdata.features[i].properties.tdm_lambda_min;
-        lambda_max = rawdata.features[i].properties.tdm_lambda_max;
-
-        dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
-        dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
-
-
-        Threshold = (lambda_max - lambda_min) / 20;
-
-        dfeatureStr.textContent = featureStr;
-        dthreshold.textContent = parseFloat(Threshold.toFixed(4));
-
-        console.log(rawdata.features.length)
-
-        timesteps = rawdata.features[0].properties.cfh_matrix.length;
-        console.log(timesteps)
-        document.getElementById('slider').setAttribute("max",timesteps);//40);
-        
-        computeTTDM();
-
-        addLayers_Hover();
-
-        // color map for the TTDM
-        // Add a new layer to visualize the polygon.
-        // map.addLayer({
-        //     'id': 'poly1',
-        //     'type': 'fill',
-        //     'source': 'polygon1', // reference the data source
-        //     'layout': {
-        //         // Make the layer visible by default.
-        //         'visibility': 'visible'
-        //     },
-        //     'filter': ['==', '$type', 'Polygon'],
-        //     'paint': {
-        //     'fill-color': ['get', 'clrA'],//'color'],//'#00ff00', // blue color fill
-        //     'fill-opacity': 0.5//['get', 'alpha']
-        //     }
-        // });
-
-        // Add a new layer to visualize the polygon.
-        map.addLayer({
-            'id': 'road',
-            'type': 'fill',
-            'source': 'line', // reference the data source
-            'layout': {
-                // Make the layer visible by default.
-                'visibility': 'visible',//'visible'
-            },
-            'paint': {
-            'fill-color': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                "black",
-                ['get', 'color']//"grey"
-                ],//['get', 'color']//'#000000', // blue color fill
-            'fill-opacity': 1
-            }
-        });
-
-        // raw road
-        // Add a new layer to visualize the polygon.
-        map.addLayer({
-            'id': 'rawroad',
-            'type': 'line',
-            'source': 'polygon1', // reference the data source
-            'layout': {
-                // Make the layer visible by default.
-                'visibility': 'visible'//'none'
-            },
-            'filter': ['==', '$type', 'LineString'],
-            paint: {
-            'line-color': 'black',
-            'line-width': 2
-            }
-        });
-
-        // intersection, nodes
-        // Add a layer showing the places.
-        map.addLayer({
-            'id': 'nodeslayer',
-            'type': 'circle',
-            'source': 'nodes',
-            'paint': {
-                'circle-color': ['get', 'color'],
-                'circle-radius': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                20,
-                5//"grey"
-                ],
-                'circle-stroke-width': 1,
-                'circle-stroke-color': '#ffffff'
-        }
-        });
-
-        // Add a symbol layer
-        map.addLayer({
-            'id': 'points',
-            'type': 'symbol',
-            'source': 'points',
-            'layout': {
-            //'icon-image': 'custom-marker',
-            // get the title name from the source's "title" property
-            'text-field': ['get', 'title'],
-            'text-font': [
-            'Open Sans Semibold',
-            'Arial Unicode MS Bold'
-            ],
-            'text-size': 25,
-            'text-offset': [0, -2.5],
-            'text-anchor': 'top',
-            },
-            'paint': {
-                'text-color': ['get', 'color'],
-                "text-halo-width": 0.5,
-                "text-halo-color": "black",
-                //'text-halo-blur':1,
-            },
-        });
-
-        document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
-        document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
-        document.getElementById('alpha').textContent = "Alpha:" + document.getElementById('alphaslider').value + "%";
+        cameraPos = {"center":{"lng":6.164544300000017,"lat":62.47200129999996},"zoom":16,"pitch":72.51072648495212,"bearing":43.206391505516535};
+        updateCameraPosition();
 
         //
         var tick = function() {
@@ -819,17 +778,6 @@ map.on('sourcedata', (e) => {
         tick();
         rotateCamera(0);
         b = true;
-
-        createNodes();
-        networkmappingChange()
-        colormappingChanged();
-        heightmappingChanged();
-        graphxyChanged();
-        terrainChanged();
-        buildingChanged();
-
-        cameraPos = {"center":{"lng":6.164544300000017,"lat":62.47200129999996},"zoom":16,"pitch":72.51072648495212,"bearing":43.206391505516535};
-        updateCameraPosition();
     }
 })
 
@@ -861,6 +809,47 @@ new mapboxgl.Popup()//({className:"popstyle"})
     activeHoverTexture();
 }
 
+function updateData()
+{
+    //console.log("abc")
+    //console.log(rawdata.features.length)
+    //console.log(rawdata.features[0].properties.name)
+
+    i = rawdata.features.length - 2;
+    lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+    lambda_max = rawdata.features[i].properties.tdm_lambda_max;
+
+    dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
+    dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
+
+
+    Threshold = (lambda_max - lambda_min) / 20;
+
+    dfeatureStr.textContent = featureStr;
+    dthreshold.textContent = parseFloat(Threshold.toFixed(4));
+
+    console.log(rawdata.features.length)
+
+    timesteps = rawdata.features[0].properties.cfh_matrix.length;
+    console.log(timesteps)
+    document.getElementById('slider').setAttribute("max",timesteps);//40);
+    
+    computeTTDM();
+
+    document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
+    document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
+    document.getElementById('alpha').textContent = "Alpha:" + document.getElementById('alphaslider').value + "%";
+
+    createNodes();
+    createPOInodes();
+    networkmappingChange()
+    colormappingChanged();
+    heightmappingChanged();
+    graphxyChanged();
+    terrainChanged();
+    buildingChanged();
+}
+
 function computeTTDM()
 {
     heightcfh = document.getElementById("heightcfh").checked;
@@ -876,6 +865,7 @@ function computeTTDM()
     lon_step = props.lon_step;
     lat_step = props.lat_step;
     clrPOIs = props.clrPOIs;
+    indexPOIs = props.indexPOIs;
     //console.log(lon_min);
     //console.log(lon_min + lon_step);
 
@@ -959,6 +949,45 @@ function createNodes()
     //console.log(JSON.stringify(gjFeatureC));
     //console.log(JSON.stringify(gjFeatureC_Array_Nodes[0]))
     map.getSource('nodes').setData(gjFeatureC_Array_Nodes[0]);
+}
+
+function createPOInodes()
+{
+    // remove markers 
+    if (currentMarkers!==null) {
+        for (var i = currentMarkers.length - 1; i >= 0; i--) {
+        currentMarkers[i].remove();
+        }
+    }
+
+    i = rawdata.features.length - 2;
+    gjFeatureC_Array_POIs = [];
+    gjFeatureC_POIs = JSON.parse(JSON.stringify(TgjFeatureC));
+    for(i=0; i<indexPOIs.length;i++)
+    {
+        console.log(indexPOIs[i])
+        gjFeature = JSON.parse(JSON.stringify(TgjFeature));
+        gjFeature.geometry.type = "Point";
+        gjFeature.geometry.coordinates = nodes_geo[indexPOIs[i]];
+        gjFeature.properties = {'title': 'H'+ (i+1).toString(),'color': clrPOIs[i]};
+        gjFeatureC_POIs.features.push(gjFeature);
+        //console.log(JSON.stringify(gjFeatureC_POIs));
+
+        // tmp marker
+        var oneMarker= new mapboxgl.Marker({color:clrPOIs[i]})
+            .setLngLat(gjFeature.geometry.coordinates)
+            .addTo(map);
+
+        // save tmp marker into currentMarkers
+        currentMarkers.push(oneMarker);
+    }
+    gjFeatureC_Array_POIs.push(gjFeatureC_POIs);
+
+    console.log("POI nodes updated")
+    //rawdata.features.pop();
+    //console.log(JSON.stringify(gjFeatureC_POIs));
+    //console.log("abc" + JSON.stringify(gjFeatureC_Array_POIs))
+    map.getSource('points').setData(gjFeatureC_Array_POIs[0]);
 }
 
 function activeHoverNodes()
@@ -1588,6 +1617,41 @@ function terrainChanged()
         map.setTerrain();
 }
 
+function taperedEnabled()
+{
+    updateLayerVisibility('road', 'taperedEnabled')
+}
+
+function rawroadEnabled()
+{
+    updateLayerVisibility('rawroad', 'rawroadEnabled')
+}
+
+function nodesEnabled()
+{
+    updateLayerVisibility('nodeslayer', 'nodesEnabled')
+}
+
+function POIEnabled()
+{
+    updateLayerVisibility('points', 'POIEnabled')
+}
+
+function updateLayerVisibility(layerStr, componentStr)
+{
+    if(document.getElementById(componentStr).checked)
+    {
+        map.setLayoutProperty(
+        layerStr,'visibility', 'visible');
+    }
+    else
+    {
+    map.setLayoutProperty(
+        layerStr,'visibility', 'none');
+    }   
+}
+
+
 function refreshDataSourceTypeFun()
 {
     if(document.getElementById("rd_light").checked)
@@ -1647,9 +1711,10 @@ let file = document.getElementById('file').files[0];
     const fileContent = await file.text();
     rawdata = JSON.parse(fileContent);
     console.log('uploaded=', file, ',', rawdata);
-    computeTTDM();
-    // update to new data file
-    networkmappingChange();
+    updateData();
+    // computeTTDM();
+    // // update to new data file
+    // networkmappingChange();
   })();
 };
 
@@ -1745,6 +1810,10 @@ document.getElementById("colormapping").onchange = colormappingChanged;
 document.getElementById("graphxy").onchange = graphxyChanged;
 document.getElementById("terrainEnabled").onchange = terrainChanged;
 document.getElementById("buildingEnabled").onchange = buildingChanged;
+document.getElementById("taperedEnabled").onchange = taperedEnabled;
+document.getElementById("rawroadEnabled").onchange = rawroadEnabled;
+document.getElementById("nodesEnabled").onchange = nodesEnabled;
+document.getElementById("POIEnabled").onchange = POIEnabled;
 
 document.getElementById("rd_light").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_satellite").onclick = refreshDataSourceTypeFun;
