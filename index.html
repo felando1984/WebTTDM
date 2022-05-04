@@ -148,6 +148,7 @@
                 <br>
                 <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY</label><br>
                 <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label for="rotate">Auto rotate</label><br>
+                <input class="largerCheckbox" type="checkbox" id="networkdrawEnabled" unchecked><label for="networkdrawEnabled">Draw optimized test</label><br>
                 <input class="largerCheckbox" type="checkbox" id="terrainEnabled" unchecked><label for="terrainEnabled">Terrain layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="buildingEnabled" unchecked><label for="buildingEnabled">Building layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="POIEnabled" checked><label for="POIEnabled">POIs layer</label><br>
@@ -841,7 +842,11 @@ function updateData()
     document.getElementById('alpha').textContent = "Alpha:" + document.getElementById('alphaslider').value + "%";
 
     createNodes();
-    createPOInodes();
+    removePOInodes();
+    if(document.getElementById('POIEnabled').checked)
+    {
+        createPOInodes();
+    }
     networkmappingChange()
     colormappingChanged();
     heightmappingChanged();
@@ -951,7 +956,7 @@ function createNodes()
     map.getSource('nodes').setData(gjFeatureC_Array_Nodes[0]);
 }
 
-function createPOInodes()
+function removePOInodes()
 {
     // remove markers 
     if (currentMarkers!==null) {
@@ -959,13 +964,16 @@ function createPOInodes()
         currentMarkers[i].remove();
         }
     }
+}
 
+function createPOInodes()
+{
     i = rawdata.features.length - 2;
     gjFeatureC_Array_POIs = [];
     gjFeatureC_POIs = JSON.parse(JSON.stringify(TgjFeatureC));
     for(i=0; i<indexPOIs.length;i++)
     {
-        console.log(indexPOIs[i])
+        //console.log(indexPOIs[i])
         gjFeature = JSON.parse(JSON.stringify(TgjFeature));
         gjFeature.geometry.type = "Point";
         gjFeature.geometry.coordinates = nodes_geo[indexPOIs[i]];
@@ -1165,6 +1173,8 @@ function activeHoverTexture()
 
 function networkmappingChange()
 {
+    draw_opt = document.getElementById('networkdrawEnabled').checked;
+
     edges = rawdata.features[rawdata.features.length - 1];
     
     if(edges.geometry.type == "MultiLineString")
@@ -1190,25 +1200,30 @@ function networkmappingChange()
                     if(!((edge[i][0] == edge[i+1][0]) && (edge[i][1] == edge[i+1][1])))
                     {
                         CoorStr = TaperedLine2(edge[i], edge[i+1], 8, k);//3*(i)/n_points, 3*(i+1)/n_points);//widths[i], widths[i+1]);
-                        // //console.log(edge.length);
-                        // if(ConnectedCoorStr.length == 0)
-                        // {
-                        //     ConnectedCoorStr = JSON.parse(JSON.stringify(CoorStr))[0];
-                        //     //console.log(JSON.stringify(CoorStr));
-                        // }
-                        // else
-                        // {
-                        //     l = ConnectedCoorStr.length;
-                        //     p1 = ConnectedCoorStr.slice(0, (l-1)/2);
-                        //     p2 = CoorStr[0].slice(0, CoorStr[0].length - 1);
-                        //     p3 = ConnectedCoorStr.slice((l-1)/2, l);
-                        //     ConnectedCoorStr = p1.concat(p2).concat(p3);
-                        //     //console.log(p1.length + "+" + p2.length + "+" + p3.length + "=" + ConnectedCoorStr.length);
-                        // }
-                        gjFeature.geometry.coordinates.push(CoorStr);
+                        if(draw_opt)
+                        {
+                            //console.log(edge.length);
+                            if(ConnectedCoorStr.length == 0)
+                            {
+                                ConnectedCoorStr = JSON.parse(JSON.stringify(CoorStr))[0];
+                                //console.log(JSON.stringify(CoorStr));
+                            }
+                            else
+                            {
+                                l = ConnectedCoorStr.length;
+                                p1 = ConnectedCoorStr.slice(0, (l-1)/2);
+                                p2 = CoorStr[0].slice(0, CoorStr[0].length - 1);
+                                p3 = ConnectedCoorStr.slice((l-1)/2, l);
+                                ConnectedCoorStr = p1.concat(p2).concat(p3);
+                                //console.log(p1.length + "+" + p2.length + "+" + p3.length + "=" + ConnectedCoorStr.length);
+                            }
+                        }
+                        else
+                            gjFeature.geometry.coordinates.push(CoorStr);
                     }
                 }
-                //gjFeature.geometry.coordinates.push([ConnectedCoorStr]);
+                if(draw_opt)
+                    gjFeature.geometry.coordinates.push([ConnectedCoorStr]);
                 x_index = Math.floor((edge[0][0] - lon_min)/lon_step);
                 y_index = Math.floor((edge[0][1] - lat_min)/lat_step);
                 startnode_index = x_index + y_index * ncols;
@@ -1634,7 +1649,15 @@ function nodesEnabled()
 
 function POIEnabled()
 {
-    updateLayerVisibility('points', 'POIEnabled')
+    updateLayerVisibility('points', 'POIEnabled');
+    if(document.getElementById('POIEnabled').checked)
+    {
+        createPOInodes();
+    }
+    else
+    {
+        removePOInodes();
+    }
 }
 
 function updateLayerVisibility(layerStr, componentStr)
@@ -1814,6 +1837,7 @@ document.getElementById("taperedEnabled").onchange = taperedEnabled;
 document.getElementById("rawroadEnabled").onchange = rawroadEnabled;
 document.getElementById("nodesEnabled").onchange = nodesEnabled;
 document.getElementById("POIEnabled").onchange = POIEnabled;
+document.getElementById('networkdrawEnabled').onchange = networkmappingChange;
 
 document.getElementById("rd_light").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_satellite").onclick = refreshDataSourceTypeFun;
