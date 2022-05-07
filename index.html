@@ -106,6 +106,16 @@
                 <input id="slider" type="range" min="1" max="11" step="1" value="1"></input>
                 <label id="delaytime"></label>
                 <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
+                <br>
+                <div style="float:right" class="btn-group" role="group" aria-label="cfhMap_type">
+                    <input type="radio" class="btn-check" name="btnradioMap" id="rd_densitymap" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="rd_densitymap">Density Map</label>
+                    
+                    <input type="radio" class="btn-check" name="btnradioMap" id="rd_labelmap" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_labelmap">Label Map</label>
+                </div>
+                <br>
+                <br>
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" id='thresholdSet' placeholder="threshold ('0.01')" aria-label="Recipient's username" aria-describedby="basic-addon2">
                     <div class="input-group-append">
@@ -178,8 +188,8 @@
             <div><strong>cfh change threshold:</strong> <span id='threshold'></span></div>
             <br>
             <div><strong>tdm color:</strong> <span id='tdm_color'></span><div class="box" id="tdm_color_sample" style="background-color: #723122"></div></div>
-            <div><strong>tdm lambda max:</strong> <span id='tdm_lambda_max'></span></div>
-            <div><strong>tdm lambda min:</strong> <span id='tdm_lambda_min'></span></div>
+            <div><strong>cfh value max:</strong> <span id='cfh_value_max'></span></div>
+            <div><strong>cfh value min:</strong> <span id='cfh_value_min'></span></div>
             <div><strong>tdm lambda:</strong> <span id='tdm_lambda'></span></div>
             <div><strong>access time (s):</strong> <span id='access_time'></span></div>
             <div><strong>ift cost (E dis^2):</strong> <span id='ift_cost'></span></div>
@@ -231,6 +241,7 @@ let clrPOIs;
 let indexPOIs;
 // markers saved here
 let currentMarkers=[];
+let isLabelMatrix = false;
 
 a = false;
 b = false;
@@ -817,22 +828,34 @@ function updateData()
     //console.log(rawdata.features[0].properties.name)
 
     i = rawdata.features.length - 2;
+
     lambda_min = rawdata.features[i].properties.tdm_lambda_min;
     lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-    dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
-    dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
-
-
     Threshold = (lambda_max - lambda_min) / 20;
+    let timesteps;
+
+    if(isLabelMatrix)
+    {
+        timesteps = rawdata.features[0].properties.cfh_labelmatrix.length;
+        dcfh_value_min.textContent = 0;
+        dcfh_value_max.textContent =  rawdata.features[i].properties.indexPOIs.length - 1;
+        Threshold = 1;
+        dthreshold.textContent = Threshold;
+    }
+    else
+    {
+        timesteps = rawdata.features[0].properties.cfh_matrix.length;
+        dcfh_value_min.textContent = parseFloat(lambda_min.toFixed(6));
+        dcfh_value_max.textContent = parseFloat(lambda_max.toFixed(6));
+        dthreshold.textContent = parseFloat(Threshold.toFixed(4));
+    }
 
     dfeatureStr.textContent = featureStr;
-    dthreshold.textContent = parseFloat(Threshold.toFixed(4));
+    //console.log(rawdata.features.length)
+    //console.log(timesteps)
 
-    console.log(rawdata.features.length)
 
-    timesteps = rawdata.features[0].properties.cfh_matrix.length;
-    console.log(timesteps)
     document.getElementById('slider').setAttribute("max",timesteps);//40);
     
     computeTTDM();
@@ -881,7 +904,10 @@ function computeTTDM()
         // color mapping with lambda value
         props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
         props.clrA = computeClrA(props.color, props.alpha);
-        matrix = props.cfh_matrix;
+        if(isLabelMatrix)
+            matrix = props.cfh_labelmatrix;
+        else
+            matrix = props.cfh_matrix;
 
         if(matrix.length >= featureStr.length)
         { 
@@ -1137,7 +1163,11 @@ function activeHoverTexture()
         dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
         dheight.textContent = parseFloat(props.height.toFixed(6));
         dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
-        dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
+        if(isLabelMatrix)
+            dcfh_matrix.textContent = props.cfh_labelmatrix.toString().split(',').join(',\n');
+        else
+            dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
+        
         //console.log(hoveredStateId + ":true");
     }
     }
@@ -1401,47 +1431,55 @@ map.addLayer({
 
 
 function filterBy(month) {
-// Set the label to the month
-//console.log(month);
-document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
-index = month - 1;
+    // Set the label to the month
+    //console.log(month);
+    document.getElementById('month').textContent = "time:" + month + "/" + timesteps;
+    index = month - 1;
 
-i = rawdata.features.length - 2;
-lambda_min = rawdata.features[i].properties.tdm_lambda_min;
-lambda_max = rawdata.features[i].properties.tdm_lambda_max;
+    i = rawdata.features.length - 2;
+    lambda_min = rawdata.features[i].properties.tdm_lambda_min;
+    lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-dtdm_lambda_min.textContent = parseFloat(lambda_min.toFixed(6));
-dtdm_lambda_max.textContent = parseFloat(lambda_max.toFixed(6));
+    if(isLabelMatrix)
+    {
+        dcfh_value_min.textContent = 0;
+        dcfh_value_max.textContent =  rawdata.features[i].properties.indexPOIs.length - 1;
+    }
+    else
+    {
+        dcfh_value_min.textContent = parseFloat(lambda_min.toFixed(6));
+        dcfh_value_max.textContent = parseFloat(lambda_max.toFixed(6));
+    }
 
-for(i=0; i<rawdata.features.length-2;i++)
-{
-    //console.log("abc")
-    props = rawdata.features[i].properties;
-    props.color = clrPOIs[props.cfh_labelmatrix[index]];
-    props.tdm_lambda = props.cfh_matrix[index];
-    props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
-    props.clrA = computeClrA(props.color, props.alpha);
-}
+    for(i=0; i<rawdata.features.length-2;i++)
+    {
+        //console.log("abc")
+        props = rawdata.features[i].properties;
+        props.color = clrPOIs[props.cfh_labelmatrix[index]];
+        props.tdm_lambda = props.cfh_matrix[index];
+        props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+        props.clrA = computeClrA(props.color, props.alpha);
+    }
 
-map.getSource('polygon1').setData(rawdata);
-if(gjFeatureC_Array.length > 0)
-{
-    console.log(gjFeatureC_Array.length);
-    map.getSource('line').setData(gjFeatureC_Array[index]);
-}
+    map.getSource('polygon1').setData(rawdata);
+    if(gjFeatureC_Array.length > 0)
+    {
+        console.log(gjFeatureC_Array.length);
+        map.getSource('line').setData(gjFeatureC_Array[index]);
+    }
 
 
-// update information
-if(hoveredProps != null)
-{
-    props = rawdata.features[hoveredStateId].properties;
-    updatelabel(dColor_alpha, props.alpha);
-    dtdm_color.textContent = props.color;
-    dtdm_color_sample.style.backgroundColor = props.color;
-    //matrix = rawdata.features[hoveredStateId].properties.cfh_matrix;
-    updatelabel(dtdm_lambda, props.tdm_lambda);
-    //console.log("index " + index +',' + matrix[index]);
-}
+    // update information
+    if(hoveredProps != null)
+    {
+        props = rawdata.features[hoveredStateId].properties;
+        updatelabel(dColor_alpha, props.alpha);
+        dtdm_color.textContent = props.color;
+        dtdm_color_sample.style.backgroundColor = props.color;
+        //matrix = rawdata.features[hoveredStateId].properties.cfh_matrix;
+        updatelabel(dtdm_lambda, props.tdm_lambda);
+        //console.log("index " + index +',' + matrix[index]);
+    }
 }
 
 function updatelabel(obj, val)
@@ -1551,8 +1589,8 @@ const dColor_alpha = document.getElementById('Color_alpha');
 
 const dtdm_color = document.getElementById('tdm_color');
 const dtdm_color_sample = document.getElementById('tdm_color_sample');
-const dtdm_lambda_max = document.getElementById('tdm_lambda_max');
-const dtdm_lambda_min = document.getElementById('tdm_lambda_min');
+const dcfh_value_max = document.getElementById('cfh_value_max');
+const dcfh_value_min = document.getElementById('cfh_value_min');
 const dtdm_lambda = document.getElementById('tdm_lambda');
 const daccess_time = document.getElementById('access_time');
 const dift_cost = document.getElementById('ift_cost');
@@ -1717,6 +1755,23 @@ function refreshDataSourceTypeFun()
     b = false;
 }
 
+function refreshCfhSourceTypeFun()
+{
+    if(document.getElementById("rd_densitymap").checked)
+    {
+        isLabelMatrix = false;
+    }
+    else if(document.getElementById("rd_labelmap").checked)
+    {
+        isLabelMatrix = true;
+    }
+    else
+    {
+        isLabelMatrix = false;
+    }
+    updateData();
+}
+
 function graphxyChanged()
 {
     if(document.getElementById('graphxy').checked)
@@ -1746,7 +1801,7 @@ function updateFeatureStr()
     fstr = document.getElementById('featureStrSet').value;
     console.log("fstr=",fstr);
     var numbers = /^[0-1]+$/;
-    if(fstr.match(numbers))
+    if((fstr != "") && fstr.match(numbers))
     {
         featureStr = fstr;
         dfeatureStr.textContent = featureStr;
@@ -1763,7 +1818,7 @@ function updateThreshold()
     fstr = document.getElementById('thresholdSet').value;
     console.log("threshold=",fstr);
     var numbers = /^[0-9]*\.?[0-9]*$/;
-    if(fstr.match(numbers))
+    if((fstr != "") && fstr.match(numbers))
     {
         Threshold = parseFloat(fstr);
         console.log(Threshold)
@@ -1845,6 +1900,9 @@ document.getElementById("rd_dark").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_streets").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
+
+document.getElementById("rd_densitymap").onclick = refreshCfhSourceTypeFun;
+document.getElementById("rd_labelmap").onclick = refreshCfhSourceTypeFun;
 
 // Build 0003
 nFilterType = 0
