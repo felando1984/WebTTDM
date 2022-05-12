@@ -213,15 +213,6 @@ triggerTabList.forEach(function (triggerEl) {
   })
 })
 
-async function loadGeoJsonFile()
-{
-    const response = await fetch(
-        'polygon.geojson'
-        );
-    rawdata = await response.json();
-    console.log(rawdata)
-}
-
 let hoveredStateId = null;
 let hoveredNodeId = null;
 let hoveredEdgeId = null;
@@ -268,26 +259,45 @@ const popupOffsets = {
 'right': [-markerRadius, (markerHeight - markerRadius) * -1]
 };
 
-loadGeoJsonFile();
+
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJjbDI0dHJ4cHIyMzhmM2lscHBiZ2VybWl0In0.O46bIQ6f08o0E55XLhESZg';
 styleStr = 'mapbox://styles/mapbox/light-v10';
-map = new mapboxgl.Map({
-    style: styleStr, 
-//style: 'mapbox://styles/mapbox/light-v10',
-//style: 'mapbox://styles/mapbox/streets-v11',
-//style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
-center: cameraPos.center,//[6.1645443, 62.4720013],
-zoom: cameraPos.zoom,//16,
-pitch: cameraPos.pitch,//0,
-bearing: cameraPos.bearing,//0,
-container: 'map',
-antialias: true
-});
-loadBasicLayger();
 
 layerId = "light-v10";
 labelLayerId = 0;
+
+
+async function loadGeoJsonFile()
+{
+    const response = await fetch(
+        'polygon.geojson'
+        );
+    rawdata = await response.json();
+    return rawdata
+}
+
+loadGeoJsonFile().then(
+    function()
+    {
+        console.log("12345");
+        console.log(rawdata);
+        map = new mapboxgl.Map({
+            style: styleStr, 
+            //style: 'mapbox://styles/mapbox/light-v10',
+            //style: 'mapbox://styles/mapbox/streets-v11',
+            //style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+            center: cameraPos.center,//[6.1645443, 62.4720013],
+            zoom: cameraPos.zoom,//16,
+            pitch: cameraPos.pitch,//0,
+            bearing: cameraPos.bearing,//0,
+            container: 'map',
+            antialias: true
+        });
+        loadBasicLayger();
+    }
+);
+
 
 radarData =  {
 'type': 'image',
