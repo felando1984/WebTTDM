@@ -4,6 +4,8 @@
     <input type="file" name="file" id="file"><button onclick="doupload()" name="submit">Upload File</button>
 
   <script>
+    console.log(getDistanceFromLatLonInKm(62.474280102729786, 6.1577987671475825, 62.474280102729786, 6.1578750608935966)*1000)
+
     console.log(computeClrA("#1F2FFF", 0.1))
 
     rawdata = [
@@ -195,6 +197,24 @@ function hexToRgb(hex) {
     g: parseInt(result[2], 16),
     b: parseInt(result[3], 16)
   } : null;
+}
+
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
 }
 
   </script>

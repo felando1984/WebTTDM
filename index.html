@@ -1206,7 +1206,7 @@ function networkmappingChange()
     draw_opt = document.getElementById('networkdrawEnabled').checked;
 
     edges = rawdata.features[rawdata.features.length - 1];
-    
+    console.log("edge_num:" + edges.geometry.coordinates.length);
     if(edges.geometry.type == "MultiLineString")
     {
         n_edges = edges.geometry.coordinates.length;
@@ -1223,48 +1223,71 @@ function networkmappingChange()
                 n_points = edge.length;
                 //console.log(JSON.stringify(edge));
                 //console.log(JSON.parse(JSON.stringify(TgjFeature)));
-                gjFeature = JSON.parse(JSON.stringify(TgjFeature));
-                let ConnectedCoorStr = [];
-                for(i = 0; i < n_points -1; i++)//n_points
+                let isVaid = true;
+                for(i = 0; i < n_points;i++)
                 {
-                    if(!((edge[i][0] == edge[i+1][0]) && (edge[i][1] == edge[i+1][1])))
+                    x_index = Math.floor((edge[i][0] - lon_min)/lon_step);
+                    y_index = Math.floor((edge[i][1] - lat_min)/lat_step);
+                    if((x_index < 0) || (x_index >= ncols))
                     {
-                        CoorStr = TaperedLine2(edge[i], edge[i+1], 8, k);//3*(i)/n_points, 3*(i+1)/n_points);//widths[i], widths[i+1]);
-                        if(draw_opt)
-                        {
-                            //console.log(edge.length);
-                            if(ConnectedCoorStr.length == 0)
-                            {
-                                ConnectedCoorStr = JSON.parse(JSON.stringify(CoorStr))[0];
-                                //console.log(JSON.stringify(CoorStr));
-                            }
-                            else
-                            {
-                                l = ConnectedCoorStr.length;
-                                p1 = ConnectedCoorStr.slice(0, (l-1)/2);
-                                p2 = CoorStr[0].slice(0, CoorStr[0].length - 1);
-                                p3 = ConnectedCoorStr.slice((l-1)/2, l);
-                                ConnectedCoorStr = p1.concat(p2).concat(p3);
-                                //console.log(p1.length + "+" + p2.length + "+" + p3.length + "=" + ConnectedCoorStr.length);
-                            }
-                        }
-                        else
-                            gjFeature.geometry.coordinates.push(CoorStr);
+                        isVaid = false;
+                        break;
+                    }
+                    if((y_index < 0) || (y_index >= nrows))
+                    {
+                        isVaid = false;
+                        break;
                     }
                 }
-                if(draw_opt)
-                    gjFeature.geometry.coordinates.push([ConnectedCoorStr]);
-                x_index = Math.floor((edge[0][0] - lon_min)/lon_step);
-                y_index = Math.floor((edge[0][1] - lat_min)/lat_step);
-                startnode_index = x_index + y_index * ncols;
-                x_index = Math.floor((edge[n_points -1][0] - lon_min)/lon_step);
-                y_index = Math.floor((edge[n_points -1][1] - lat_min)/lat_step);
-                stopnode_index = x_index + y_index * ncols;
-                //console.log(startnode_index)
-                gjFeature.id = j;
-                gjFeature.properties = {'index': j, 'startnode_index': startnode_index, 'stopnode_index': stopnode_index,
-                    'color': rawdata.features[startnode_index].properties.color}
-                gjFeatureC.features.push(gjFeature);
+
+                if(isVaid)
+                {
+                    gjFeature = JSON.parse(JSON.stringify(TgjFeature));
+                    let ConnectedCoorStr = [];
+                    for(i = 0; i < n_points -1; i++)//n_points
+                    {
+                        if(!((edge[i][0] == edge[i+1][0]) && (edge[i][1] == edge[i+1][1])))
+                        {
+                            CoorStr = TaperedLine2(edge[i], edge[i+1], 8, k);//3*(i)/n_points, 3*(i+1)/n_points);//widths[i], widths[i+1]);
+                            if(draw_opt)
+                            {
+                                //console.log(edge.length);
+                                if(ConnectedCoorStr.length == 0)
+                                {
+                                    ConnectedCoorStr = JSON.parse(JSON.stringify(CoorStr))[0];
+                                    //console.log(JSON.stringify(CoorStr));
+                                }
+                                else
+                                {
+                                    l = ConnectedCoorStr.length;
+                                    p1 = ConnectedCoorStr.slice(0, (l-1)/2);
+                                    p2 = CoorStr[0].slice(0, CoorStr[0].length - 1);
+                                    p3 = ConnectedCoorStr.slice((l-1)/2, l);
+                                    ConnectedCoorStr = p1.concat(p2).concat(p3);
+                                    //console.log(p1.length + "+" + p2.length + "+" + p3.length + "=" + ConnectedCoorStr.length);
+                                }
+                            }
+                            else
+                                gjFeature.geometry.coordinates.push(CoorStr);
+                        }
+                    }
+                    if(draw_opt)
+                        gjFeature.geometry.coordinates.push([ConnectedCoorStr]);
+                    x_index = Math.floor((edge[0][0] - lon_min)/lon_step);
+                    y_index = Math.floor((edge[0][1] - lat_min)/lat_step);
+                    startnode_index = x_index + y_index * ncols;
+                    x_index = Math.floor((edge[n_points -1][0] - lon_min)/lon_step);
+                    y_index = Math.floor((edge[n_points -1][1] - lat_min)/lat_step);
+                    stopnode_index = x_index + y_index * ncols;
+                    //console.log(startnode_index)
+                    if((startnode_index < rawdata.features.length) && (startnode_index >=0))
+                    {
+                        gjFeature.id = j;
+                        gjFeature.properties = {'index': j, 'startnode_index': startnode_index, 'stopnode_index': stopnode_index,
+                            'color': rawdata.features[startnode_index].properties.color}
+                        gjFeatureC.features.push(gjFeature);
+                    }
+                }
             }
             //console.log(gjFeatureC)
             gjFeatureC_Array.push(gjFeatureC);
