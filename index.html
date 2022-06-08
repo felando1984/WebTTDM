@@ -130,7 +130,7 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <div style="float:right" class="btn-group" role="group" aria-label="data_source_type">
+                <div style="float:left" class="btn-group" role="group" aria-label="data_source_type">
                     <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="rd_light">L</label>
                     
@@ -146,8 +146,8 @@
                     <input type="radio" class="btn-check" name="btnradio2" id="rd_outdoors" autocomplete="off">
                     <label class="btn btn-outline-primary" for="rd_outdoors">O</label>
         
-                    <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="rd_terrain">T</label>
+                    <!-- <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_terrain">T</label> -->
                 </div>
                 <br>
                 <!-- <div id="key" style="opacity: 0.8;">
@@ -927,7 +927,9 @@ function computeTTDM()
             {
                 //console.log(matrix[j+1]);
                 //console.log(Math.abs(matrix[j+1] - matrix[j]));
-                if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)
+                //if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)//change
+                //if((matrix[j+1] - matrix[j]) >= Threshold)//increase
+                if((matrix[j] - matrix[j+1]) >= Threshold)//decrease
                 {
                     binaryStr +="1";
                 }
@@ -1769,21 +1771,21 @@ function refreshDataSourceTypeFun()
     {
         layerId = "outdoors-v11"
     }
-    else if(document.getElementById("rd_terrain").checked)
-    {
-        layerId = "terrain"
-    }
+    // else if(document.getElementById("rd_terrain").checked)
+    // {
+    //     layerId = "terrain"
+    // }
     else
     {
         layerId = "light"
     }
     console.log(layerId);
-    if(layerId == "terrain")
-    {
-        map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
-        //loadBasicLayger();
-    }
-    else
+    // if(layerId == "terrain")
+    // {
+    //     map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
+    //     //loadBasicLayger();
+    // }
+    // else
         map.setStyle('mapbox://styles/mapbox/' + layerId); 
     a = false;
     b = false;
@@ -1933,7 +1935,7 @@ document.getElementById("rd_satellite").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_dark").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_streets").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
-document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
+//document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
 
 document.getElementById("rd_densitymap").onclick = refreshCfhSourceTypeFun;
 document.getElementById("rd_labelmap").onclick = refreshCfhSourceTypeFun;
