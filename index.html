@@ -1978,13 +1978,34 @@ yAxis: {
         enabled: true,
         showFull: true
     },
+    labels:{
+        style: {
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: 'black'
+        }
+    },
     title: {
-        text: 'Snow depth (cm)'
+        text: 'Snow depth (cm)',
+        style: {
+            	fontSize: '15px',
+                color: 'black'
+            }
     }
 },
 
 xAxis: {
     categories: x_data,
+    labels:{
+        style: {
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: 'black'
+        },
+        formatter: function() {
+          return this.value.split('.')[0] + "/" + this.value.split('.')[1];//Highcharts.dateFormat('%d', this.value);
+        }
+    },
     accessibility: {
         rangeDescription: 'In recent year'
     }
@@ -2010,7 +2031,7 @@ plotOptions: {
 },
 
 series: [{
-    name: titles[nSourceType],
+    name: "snow depth",//titles[nSourceType],
     data: y_data,
 }],
 
@@ -2020,6 +2041,9 @@ responsive: {
             maxWidth: 500
         },
         chartOptions: {
+            legend: {
+                enabled: false
+            },
             //legend: {
             //    layout: 'horizontal',
             //    align: 'center',
@@ -2034,7 +2058,7 @@ responsive: {
 getmydata()
 async function getmydata(){
 console.log(123)
-var response = await fetch('/snow/snow2022Q1.csv')//(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
+var response = await fetch('https://felando1984.github.io/WebTTDM/snow/snow2022Q1.csv')//(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
 var datastring = await response.text() //import to text/string
 var array = datastring.split('\n') // split string by '\n' (newline)
 console.log(array)
