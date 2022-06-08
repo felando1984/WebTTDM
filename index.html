@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>T-TDM test</title>
+<title>TTDM Visualization Analysis Tool (Web server)</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -63,7 +63,7 @@
             
             <figure class="highcharts-figure">
                 <div id="container"></div>
-                <div style="float:left" class="btn-group" role="group" aria-label="data_filter_type">
+                <!--div style="float:left" class="btn-group" role="group" aria-label="data_filter_type">
                     <input type="radio" class="btn-check" name="btnradio1" id="btnradio_Daily" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="btnradio_Daily">Daily</label>
                   
@@ -80,7 +80,7 @@
             
                     <input type="radio" class="btn-check" name="btnradio2" id="btnradio_Death" autocomplete="off">
                     <label class="btn btn-outline-primary" for="btnradio_Death">Covid deaths</label>
-                  </div>
+                  </div-->
             </figure>
     </div>
 <div id="map"></div>
@@ -1965,11 +1965,11 @@ chart: {
 },
 
 title: {
-    text: 'Covid Data'
+    text: 'Snow depth data in Ørskog weather station (SN60800)'
 },
 
 subtitle: {
-    text: 'Source: https://www.covid19data.no/'
+    text: 'Source: https://seklima.met.no/'
 },
 
 yAxis: {
@@ -1979,7 +1979,7 @@ yAxis: {
         showFull: true
     },
     title: {
-        text: 'Number'
+        text: 'Snow depth (cm)'
     }
 },
 
@@ -2020,11 +2020,11 @@ responsive: {
             maxWidth: 500
         },
         chartOptions: {
-            legend: {
-                layout: 'horizontal',
-                align: 'center',
-                verticalAlign: 'bottom'
-            }
+            //legend: {
+            //    layout: 'horizontal',
+            //    align: 'center',
+            //    verticalAlign: 'bottom'
+            //}
         }
     }]
 }
@@ -2034,7 +2034,7 @@ responsive: {
 getmydata()
 async function getmydata(){
 console.log(123)
-var response = await fetch(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
+var response = await fetch('/snow/snow2022Q1.csv')//(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
 var datastring = await response.text() //import to text/string
 var array = datastring.split('\n') // split string by '\n' (newline)
 console.log(array)
@@ -2138,7 +2138,19 @@ else if(nSourceType == 2)
     }
 }
 console.log(data_array)
-drawHighCharts(data_DateTimes,data_Numbers)
+//drawHighCharts(data_DateTimes,data_Numbers)
+
+    var data_array = new Array()
+    var data_SnowDepth = new Array()
+    var data_DateTimes = new Array()
+    for (var i = 1; i<array.length; i++)// the first day death is unknown
+    {
+        //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
+        SnowDepth = array[i].split(';')[6]
+        data_SnowDepth.push(parseFloat(SnowDepth))
+        data_DateTimes.push(array[i].split(';')[2])
+    }
+    drawHighCharts(data_DateTimes,data_SnowDepth)
 }
 
 var panel_control_ob
