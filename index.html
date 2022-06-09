@@ -50,15 +50,29 @@
         <div><span style="background-color: #f2f12d"></span>0</div> -->
             <div class="dropdown">
               <input type="button" class="btn btn-primary" id="btn_LoadData" value="RefreshData"/>
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuBtnStyle" data-bs-toggle="dropdown" aria-expanded="false">
-               Chart Style
+              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuBtnQuarter" data-bs-toggle="dropdown" aria-expanded="false">
+                2022Q1
               </button>
-              <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuBtnStyle">
-                <li id="option1"><a class="dropdown-item" href="#">line</a></li>
-                <li id="option2"><a class="dropdown-item" href="#">area</a></li>
-                <li id="option3"><a class="dropdown-item" href="#">column</a></li>
-                <li id="option4"><a class="dropdown-item" href="#">bar</a></li>
+              <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuBtnQuarter">
+                <li id="2020Q1"><a class="dropdown-item" href="#">2020Q1</a></li>
+                <li id="2020Q2"><a class="dropdown-item" href="#">2020Q2</a></li>
+                <li id="2020Q3"><a class="dropdown-item" href="#">2020Q3</a></li>
+                <li id="2020Q4"><a class="dropdown-item" href="#">2020Q4</a></li>
+                <li id="2021Q1"><a class="dropdown-item" href="#">2021Q1</a></li>
+                <li id="2021Q2"><a class="dropdown-item" href="#">2021Q2</a></li>
+                <li id="2021Q3"><a class="dropdown-item" href="#">2021Q3</a></li>
+                <li id="2021Q4"><a class="dropdown-item" href="#">2021Q4</a></li>
+                <li id="2022Q1"><a class="dropdown-item" href="#">2022Q1</a></li>
               </ul>
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuBtnStyle" data-bs-toggle="dropdown" aria-expanded="false">
+                Chart Style
+               </button>
+               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuBtnStyle">
+                 <li id="option1"><a class="dropdown-item" href="#">line</a></li>
+                 <li id="option2"><a class="dropdown-item" href="#">area</a></li>
+                 <li id="option3"><a class="dropdown-item" href="#">column</a></li>
+                 <li id="option4"><a class="dropdown-item" href="#">bar</a></li>
+               </ul>
             </div>
             
             <figure class="highcharts-figure">
@@ -156,7 +170,7 @@
                     <div style="width: 1px; height: 18px; margin: 0 0 0 120px; background: blue"></div>
                 </div> -->
                 <br>
-                <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY</label><br>
+                <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY (snow depth)</label><br>
                 <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label for="rotate">Auto rotate</label><br>
                 <input class="largerCheckbox" type="checkbox" id="networkdrawEnabled" unchecked><label for="networkdrawEnabled">Draw optimized test</label><br>
                 <input class="largerCheckbox" type="checkbox" id="terrainEnabled" unchecked><label for="terrainEnabled">Terrain layer</label><br>
@@ -1939,6 +1953,20 @@ document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
 
 document.getElementById("rd_densitymap").onclick = refreshCfhSourceTypeFun;
 document.getElementById("rd_labelmap").onclick = refreshCfhSourceTypeFun;
+document.getElementById("btn_LoadData").onclick = getmydata;
+document.getElementById("option1").onclick = changeChartStyle1;
+document.getElementById("option2").onclick = changeChartStyle2;
+document.getElementById("option3").onclick = changeChartStyle3;
+document.getElementById("option4").onclick = changeChartStyle4;
+document.getElementById("2020Q1").onclick = changeSnowData01;
+document.getElementById("2020Q2").onclick = changeSnowData02;
+document.getElementById("2020Q3").onclick = changeSnowData03;
+document.getElementById("2020Q4").onclick = changeSnowData04;
+document.getElementById("2021Q1").onclick = changeSnowData11;
+document.getElementById("2021Q2").onclick = changeSnowData12;
+document.getElementById("2021Q3").onclick = changeSnowData13;
+document.getElementById("2021Q4").onclick = changeSnowData14;
+document.getElementById("2022Q1").onclick = changeSnowData21;
 
 // Build 0003
 nFilterType = 0
@@ -1965,7 +1993,7 @@ chart: {
 },
 
 title: {
-    text: 'Snow depth data in Ørskog weather station (SN60800)'
+    text: 'Snow depth data at Ørskog weather station (SN60800)'
 },
 
 subtitle: {
@@ -1974,6 +2002,8 @@ subtitle: {
 
 yAxis: {
     min : 0,
+    max : 40,
+    tickInterval: 10,
     scrollbar: {
         enabled: true,
         showFull: true
@@ -2031,9 +2061,18 @@ plotOptions: {
 },
 
 series: [{
-    name: "snow depth",//titles[nSourceType],
+    name: "snow depth (cm)",//titles[nSourceType],
     data: y_data,
 }],
+
+tooltip: {
+    headerFormat: '<span style="font-size: 20px">{point.key}</span><br/>',
+        style: {
+            color: 'black',
+            fontWeight: 'bold',
+            fontSize: '20px',
+        }
+    },
 
 responsive: {
     rules: [{
@@ -2055,10 +2094,16 @@ responsive: {
 
 });
 }
+document.getElementById('dropdownMenuBtnQuarter').textContent = '2022Q1';
 getmydata()
 async function getmydata(){
 console.log(123)
-var response = await fetch('https://felando1984.github.io/WebTTDM/snow/snow2022Q1.csv')//(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
+//if(document.getElementById('dropdownMenuBtnQuarter').textContent != quarter)
+{
+    quarter = document.getElementById('dropdownMenuBtnQuarter').textContent
+    console.log(quarter)
+}
+var response = await fetch('https://felando1984.github.io/WebTTDM/snow/snow' + quarter + '.csv')//(csv_addr[nSourceType])//('./national_tests.csv') //import the csv file
 var datastring = await response.text() //import to text/string
 var array = datastring.split('\n') // split string by '\n' (newline)
 console.log(array)
@@ -2167,10 +2212,12 @@ console.log(data_array)
     var data_array = new Array()
     var data_SnowDepth = new Array()
     var data_DateTimes = new Array()
-    for (var i = 1; i<array.length; i++)// the first day death is unknown
+    for (var i = 1; i<array.length - 1; i++)// the first day death is unknown
     {
         //data_array.push(new Array(array[i].split(',')[0],parseFloat(array[i].split(',')[1])))
         SnowDepth = array[i].split(';')[6]
+        if(SnowDepth == "-")
+            SnowDepth = 0
         data_SnowDepth.push(parseFloat(SnowDepth))
         data_DateTimes.push(array[i].split(';')[2])
     }
@@ -2204,6 +2251,85 @@ $(document).ready(function(){
 		create_panel_control_ob()
 	}
 })
+
+function changeChartStyle1()
+{
+    nChartType = 1
+    getmydata()
+}
+
+function changeChartStyle2()
+{
+    nChartType = 2
+    getmydata()
+}
+
+function changeChartStyle3()
+{
+    nChartType = 3
+    getmydata()
+}
+
+function changeChartStyle4()
+{
+    nChartType = 4
+    getmydata()
+}
+
+function changeSnowData01()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2020Q1"
+    getmydata()
+}
+
+function changeSnowData02()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2020Q2"
+    getmydata()
+}
+
+function changeSnowData03()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2020Q3"
+    getmydata()
+}
+
+function changeSnowData04()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2020Q4"
+    getmydata()
+}
+
+function changeSnowData11()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2021Q1"
+    getmydata()
+}
+
+function changeSnowData12()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2021Q2"
+    getmydata()
+}
+
+function changeSnowData13()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2021Q3"
+    getmydata()
+}
+
+function changeSnowData14()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2021Q4"
+    getmydata()
+}
+
+function changeSnowData21()
+{
+    document.getElementById('dropdownMenuBtnQuarter').textContent = "2022Q1"
+    getmydata()
+}
+
 </script>
 </body>
 </html>
