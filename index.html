@@ -50,7 +50,7 @@
         <div><span style="background-color: #f2f12d"></span>0</div> -->
             <div class="dropdown">
               <input type="button" class="btn btn-primary" id="btn_LoadData" value="RefreshData"/>
-              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuBtnQuarter" data-bs-toggle="dropdown" aria-expanded="false">
+              <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuBtnQuarter" data-bs-toggle="dropdown" aria-expanded="false">
                 2022Q1
               </button>
               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuBtnQuarter">
@@ -102,7 +102,7 @@
 <div class="map-overlay top hidden">
     
     <div class="map-overlay-inner">
-        <h4>&nbsp&nbsp&nbsp&nbspT-TDM Graph4</h4>
+        <h5>&nbsp&nbsp&nbsp&nbspTTDM Visualization Analysis Tool (Build 0031)</h5>
 
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -114,6 +114,28 @@
           </ul>
           <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <label>Select remote file</label>
+                <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuBtnDataset" data-bs-toggle="dropdown" aria-expanded="false">
+                Case 1 (Solution 1)
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuBtnDataset">
+                  <li id="S1"><a class="dropdown-item" href="#">Case 1 (Solution 1)</a></li>
+                  <li id="S2"><a class="dropdown-item" href="#">Case 1 (Solution 2)</a></li>
+                  <li id="Y2022Q1"><a class="dropdown-item" href="#">Case 1 (2022Q1, Alldays)</a></li>
+                  <li id="Y2022Q1D"><a class="dropdown-item" href="#">Case 1 (2022Q1, Weekdays)</a></li>
+                  <li id="Y2022Q1E"><a class="dropdown-item" href="#">Case 1 (2022Q1, Weekends)</a></li>
+                  <li id="Y2020Q1"><a class="dropdown-item" href="#">Case 1 (2020Q1, Alldays)</a></li>
+                  <li id="Y2020Q2"><a class="dropdown-item" href="#">Case 1 (2020Q2, Alldays)</a></li>
+                  <li id="Y2020Q3"><a class="dropdown-item" href="#">Case 1 (2020Q3, Alldays)</a></li>
+                  <li id="Y2020Q4"><a class="dropdown-item" href="#">Case 1 (2020Q4, Alldays)</a></li>
+                  <li id="Y2021Q1"><a class="dropdown-item" href="#">Case 1 (2021Q1, Alldays)</a></li>
+                  <li id="Y2021Q2"><a class="dropdown-item" href="#">Case 1 (2021Q2, Alldays)</a></li>
+                  <li id="Y2021Q3"><a class="dropdown-item" href="#">Case 1 (2021Q3, Alldays)</a></li>
+                  <li id="Y2021Q4"><a class="dropdown-item" href="#">Case 1 (2021Q4, Alldays)</a></li>
+                  <li id="Y2022Q1"><a class="dropdown-item" href="#">Case 2 (2022Q1, Alldays)</a></li>
+                </ul>
+                <br>
+                <label>Select local file</label>
                 <input type="file" class="form-control" name="file" id="file"><button class="btn btn-primary" onclick="doupload()" name="submit">Upload</button>
                 <button type="button" class="btn btn-primary" id="play_button">Play/Pause</button>
                 <label id="month"></label>
@@ -121,12 +143,24 @@
                 <label id="delaytime"></label>
                 <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
                 <br>
-                <div style="float:right" class="btn-group" role="group" aria-label="cfhMap_type">
+                <div style="float:left" class="btn-group" role="group" aria-label="cfhMap_type">
                     <input type="radio" class="btn-check" name="btnradioMap" id="rd_densitymap" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="rd_densitymap">Density Map</label>
                     
                     <input type="radio" class="btn-check" name="btnradioMap" id="rd_labelmap" autocomplete="off">
                     <label class="btn btn-outline-primary" for="rd_labelmap">Label Map</label>
+                </div>
+                <br>
+                <br>
+                <div style="float:left" class="btn-group" role="group" aria-label="cfhMetric_type">
+                    <input type="radio" class="btn-check" name="btnradioMapMetric" id="rd_change" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="rd_change">Change</label>
+                    
+                    <input type="radio" class="btn-check" name="btnradioMapMetric" id="rd_increase" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_increase">Inc</label>
+
+                    <input type="radio" class="btn-check" name="btnradioMapMetric" id="rd_decrease" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_decrease">Dec</label>
                 </div>
                 <br>
                 <br>
@@ -191,7 +225,7 @@
     </div>
     
         <div id="info">
-            <div><strong>VectexId:</strong> <span id='VectexId'></span></div>
+            <div><strong>VertexId:</strong> <span id='VertexId'></span></div>
             <div><strong>Lng:</strong> <span id='Longitude'></span></div>
             <div><strong>Lat:</strong> <span id='Latitude'></span></div>
             <div><strong>Color alpha:</strong> <span id='Color_alpha'></span></div>
@@ -248,6 +282,7 @@ let indexPOIs;
 let currentMarkers=[];
 let isLabelMatrix = false;
 let rawdata;
+let metricChange = 1; // 1 = change, 2 = increase, other value = decrease
 
 a = false;
 b = false;
@@ -941,9 +976,18 @@ function computeTTDM()
             {
                 //console.log(matrix[j+1]);
                 //console.log(Math.abs(matrix[j+1] - matrix[j]));
+                // Build 0031, metric options for change
+                let diff;
+                if(metricChange == 1) // change
+                    diff = Math.abs(matrix[j+1] - matrix[j]);
+                else if(metricChange == 2) // increase
+                    diff = (matrix[j+1] - matrix[j]);
+                else//decreas
+                    diff = (matrix[j] - matrix[j+1]);
                 //if(Math.abs(matrix[j+1] - matrix[j]) >= Threshold)//change
                 //if((matrix[j+1] - matrix[j]) >= Threshold)//increase
-                if((matrix[j] - matrix[j+1]) >= Threshold)//decrease
+                //if((matrix[j] - matrix[j+1]) >= Threshold)//decrease
+                if((diff) >= Threshold)
                 {
                     binaryStr +="1";
                 }
@@ -1173,7 +1217,7 @@ function activeHoverTexture()
     { source: 'polygon1', id: hoveredStateId },
     { hover: true }
     );
-    dVectexId.textContent = hoveredStateId;
+    dVertexId.textContent = hoveredStateId;
     dLatitude.textContent = e.lngLat.lat;
     dLongitude.textContent = e.lngLat.lng;
 
@@ -1209,7 +1253,7 @@ function activeHoverTexture()
     { source: 'polygon1', id: hoveredStateId },
     { hover: false }
     );
-    dVectexId.textContent = "No data";;
+    dVertexId.textContent = "No data";;
     dLatitude.textContent = "";
     dLongitude.textContent = "";
     dColor_alpha.textContent = "";
@@ -1632,7 +1676,7 @@ const infoList = document.getElementById('info');
 const testbutton = document.getElementById('test');
 const testbutton1 = document.getElementById('test1');
 
-const dVectexId = document.getElementById('VectexId');
+const dVertexId = document.getElementById('VertexId');
 const dLatitude = document.getElementById('Latitude');
 const dLongitude = document.getElementById('Longitude');
 const dColor_alpha = document.getElementById('Color_alpha');
@@ -1822,6 +1866,23 @@ function refreshCfhSourceTypeFun()
     updateData();
 }
 
+function refreshCfhMetricTypeFun()
+{
+    if(document.getElementById("rd_change").checked)
+    {
+        metricChange = 1;
+    }
+    else if(document.getElementById("rd_increase").checked)
+    {
+        metricChange = 2;
+    }
+    else
+    {
+        metricChange = 3;
+    }
+    updateData();
+}
+
 function graphxyChanged()
 {
     if(document.getElementById('graphxy').checked)
@@ -1953,6 +2014,10 @@ document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
 
 document.getElementById("rd_densitymap").onclick = refreshCfhSourceTypeFun;
 document.getElementById("rd_labelmap").onclick = refreshCfhSourceTypeFun;
+document.getElementById("rd_change").onclick = refreshCfhMetricTypeFun;
+document.getElementById("rd_increase").onclick = refreshCfhMetricTypeFun;
+document.getElementById("rd_decrease").onclick = refreshCfhMetricTypeFun;
+
 document.getElementById("btn_LoadData").onclick = getmydata;
 document.getElementById("option1").onclick = changeChartStyle1;
 document.getElementById("option2").onclick = changeChartStyle2;
