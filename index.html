@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>TTDM Visualization Analysis Tool (Web server)</title>
+<title>NORDARK</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -179,7 +179,7 @@
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                 <div style="float:left" class="btn-group" role="group" aria-label="data_source_type">
-                    <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off" checked>
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off">
                     <label class="btn btn-outline-primary" for="rd_light">L</label>
                     
                     <input type="radio" class="btn-check" name="btnradio2" id="rd_satellite" autocomplete="off">
@@ -194,8 +194,8 @@
                     <input type="radio" class="btn-check" name="btnradio2" id="rd_outdoors" autocomplete="off">
                     <label class="btn btn-outline-primary" for="rd_outdoors">O</label>
         
-                    <!-- <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="rd_terrain">T</label> -->
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="rd_terrain">T</label>
                 </div>
                 <br>
                 <!-- <div id="key" style="opacity: 0.8;">
@@ -207,8 +207,8 @@
                 <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY (snow depth)</label><br>
                 <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label for="rotate">Auto rotate</label><br>
                 <input class="largerCheckbox" type="checkbox" id="networkdrawEnabled" unchecked><label for="networkdrawEnabled">Draw optimized test</label><br>
-                <input class="largerCheckbox" type="checkbox" id="terrainEnabled" unchecked><label for="terrainEnabled">Terrain layer</label><br>
-                <input class="largerCheckbox" type="checkbox" id="buildingEnabled" unchecked><label for="buildingEnabled">Building layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="terrainEnabled" checked><label for="terrainEnabled">Terrain layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="buildingEnabled" checked><label for="buildingEnabled">Building layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="POIEnabled" checked><label for="POIEnabled">POIs layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="nodesEnabled" checked><label for="nodesEnabled">Intersection layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="rawroadEnabled" checked><label for="rawroadEnabled">Road layer</label><br>
@@ -268,7 +268,8 @@ let hoveredProps = null;
 var last = Date.now();
 let enableRotate = false;
 let startangle = 0;
-let cameraPos = {center: [6.1645443, 62.4720013], zoom: 16, pitch: 0, bearing: 0};
+let cameraPos = {"center":{"lng":6.302374524160882,"lat":62.46750297476049},"zoom":16,"pitch":0,"bearing":0}
+//{center: [6.1645443, 62.4720013], zoom: 16, pitch: 0, bearing: 0};
 let lon_min;
 let lat_min;
 let lon_step;
@@ -311,9 +312,9 @@ const popupOffsets = {
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJjbDI0dHJ4cHIyMzhmM2lscHBiZ2VybWl0In0.O46bIQ6f08o0E55XLhESZg';
-styleStr = 'mapbox://styles/mapbox/light-v10';
+styleStr = 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y';//'mapbox://styles/mapbox/light-v10';
 
-layerId = "light-v10";
+layerId = "terrain";//"light-v10";
 labelLayerId = 0;
 
 
@@ -839,7 +840,10 @@ map.on('sourcedata', (e) => {
     if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
         updateData();
 
-        cameraPos = {"center":{"lng":6.164544300000017,"lat":62.47200129999996},"zoom":16,"pitch":72.51072648495212,"bearing":43.206391505516535};
+        // Build 0032, disable update cameraPosition
+        //cameraPos = {"center":{"lng":6.164544300000017,"lat":62.47200129999996},"zoom":16,"pitch":72.51072648495212,"bearing":43.206391505516535};
+        cameraPos = {"center":{"lng":6.302374524160882,"lat":62.46750297476049},"zoom":16.78520097670436,"pitch":59.49453079895928,"bearing":0}
+        cameraPos = {"center":{"lng":17.636474394813693,"lat":59.8598378284539},"zoom":16.78520097670436,"pitch":59.49453079895928,"bearing":0}
         updateCameraPosition();
 
         //
@@ -1829,21 +1833,21 @@ function refreshDataSourceTypeFun()
     {
         layerId = "outdoors-v11"
     }
-    // else if(document.getElementById("rd_terrain").checked)
-    // {
-    //     layerId = "terrain"
-    // }
+    else if(document.getElementById("rd_terrain").checked)
+    {
+        layerId = "terrain"
+    }
     else
     {
         layerId = "light"
     }
     console.log(layerId);
-    // if(layerId == "terrain")
-    // {
-    //     map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
-    //     //loadBasicLayger();
-    // }
-    // else
+    if(layerId == "terrain")
+    {
+        map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
+        //loadBasicLayger();
+    }
+    else
         map.setStyle('mapbox://styles/mapbox/' + layerId); 
     a = false;
     b = false;
@@ -1965,7 +1969,8 @@ async function pasteCameraPosition()
             cameraPos.zoom = tmp_cameraPos.zoom;
             cameraPos.bearing = tmp_cameraPos.bearing;
             cameraPos.pitch = tmp_cameraPos.pitch;
-            updateCameraPosition();
+            updateCameraPosition(); 
+            
             // map.setCenter(cameraPos.center);
             // map.setZoom(cameraPos.zoom);
             // map.setBearing(cameraPos.bearing);
@@ -2010,7 +2015,7 @@ document.getElementById("rd_satellite").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_dark").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_streets").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
-//document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
+document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
 
 document.getElementById("rd_densitymap").onclick = refreshCfhSourceTypeFun;
 document.getElementById("rd_labelmap").onclick = refreshCfhSourceTypeFun;
