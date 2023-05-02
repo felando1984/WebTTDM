@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>NORDARK</title>
+<title>TTDM Visualization Analysis Tool (Web server)</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -143,12 +143,14 @@
                 <label id="delaytime"></label>
                 <input id="delaySlider" type="range" min="1" max="3" step="1" value="1"></input>
                 <br>
+                <label id="cfhinput">Input map / matrix for CFH</label><br>
                 <div style="float:left" class="btn-group" role="group" aria-label="cfhMap_type">
-                    <input type="radio" class="btn-check" name="btnradioMap" id="rd_densitymap" autocomplete="off" checked>
-                    <label class="btn btn-outline-primary" for="rd_densitymap">Density Map</label>
-                    
+                    <input type="radio" class="btn-check" name="btnradioMap" id="rd_costmap" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="rd_costmap">Cost</label>
                     <input type="radio" class="btn-check" name="btnradioMap" id="rd_labelmap" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="rd_labelmap">Label Map</label>
+                    <label class="btn btn-outline-primary" for="rd_labelmap">Label</label>
+                    <input type="radio" class="btn-check" name="btnradioMap" id="rd_densitymap" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_densitymap">Density</label>
                 </div>
                 <br>
                 <br>
@@ -179,7 +181,7 @@
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                 <div style="float:left" class="btn-group" role="group" aria-label="data_source_type">
-                    <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off">
+                    <input type="radio" class="btn-check" name="btnradio2" id="rd_light" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="rd_light">L</label>
                     
                     <input type="radio" class="btn-check" name="btnradio2" id="rd_satellite" autocomplete="off">
@@ -194,8 +196,8 @@
                     <input type="radio" class="btn-check" name="btnradio2" id="rd_outdoors" autocomplete="off">
                     <label class="btn btn-outline-primary" for="rd_outdoors">O</label>
         
-                    <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off" checked>
-                    <label class="btn btn-outline-primary" for="rd_terrain">T</label>
+                    <!-- <input type="radio" class="btn-check" name="btnradio2" id="rd_terrain" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rd_terrain">T</label> -->
                 </div>
                 <br>
                 <!-- <div id="key" style="opacity: 0.8;">
@@ -207,8 +209,8 @@
                 <input class="largerCheckbox" type="checkbox" id="graphxy" unchecked><label for="graphxy">Graph XY (snow depth)</label><br>
                 <input class="largerCheckbox" type="checkbox" id="rotate" unchecked><label for="rotate">Auto rotate</label><br>
                 <input class="largerCheckbox" type="checkbox" id="networkdrawEnabled" unchecked><label for="networkdrawEnabled">Draw optimized test</label><br>
-                <input class="largerCheckbox" type="checkbox" id="terrainEnabled" checked><label for="terrainEnabled">Terrain layer</label><br>
-                <input class="largerCheckbox" type="checkbox" id="buildingEnabled" checked><label for="buildingEnabled">Building layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="terrainEnabled" unchecked><label for="terrainEnabled">Terrain layer</label><br>
+                <input class="largerCheckbox" type="checkbox" id="buildingEnabled" unchecked><label for="buildingEnabled">Building layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="POIEnabled" checked><label for="POIEnabled">POIs layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="nodesEnabled" checked><label for="nodesEnabled">Intersection layer</label><br>
                 <input class="largerCheckbox" type="checkbox" id="rawroadEnabled" checked><label for="rawroadEnabled">Road layer</label><br>
@@ -217,7 +219,7 @@
                 <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label for="heightmapping">Height mapping</label><br>
                 <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label for="heightcfh">Height CFH</label><br>
                 <label id="alpha"></label>
-                <input id="alphaslider" type="range" min="0" max="100" step="1" value="80"></input>
+                <input id="alphaslider" type="range" min="0" max="100" step="1" value="100"></input>
                 <div><label>Camera&nbsp</label><button type="button" class="btn btn-outline-secondary" onclick="copyCameraPosition()">Copy</button>
                 <button type="button" class="btn btn-outline-secondary" onclick="pasteCameraPosition()">Paste</button></div>
             </div>
@@ -268,8 +270,7 @@ let hoveredProps = null;
 var last = Date.now();
 let enableRotate = false;
 let startangle = 0;
-let cameraPos = {"center":{"lng":6.302374524160882,"lat":62.46750297476049},"zoom":16,"pitch":0,"bearing":0}
-//{center: [6.1645443, 62.4720013], zoom: 16, pitch: 0, bearing: 0};
+let cameraPos = {center: [6.1645443, 62.4720013], zoom: 16, pitch: 0, bearing: 0};
 let lon_min;
 let lat_min;
 let lon_step;
@@ -281,7 +282,7 @@ let clrPOIs;
 let indexPOIs;
 // markers saved here
 let currentMarkers=[];
-let isLabelMatrix = false;
+let cfhMatrix = 1; // 1 = cost, 2 = label, 3 = density
 let rawdata;
 let metricChange = 1; // 1 = change, 2 = increase, other value = decrease
 
@@ -312,9 +313,9 @@ const popupOffsets = {
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsYW5kbyIsImEiOiJjbDI0dHJ4cHIyMzhmM2lscHBiZ2VybWl0In0.O46bIQ6f08o0E55XLhESZg';
-styleStr = 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y';//'mapbox://styles/mapbox/light-v10';
+styleStr = 'mapbox://styles/mapbox/light-v10';
 
-layerId = "terrain";//"light-v10";
+layerId = "light-v10";
 labelLayerId = 0;
 
 
@@ -840,10 +841,7 @@ map.on('sourcedata', (e) => {
     if(!b && e.sourceId === "polygon1" && map.isSourceLoaded("polygon1")){
         updateData();
 
-        // Build 0032, disable update cameraPosition
-        //cameraPos = {"center":{"lng":6.164544300000017,"lat":62.47200129999996},"zoom":16,"pitch":72.51072648495212,"bearing":43.206391505516535};
-        cameraPos = {"center":{"lng":6.302374524160882,"lat":62.46750297476049},"zoom":16.78520097670436,"pitch":59.49453079895928,"bearing":0}
-        cameraPos = {"center":{"lng":17.636474394813693,"lat":59.8598378284539},"zoom":16.78520097670436,"pitch":59.49453079895928,"bearing":0}
+        cameraPos = {"center":{"lng":6.164544300000017,"lat":62.47200129999996},"zoom":16,"pitch":72.51072648495212,"bearing":43.206391505516535};
         updateCameraPosition();
 
         //
@@ -899,7 +897,7 @@ function updateData()
     Threshold = (lambda_max - lambda_min) / 20;
     let timesteps;
 
-    if(isLabelMatrix)
+    if(cfhMatrix == 2) // label map
     {
         timesteps = rawdata.features[0].properties.cfh_labelmatrix.length;
         dcfh_value_min.textContent = 0;
@@ -950,6 +948,7 @@ function computeTTDM()
     // load global properties
     i = rawdata.features.length-2;
     props = rawdata.features[i].properties;
+    //console.log(props)
     ncols = props.ncols;
     nrows = props.nrows;
     lon_min = props.lon_min;
@@ -964,14 +963,44 @@ function computeTTDM()
     for(i=0; i<rawdata.features.length-2;i++)//rawdata.features.length-1
     {
         props = rawdata.features[i].properties;
-        props.color = props.tdm_color;
+        props.color = props.tdm_color;//clrPOIs[props.cfh_labelmatrix[index]]
         // color mapping with lambda value
         props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
+        // console.log(props.alpha) // if lambda_max = lambda_min, no apha value
         props.clrA = computeClrA(props.color, props.alpha);
-        if(isLabelMatrix)
+        // if(i == 0)
+        // {
+        //     r = 0.005
+        //     alpha = 1.5
+        //     lambda = (1 / r) * 1 / (1 + Math.exp(Math.pow(props.tdm_accesstime, -alpha) / r));
+        //     console.log("001=" + lambda);
+        //     console.log("000=" + props.tdm_lambda);
+        //     console.log("lambda_max=" + lambda_max)
+        //     console.log("lambda_min=" + lambda_min)
+        //     console.log("clrA=" + props.clrA)
+        // }
+        //props.alpha = 1 - (lambda - lambda_min) / (lambda_max - lambda_min);
+        // console.log(props.alpha) // if lambda_max = lambda_min, no apha value
+        //props.clrA = computeClrA(props.color, props.alpha);
+        //
+        threshold = 0
+        r = 0.005
+        alpha = 1.5
+        props.cfh_lambdamatrix = props.cfh_matrix.slice()
+        props.cfh_lambdamatrix.forEach((element, index) => {
+            lambda = (1 / r) * 1 / (1 + Math.exp(Math.pow(element, -alpha) / r));
+            if(lambda < threshold)
+                lambda = threshold
+            props.cfh_lambdamatrix[index] = lambda
+        });
+        if(i==0)
+            console.log(props.clrA);
+        if(cfhMatrix == 2) // label
             matrix = props.cfh_labelmatrix;
-        else
+        else if (cfhMatrix == 1) // cost
             matrix = props.cfh_matrix;
+        else // density
+            matrix = props.cfh_lambdamatrix;
 
         if(matrix.length >= featureStr.length)
         { 
@@ -1078,7 +1107,7 @@ function createPOInodes()
         gjFeature = JSON.parse(JSON.stringify(TgjFeature));
         gjFeature.geometry.type = "Point";
         gjFeature.geometry.coordinates = nodes_geo[indexPOIs[i]];
-        gjFeature.properties = {'title': 'H'+ (i+1).toString(),'color': clrPOIs[i]};
+        gjFeature.properties = {'title': "",'color': clrPOIs[i]};//'H'+ (i+1).toString()
         gjFeatureC_POIs.features.push(gjFeature);
         //console.log(JSON.stringify(gjFeatureC_POIs));
 
@@ -1229,17 +1258,20 @@ function activeHoverTexture()
     //console.log(JSON.stringify(props))
     //if(props != null)
     {
+        //console.log(props)
         dColor_alpha.textContent = parseFloat(props.alpha.toFixed(6));
-        dtdm_color.textContent = props.color;
-        dtdm_color_sample.style.backgroundColor = props.color;
+        dtdm_color.textContent = props.clrA;//props.color;
+        dtdm_color_sample.style.backgroundColor = props.clrA;//props.color;
         dtdm_lambda.textContent = parseFloat(props.tdm_lambda.toFixed(6));
         daccess_time.textContent = parseFloat(props.tdm_accesstime.toFixed(6));
         dift_cost.textContent = parseFloat(props.ift_cost.toFixed(6));
         dtdm_cost.textContent = parseFloat(props.tdm_cost.toFixed(6));
         dheight.textContent = parseFloat(props.height.toFixed(6));
         dbinaryStr.textContent = chunkString(props.cfh_bstr, 10);
-        if(isLabelMatrix)
+        if(cfhMatrix == 2)
             dcfh_matrix.textContent = props.cfh_labelmatrix.toString().split(',').join(',\n');
+        else if(cfhMatrix == 3)
+            dcfh_matrix.textContent = props.cfh_lambdamatrix.toString().split(',').join(',\n');
         else
             dcfh_matrix.textContent = props.cfh_matrix.toString().split(',').join(',\n');
         
@@ -1323,7 +1355,8 @@ function networkmappingChange()
                     {
                         if(!((edge[i][0] == edge[i+1][0]) && (edge[i][1] == edge[i+1][1])))
                         {
-                            CoorStr = TaperedLine2(edge[i], edge[i+1], 8, k);//3*(i)/n_points, 3*(i+1)/n_points);//widths[i], widths[i+1]);
+                            // road width = 8
+                            CoorStr = TaperedLine2(edge[i], edge[i+1], 12, k);//3*(i)/n_points, 3*(i+1)/n_points);//widths[i], widths[i+1]);
                             if(draw_opt)
                             {
                                 //console.log(edge.length);
@@ -1401,12 +1434,13 @@ function TaperedLine2(data1,data2,widthscale,tk){
     //console.log(x_index + y_index * ncols);
     //console.log(props.cfh_matrix[tk_index])
     props = rawdata.features[x_index + y_index * ncols].properties;
-    width1 = widthscale * (1 - (props.cfh_matrix[tk_index] - lambda_min) / (lambda_max - lambda_min)); // (props.tdm_lambda
+    //cfh_matrix=>cfh_lambdamatrix
+    width1 = widthscale * (1 - (props.cfh_lambdamatrix[tk_index] - lambda_min) / (lambda_max - lambda_min)); // (props.tdm_lambda
     x_index = Math.floor((data2[0] - lon_min)/lon_step);
     y_index = Math.floor((data2[1] - lat_min)/lat_step);
     //console.log(x_index + y_index * ncols);
     props = rawdata.features[x_index + y_index * ncols].properties;
-    width2 = widthscale * (1 - (props.cfh_matrix[tk_index] - lambda_min) / (lambda_max - lambda_min)); // (props.tdm_lambda
+    width2 = widthscale * (1 - (props.cfh_lambdamatrix[tk_index] - lambda_min) / (lambda_max - lambda_min)); // (props.tdm_lambda
     poly = [];
     poly.push(data1);
     poly.push(data2);
@@ -1538,7 +1572,7 @@ function filterBy(month) {
     lambda_min = rawdata.features[i].properties.tdm_lambda_min;
     lambda_max = rawdata.features[i].properties.tdm_lambda_max;
 
-    if(isLabelMatrix)
+    if(cfhMatrix == 2) // label
     {
         dcfh_value_min.textContent = 0;
         dcfh_value_max.textContent =  rawdata.features[i].properties.indexPOIs.length - 1;
@@ -1554,7 +1588,7 @@ function filterBy(month) {
         //console.log("abc")
         props = rawdata.features[i].properties;
         props.color = clrPOIs[props.cfh_labelmatrix[index]];
-        props.tdm_lambda = props.cfh_matrix[index];
+        props.tdm_lambda = props.cfh_lambdamatrix[index];//props.cfh_matrix[index];
         props.alpha = 1 - (props.tdm_lambda - lambda_min) / (lambda_max - lambda_min);
         props.clrA = computeClrA(props.color, props.alpha);
     }
@@ -1833,21 +1867,21 @@ function refreshDataSourceTypeFun()
     {
         layerId = "outdoors-v11"
     }
-    else if(document.getElementById("rd_terrain").checked)
-    {
-        layerId = "terrain"
-    }
+    // else if(document.getElementById("rd_terrain").checked)
+    // {
+    //     layerId = "terrain"
+    // }
     else
     {
         layerId = "light"
     }
     console.log(layerId);
-    if(layerId == "terrain")
-    {
-        map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
-        //loadBasicLayger();
-    }
-    else
+    // if(layerId == "terrain")
+    // {
+    //     map.setStyle('mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y');
+    //     //loadBasicLayger();
+    // }
+    // else
         map.setStyle('mapbox://styles/mapbox/' + layerId); 
     a = false;
     b = false;
@@ -1855,17 +1889,21 @@ function refreshDataSourceTypeFun()
 
 function refreshCfhSourceTypeFun()
 {
-    if(document.getElementById("rd_densitymap").checked)
+    if(document.getElementById("rd_costmap").checked)
     {
-        isLabelMatrix = false;
+        cfhMatrix = 1;
+    }
+    else if(document.getElementById("rd_densitymap").checked)
+    {
+        cfhMatrix = 3;
     }
     else if(document.getElementById("rd_labelmap").checked)
     {
-        isLabelMatrix = true;
+        cfhMatrix = 2;
     }
     else
     {
-        isLabelMatrix = false;
+        cfhMatrix = 3;
     }
     updateData();
 }
@@ -1969,8 +2007,7 @@ async function pasteCameraPosition()
             cameraPos.zoom = tmp_cameraPos.zoom;
             cameraPos.bearing = tmp_cameraPos.bearing;
             cameraPos.pitch = tmp_cameraPos.pitch;
-            updateCameraPosition(); 
-            
+            updateCameraPosition();
             // map.setCenter(cameraPos.center);
             // map.setZoom(cameraPos.zoom);
             // map.setBearing(cameraPos.bearing);
@@ -2015,8 +2052,9 @@ document.getElementById("rd_satellite").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_dark").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_streets").onclick = refreshDataSourceTypeFun;
 document.getElementById("rd_outdoors").onclick = refreshDataSourceTypeFun;
-document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
+//document.getElementById("rd_terrain").onclick = refreshDataSourceTypeFun;
 
+document.getElementById("rd_costmap").onclick = refreshCfhSourceTypeFun;
 document.getElementById("rd_densitymap").onclick = refreshCfhSourceTypeFun;
 document.getElementById("rd_labelmap").onclick = refreshCfhSourceTypeFun;
 document.getElementById("rd_change").onclick = refreshCfhMetricTypeFun;
