@@ -1031,7 +1031,7 @@ function computeTTDM()
             //console.log( binaryStr.split(featureStr).length - 1)
             props.cfh_bstr = binaryStr;
             if(!heightcfh)
-                props.height = 10 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
+                props.height = 100 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
             else
                 props.height = (binaryStr.split(featureStr).length - 1);
         }
