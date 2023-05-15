@@ -217,6 +217,8 @@
                 <input class="largerCheckbox" type="checkbox" id="taperedEnabled" checked><label for="taperedEnabled">Network color mapping</label><br>
                 <input class="largerCheckbox" type="checkbox" id="colormapping" checked><label for="colormapping">Density color mapping</label><br>
                 <input class="largerCheckbox" type="checkbox" id="heightmapping" checked><label for="heightmapping">Height mapping</label><br>
+                <label id="scaleK"></label>
+                <input id="scaleKslider" type="range" min="10" max="100" step="10" value="10"></input>
                 <input class="largerCheckbox" type="checkbox" id="heightcfh" unchecked><label for="heightcfh">Height CFH</label><br>
                 <label id="alpha"></label>
                 <input id="alphaslider" type="range" min="0" max="100" step="1" value="100"></input>
@@ -400,7 +402,7 @@ let gjFeatureC_Array_Nodes = [];
 let gjFeatureC_Nodes = {};
 let gjFeatureC_Array_POIs = [];
 let gjFeatureC_POIs = {};
-
+let scaleK = document.getElementById('scaleKslider').value
 
 function ComputeCFH(Matrix, featureStr, Threshold)
 {
@@ -924,6 +926,7 @@ function updateData()
 
     document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
     document.getElementById('month').textContent = "time:" + document.getElementById('slider').value + "/" + timesteps;
+    document.getElementById('scaleK').textContent = "ScaleK:" + document.getElementById('scaleKslider').value;
     document.getElementById('alpha').textContent = "Alpha:" + document.getElementById('alphaslider').value + "%";
 
     createNodes();
@@ -1031,7 +1034,7 @@ function computeTTDM()
             //console.log( binaryStr.split(featureStr).length - 1)
             props.cfh_bstr = binaryStr;
             if(!heightcfh)
-                props.height = 100 * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
+                props.height = scaleK * (binaryStr.split(featureStr).length - 1) / (1 + props.tdm_cost);
             else
                 props.height = (binaryStr.split(featureStr).length - 1);
         }
@@ -1753,6 +1756,15 @@ document.getElementById('delaySlider').addEventListener('input', (e) => {
     document.getElementById('delaytime').textContent = "delay: " + g_playwait + " seconds";
 });
 
+document.getElementById('scaleKslider').addEventListener('input', (e) => {
+    if(scaleK != e.target.value)
+    {
+        scaleK = e.target.value;
+        document.getElementById('scaleK').textContent = "ScaleK:" + document.getElementById('scaleKslider').value;
+        computeTTDM()
+    }
+});
+
 
 function heightcfhChanged(){
     computeTTDM()
@@ -2141,7 +2153,7 @@ xAxis: {
             color: 'black'
         },
         formatter: function() {
-          return this.value.split('.')[0] + "/" + this.value.split('.')[1];//Highcharts.dateFormat('%d', this.value);
+          //return this.value.split('.')[0] + "/" + this.value.split('.')[1];//Highcharts.dateFormat('%d', this.value);
         }
     },
     accessibility: {
